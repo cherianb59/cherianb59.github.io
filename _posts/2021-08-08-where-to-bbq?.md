@@ -1,0 +1,18 @@
+##Where to BBQ?
+
+In 2021 I wanted to be part of a GovHack team. I was inspired by [Simon Victory's](https://github.com/svict4) presentation and it sounded like a fun way to meet like minded people interested in data and how to make it useful. Unfortunately the ACT went into lockdown a few weeks before the 2021 competition so it wasn't possible to meet in person and I decided to tackle a Govhack challenge by myself. 
+
+After looking over abundance of datasets available and matching them against the GovHack challenges, I decided to integrate ACT government data assets on public amenities such as BBQs, toilets, bubblers and playgrounds. The ACT government has datasets on the location and types of different amenities on their public data portal e.g. [BBQ Assetts](https://actmapi-actgov.opendata.arcgis.com/maps/ebacf8662f0d4eb8bb1097367fa05161/about) they even have [maps](https://actmapi-actgov.opendata.arcgis.com/datasets/649283215aea415bb115c9e4e730e125/explore?location=-35.509726%2C149.061483%2C10.45) which chart the different locations of particular amenities. Unfortunately the maps only show one type of amenity, this means there are different maps for BBQs, toilets, dog parks and you can't see which BBQs have toilets near them or which parks have bubblers etc.
+
+I wanted to integrate all these maps together, however putting all the amenities on one map would be too messy. I decided to  focus on one type of amenity. There are already apps for public toilets so I went with the next most useful amenity BBQs. My idea was to create a map of BBQs and then add filters for the type of BBQ (gas, electric or wood) and if it had toilets, bubblers or a playground near by, the end result would be a map of BBQ locations over the ACT that met your needs.
+
+It was a two stage process to build the tool, first was collecting and integrating all the ACT location data together. The second stage was actually presenting it in a visually pleasing manner. Collecting the data was simple, the ACT government provides a very easy to use API and clean data of all the amenities. There are a lot of BBQs which are clustered, instead of displaying these individually it made sense to group them together. I didn't want to go through the bother of hand crafting groupings so  I used a Density-based spatial clustering of applications with noise (DBSCAN) to find groups of BBQs, all I had to do was manually tweak two parameters, the distance between nodes and number of nodes in a cluster to get good groupings of BBQs. With groups of BBQs now worked out I had to figure out which had amenities close to them, this meant doing a cross join of all amenities with all BBQs and then figuring out if they were within the 100m distance threshold. As all the BBQs and the amenities were within the ACT, there wasn't too much data and hence a cross join was feasible, however I don't know how I would go about making this more efficient if I wanted to extend this to a bigger region e.g. all of Australia. 
+
+With the data sufficiently wrangled I could move onto step two, map making. This is the first time I've made an interactive map and there are a plethora of options, I'm familiar with Python and I found the Bokeh visualisation framework was simple to use in Python and easy to export to a web page. After a bit of tinkering around I was able to add custom filtering widgets, and thus was born my GovHack submission.
+
+Behold [Where to BBQ!](https://cherianb59.github.io/w2bbq/)
+
+Not the best looking site, but I'm happy with what I acheived in 2 days.
+
+I received an [honorable mention](https://govhack.org/2021-winners/) 
+and you can see the other projects [here](https://2021.hackerspace.govhack.org/projects)
