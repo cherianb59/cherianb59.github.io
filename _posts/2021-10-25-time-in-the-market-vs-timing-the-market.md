@@ -105,7 +105,7 @@ var svg = d3.select("#my_dataviz_svg")
 
 // get the data, api only returns business days
 function update_symbol(nSymbol){
-  d3.csv("https://api.dsssmble.cyou/acc?symbol="+nSymbol, function(data) {
+  d3.csv("http://api.dsssmble.top/acc?symbol="+nSymbol, function(data) {
     var start_date = data[0]['date'] ;
 
     var max_weeks = Math.floor(data.length/5) ; 
