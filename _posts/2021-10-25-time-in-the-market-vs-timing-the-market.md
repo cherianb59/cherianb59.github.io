@@ -1,6 +1,6 @@
 ## Time in the Market vs Timing the Market
 
-Trying to time the perfect moment to buy and sell assets is difficult, most fund managers investing in a particular asset class don't achieve the index of that class.  The academic advice is to invest in a low fee fund that replicates the index, but it isn't risk free, indexes can fall. Assume you went back in time, bought an asset and then after a fixed period e.g. 1 day, 1 week, 1 year you sold it. Depending on what day you went back to you would have a different return. 
+Timing the perfect moment to buy and sell assets is difficult, most fund managers investing in a specific asset class spend all their time styduying and anlysing it, but they don't even beat the index of that class and they charge high fees. The academic advice is to invest in a low fee fund that replicates the index, but this isn't risk free, indexes can fall. Suppose  you went back in time, bought an asset and then after a fixed period e.g. 1 day, 1 week, 1 year you sold it. Depending on the  day you went back you would have a different return. 
 
 This visualisation shows how changing the amount of time holding an asset changes the distribution of your returns.
 Play around with the slider and the different indexes, I've found holding assets for less time increases your the variability of the return and the expected return.
