@@ -35,8 +35,6 @@ Play around with the slider and the different indexes, I've found holding assets
     
     </div>
 
-    <div id="my_dataviz_svg">
-        </div>
     <div id="statistics">
         <div id="dates">        </div>
         <div id="neg_return">        </div>
@@ -44,6 +42,8 @@ Play around with the slider and the different indexes, I've found holding assets
         <div id="stddev">        </div>
         <div id="delay">        </div>
     </div>
+    <div id="my_dataviz_svg">
+        </div>
 
 </div>
 
@@ -96,7 +96,7 @@ var margin = {top: 30, right: 30, bottom: 30, left: 30},
 var svg = d3.select("#my_dataviz_svg")
   .append("svg")
         .attr("preserveAspectRatio", "xMinYMin meet")
-   .attr("viewBox", "0 0 600 400")
+   .attr("viewBox", "0 0 800 400")
    //class to make it responsive
    .classed("svg-content-responsive", true)
    .append("g")
