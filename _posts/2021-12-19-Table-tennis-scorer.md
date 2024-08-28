@@ -1,4 +1,5 @@
-## TT Scorer
+## Table Tennis Scorer
+
 My housemate bought a table tennis table and we started to play  in between rounds of losing DoTA.
 After having played several tens of games I wanted a scoreboard. Something that showed the current score, points and sets, which side you are meant to be on and also who is serving. A phone app could do this, but there was nothing available, and I didn't know how to make one. 
  
@@ -10,7 +11,7 @@ That is until I found a github project (https://github.com/gcassarino/BigFont) w
 ![](/img/BigFontGlyphs.jpg)
 
 And how they are put together to make the larger digits like this.
- ![](/img/4x4-font.jpg)
+![](/img/4x4-font.jpg)
 
 Each number now was 4 x 4 tiles and I needed up to 4 digits to show the score. THis meant 16 of the columns were used just for showing the score. I had 4 columns to play around with and I used one of them separate the scores and the 3 remaining columns could who was serving and which side you were meant to be on. 
 
