@@ -1,9 +1,11 @@
 ## Time in the Market vs Timing the Market
 
-Timing the perfect moment to buy and sell assets is difficult, most fund managers investing in a specific asset class spend all their time styduying and anlysing it, but they don't even beat the index of that class and they charge high fees. The academic advice is to invest in a low fee fund that replicates the index, but this isn't risk free, indexes can fall. Suppose  you went back in time, bought an asset and then after a fixed period e.g. 1 day, 1 week, 1 year you sold it. Depending on the  day you went back you would have a different return. 
+Timing the perfect moment to buy and sell assets is difficult, fund managers spend all their time anlysing a specific asset class, but most of the time they can't even beat the index of that class and they charge high fees. The academic advice is to invest in a low fee fund that replicates the index, but this isn't risk free, indexes can fall. But what is better? Should you try and time the market by buying and selling at the right time, or just buy an asset and hold it for a long time.
+
+The below visulaisation shows how the return and variability changes over how long you hold an asset for different assets. It works like this. suppose you went back in time, bought an asset and then after a fixed period e.g. 1 day, 1 week, 1 year you sold it. Depending on the day you went back you would have a different return. 
 
 This visualisation shows how changing the amount of time holding an asset changes the distribution of your returns.
-Play around with the slider and the different indexes, I've found holding assets for less time increases your the variability of the return and the expected return.
+Play around with the slider and the different indexes, holding assets for less time increases the variability of the return and lowers the average return.
 
 <script src="https://d3js.org/d3.v4.js"></script>
 
@@ -13,14 +15,14 @@ Play around with the slider and the different indexes, I've found holding assets
         <label for="symbol">What are you investing in?</label>
         <select name="symbol" id="symbol">
           <option value="NDQ.AX">Betashares NASDAQ 100 ETF (NDQ)(AUD)</option>
-                  <option value="IVV.AX">iShares S&amp;P 500 ETF (IVV) (AUD)</option>
-                  <option value="IOO.AX">iShares International 100 (IOO) (AUD)</option>
-                  <option value="VAS.AX">Vanguard Australian Shares (VAS) (AUD)</option>
-                  <option value="VGS.AX">Vanguard MSCI Index International Shares ETF (VGS) (AUD)</option>                
+          <option value="IVV.AX">iShares S&amp;P 500 ETF (IVV) (AUD)</option>
+          <option value="IOO.AX">iShares International 100 (IOO) (AUD)</option>
+          <option value="VAS.AX">Vanguard Australian Shares (VAS) (AUD)</option>
+          <option value="VGS.AX">Vanguard MSCI Index International Shares ETF (VGS) (AUD)</option>                
           <option value="STW.AX">State Street ASX 200 ETF (STW) (AUD)</option>
           <option value="SPY.AX">Betashares S&amp;P 500 (SPY) (AUD)</option>
           <option value="QQQ">NASDAQ ETF (QQQ) (USD) </option>
-                  <option value="SPY">NYSE ETF (SPY)(USD) </option>
+          <option value="SPY">NYSE ETF (SPY)(USD) </option>
           <option value="CL=F">Oil (USD) </option>
           <option value="GC=F">Gold (USD) </option>
           <option value="AUDUSD=X"> US Dollars (AUD) </option>
@@ -244,9 +246,8 @@ function update_symbol(nSymbol){
 </script>
 
 
-
-
-
+Caveats 
+  
 - Data comes from Yahoo Finance(YF) which does not correctly report dividends.
 - Returns are based on close prices and assumes dividends are immediately reinvested. 
 - The average return and variation is the geometric mean and standard deviation of the returns.

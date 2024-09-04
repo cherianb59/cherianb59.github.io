@@ -1,1 +1,1 @@
-I sometimes make small software projects based on whatever takes my fancy
+I like throwing discs 🥏 and programming, and I'm all out of discs
