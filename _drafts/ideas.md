@@ -3,9 +3,11 @@
  Keeloq
 
 	algorithm in laymans terms
-	breaking in laymans terms
-	asm
+	power analysis in laymans terms
+	key derivation scheme
+    asm
 	opencl    
- 
+    bitslicing 
+    
  frisbee scoring, possesions etc .
  
