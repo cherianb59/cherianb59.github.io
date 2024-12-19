@@ -60,6 +60,20 @@ $$
 \cos\left(A\right)=\frac{b^2+c^2-a^2}{2\cdot b\cdot c}
 $$
 
+```latex
+\(\cos\left(A\right)=\frac{b^2+c^2-a^2}{2\cdot b\cdot c}\) 
+```
+
+```mathjax
+\(\cos\left(A\right)=\frac{b^2+c^2-a^2}{2\cdot b\cdot c}\) 
+```
+
+\(\cos\left(A\right)=\frac{b^2+c^2-a^2}{2\cdot b\cdot c}\) 
+
+```
+\(\cos\left(A\right)=\frac{b^2+c^2-a^2}{2\cdot b\cdot c}\) 
+```
+
 And here is the decryption .
 
 Every round one bit of the key is used, only the MSB changes every round during encryption.
