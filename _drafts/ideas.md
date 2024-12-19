@@ -1,13 +1,13 @@
  BoM
+ 1. Canberra vs Gosford 
+ 2. Cloud effect 
  
  Keeloq
 
-	algorithm in laymans terms
-	power analysis in laymans terms
-	key derivation scheme
-    asm
-	opencl    
-    bitslicing 
+	1. algorithm in laymans terms
+	2. power analysis in laymans terms and breaking it 
+	3. key derivation scheme
+    4. Optimisations: asm, opencl, bitslicing,  
     
- frisbee scoring, possesions etc .
+ frisbee scoring, possesions etc , binaryness .
  
