@@ -33,14 +33,7 @@ The garage door opener receives these and decrypts the encrypted portion. It com
 
 The transmitted DISC (the 10 least significant bits of the serial number) is compared to the unencrypted section (which contains the whole serial number) to ensure the transmission and decryption worked.  
 
-
-
 ### Keeloq Cipher
-
-$$
-\cos\left(A\right)=\frac{b^2+c^2-a^2}{2\cdot b\cdot c}
-$$
-
 
 Keeloq takes a 32 bit plaintext and a 64 bit key and uses a Non Linear Feedback Shift Register to produce a 32 bit ciphertext. 
 
@@ -53,23 +46,25 @@ The Non Linear Function (NLF) takes five bits from the plaintext (bits 21, 26, 2
 It is defined as 
 
 $$
-NLF(x_{4},x_{3},x_{2},x_{1},x_{0}) =  x_{4}x_{3}x_{2} \oplus x_{4}x_{3}x_{1} \oplus x_{4}x_{2}x_{0} \oplus x_{4}x_{1}x_{0} \oplus x_{4}x_{2} \oplus x_{4}x_{0} \oplus x_{3}x_{2} \oplus x_{3}x_{0} \oplus x_{2}x_{1} \oplus x_{1}x_{0} \oplus x_{1} \oplus x_{0} 
+NLF(x_{4},x_{3},x_{2},x_{1},x_{0}) =  x_{4}x_{3}x_{2} \oplus x_{4}x_{3}x_{1} \oplus x_{4}x_{2}x_{0} \oplus x_{4}x_{1}x_{0}
+\oplus x_{4}x_{2} \oplus x_{4}x_{0} \oplus x_{3}x_{2} \oplus x_{3}x_{0} \oplus x_{2}x_{1} \oplus x_{1}x_{0}
+\oplus x_{1} \oplus x_{0} 
 $$
 
-However for speeding up calculation it can be represented as 0x3A5C742E or 00111010010111000111010000101110 in binary.
+However in academic literature and in code it was described as 0x3A5C742E or 00111010 01011100 01110100 00101110 in binary.
 
 This confused my for a long time but I realized it is a look up table. If the five inputs are 1,0,1,0,0 then read this as 10100 (20 in decimal) and lookup the 20th bit in 0x3A5C742E, that is the output of the NLF.
-This saves time as the computation has to be done 32 times, then it can be stored on the chip in 4 bytes and merely has to be looked up when encrypting or decrypting. This saves ~ 30 operations every round.
+This saves time as the NLF has to computed only 32 times, then it can be stored on the chip in 4 bytes and merely has to be looked up when encrypting or decrypting. This saves ~ 30 operations every round.
 
-In academic literature it is described like this 
+In academic literature Keeloq encryption is described like this 
 
 Let  $$ Y^{(i)} = \left ( y_{31}^{(i)}, \ldots, y_{0}^{(i)} \right) \in \{0,1\}^{32} $$ be the input for round i and $$ K = \left ( k_{63}, \ldots, k_{0} \right) \in \{0,1\}^{64} $$  be the key.
 THe input to round 0 is the plaintext $$ P = Y^{(0)} $$ and the ciphertext is the output after 528 rounds $$ C = Y^{(528)} $$ 
 
-Each round the new bit is  
+Each round the new most significant bit is  
 
 $$ \varphi^{(i)} = \text{NLF} \left( y_{31}^{(i)}, y_{26}^{(i)}, y_{20}^{(i)}, y_{9}^{(i)}, y_{1}^{(i)} \right) 
-\oplus y_{16}^{(i)} \oplus y_{0}^{(i)} \oplus k_i \mod 64 \, , $$
+\oplus y_{16}^{(i)} \oplus y_{0}^{(i)} \oplus k_i \mod 64 $$
 
 hence 
 

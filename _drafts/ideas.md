@@ -7,7 +7,8 @@
 	1. algorithm in laymans terms
 	2. power analysis in laymans terms and breaking it 
 	3. key derivation scheme
-    4. Optimisations: asm, opencl, bitslicing,  
+    4. Optimisations: GPGPU opencl and CUDA, bitslicing, python ctypes, COPACABANA
+    5. ASM 
     
  frisbee scoring, possesions etc , binaryness .
  
