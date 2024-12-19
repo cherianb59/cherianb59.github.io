@@ -12,7 +12,7 @@ The first remote control garage door openers transmitted the same code to the re
 Keeloq stops this replay attack by sending a counter in the transmission, and encrypting the transmission. The receiver decrypts the transmission and then checks the counter. If the counter is less than what the reciver has stored, it won't open the door. If the counter is larger than what it has stored then the door will open and it will store the counter value the transmitter sent. 
 If an attacker tries to replay a code it won't work. The replayed code has a counter value that will be rejected by the garage door reciever. They also can't create a code with a higher counter value as they don't have the encryption key.
 
-In 2007 Andrey Bogdanov published the first Cryptanalysis of the keeloq cipher. There were weaknesses but they couldnt be exploited within the garage door framework. Further mathematical analysis reduced the requirements to break the encryption, but as they always required known plaintext and ciphertext pairs, and garage door fobs only transmit the cipher text( plaintext is not known) these attacks were useless. 
+In 2007 Andrey Bogdanov published the first Cryptanalysis of the keeloq cipher. There were weaknesses but they couldn't be used to exploit garage doors. Further mathematical analysis reduced the requirements to break the encryption, but they always required known plaintext and ciphertext pairs, but garage door fobs only transmit the ciphertext(plaintext is not known) hence these attacks were useless. 
 
 In 2008 Timo Kasper and Tomas Eisenbarth published a paper on using power analysis to get teh encryption key. By measuring the amount of power used by the keyfob when it was encrypting they could deduce the key used in encryption. 
 
@@ -27,9 +27,7 @@ It XORs
 
 This is the C implementation. 
 
-{% raw %}
-```liquid
-{% highlight python %}
+```python
 #define KeeLoq_NLF		0x3A5C742E
 #define bit(x,n)		(((x)>>(n))&1)
 #define g5(x,a,b,c,d,e)	(bit(x,a)+bit(x,b)*2+bit(x,c)*4+bit(x,d)*8+bit(x,e)*16)
@@ -56,9 +54,7 @@ uint32_t	KeeLoq_Decrypt (const uint32_t data, const uint64_t key)
 	return x;
 }
 
-{% endhighlight %}
 ```
-{% endraw %}
 
 
 And here is the decryption .
