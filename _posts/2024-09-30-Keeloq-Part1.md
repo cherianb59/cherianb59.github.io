@@ -32,7 +32,7 @@ This is the C implementation.
 #define bit(x,n)		(((x)>>(n))&1)
 #define g5(x,a,b,c,d,e)	(bit(x,a)+bit(x,b)*2+bit(x,c)*4+bit(x,d)*8+bit(x,e)*16)
 
-uint32_t	KeeLoq_Encrypt (const uint32_t data, const uint64_t key)
+uint32_t KeeLoq_Encrypt (const uint32_t data, const uint64_t key)
 {
 	uint32_t	x = data, r;
 
@@ -43,7 +43,7 @@ uint32_t	KeeLoq_Encrypt (const uint32_t data, const uint64_t key)
 	return x;
 }
 
-uint32_t	KeeLoq_Decrypt (const uint32_t data, const uint64_t key)
+uint32_t KeeLoq_Decrypt (const uint32_t data, const uint64_t key)
 {
 	uint32_t	x = data, r;
 
@@ -56,6 +56,9 @@ uint32_t	KeeLoq_Decrypt (const uint32_t data, const uint64_t key)
 
 ```
 
+$$
+\cos\left(A\right)=\frac{b^2+c^2-a^2}{2\cdot b\cdot c}
+$$
 
 And here is the decryption .
 
