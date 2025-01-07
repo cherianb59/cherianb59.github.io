@@ -1,6 +1,7 @@
  BoM
  1. Canberra vs Gosford 
  2. Cloud effect 
+
  
  Keeloq
 
@@ -10,5 +11,6 @@
     4. Optimisations: GPGPU opencl and CUDA, bitslicing, python ctypes, COPACABANA
     5. ASM 
     
- frisbee scoring, possesions etc , binaryness .
+ frisbee 
+   scoring, possesions etc , binaryness .
  
