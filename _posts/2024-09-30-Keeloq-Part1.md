@@ -61,12 +61,12 @@ This saves time as the NLF has to computed only 32 times, it can be stored on th
 In academic literature Keeloq encryption is described like this 
 
 Let  $$ Y^{(i)} = \left ( y_{31}^{(i)}, \ldots, y_{0}^{(i)} \right) \in \{0,1\}^{32} $$ be the input for round i and $$ K = \left ( k_{63}, \ldots, k_{0} \right) \in \{0,1\}^{64} $$  be the key.
-THe input to round 0 is the plaintext $$ P = Y^{(0)} $$ and the ciphertext is the output after 528 rounds $$ C = Y^{(528)} $$ 
+The input to round 0 is the plaintext $$ P = Y^{(0)} $$ and the ciphertext is the output after 528 rounds $$ C = Y^{(528)} $$ 
 
 Each round the new most significant bit is  
 
 $$ \varphi^{(i)} = \text{NLF} \left( y_{31}^{(i)}, y_{26}^{(i)}, y_{20}^{(i)}, y_{9}^{(i)}, y_{1}^{(i)} \right) 
-\oplus y_{16}^{(i)} \oplus y_{0}^{(i)} \oplus k_i \mod 64 $$
+\oplus y_{16}^{(i)} \oplus y_{0}^{(i)} \oplus k_{i \mod 64} $$
 
 hence 
 
