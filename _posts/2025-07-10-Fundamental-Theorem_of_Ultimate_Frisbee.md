@@ -6,21 +6,15 @@ More specifically
 
 If team A starts on offence, then at the start of every point 
 
-$$
-A_{points} + A_{turnovers} - I(A_{receiving\ pull}) = B_{points} + B_{turnovers} - I(B_{won\ half})
-$$
+$$A_{points} + A_{turnovers} - I(A_{receiving\ pull}) = B_{points} + B_{turnovers} - I(B_{won\ half})$$
 
-A points + A turnovers - I(A receiving pull)  = B points + B turnovers - I(B won half)
 
-Where I(⋅) is an indicator function that equals 1 if the condition is true, and 0 otherwise.
+Where $$I(⋅)$$ is an indicator function that equals 1 if the condition is true, and 0 otherwise.
 
 This can be rearranged as 
 
-(A points - B points) = (B turnovers - A turnovers) + I(A receiving pull) - I(B won half)
 
-$$
-(A_{points} -  B_{points})  =  (B_{turnovers} - A_{turnovers}) + I(A_{receiving\ pull}) - I(B_{won\ half})
-$$
+$$(A_{points} -  B_{points})  =  (B_{turnovers} - A_{turnovers}) + I(A_{receiving\ pull}) - I(B_{won\ half})$$
 
 NB: The last two terms can only be 1 or 0 and hence the last two terms can only sum to 1 or 0.
 
