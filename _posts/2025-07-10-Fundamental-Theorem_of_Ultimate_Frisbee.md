@@ -36,4 +36,4 @@ The bottom line is that if you want to win a game, you need to 1. not turn the d
 
 This doesn't mean that hucks and other high risk throws are bad, a 60% huck to the endzone is better than making scoring via 10 throws that have a 5% chance of turning over.
 
-Want to know how the likelihood of turning the disc over affects your chances of winning? Take a look at this ![ultimate simulator](https://cherianb59.github.io/static/ultisim.html).
+Want to know how the likelihood of turning the disc over affects your chances of winning? Take a look at this [ultimate simulator](https://cherianb59.github.io/static/ultisim.html).
