@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Load jquery.js -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+  <!-- Load bootstrap.css -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Load bootstrap.js -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- Load chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Load d3.js -->
+  <script src="https://d3js.org/d3.v6.js"></script>
+  
+  <style>
+    .hidden { display: none ;}
+
+    .loader {
+  border: 16px solid #f3f3f3; /* Light grey */
+  border-top: 16px solid #3498db; /* Blue */
+  border-radius: 50%;
+  width: 120px;
+  height: 120px;
+  animation: spin 2s linear infinite;
+  }
+
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+
+  </style>
+  <title>Ultimate Simulation</title>
+</head>
+
+<body>
+  <nav class="navbar navbar-expand-sm fixed-top bg-dark">
+    <div class="container-fluid">
+      <ul class="navbar-nav">
+        <li class="nav-item"><a href="#about" class="nav-link">About</a></li>
+        <li class="nav-item"><a href="#estimate" class="nav-link">Turnover Estimation</a></li>
+        <li class="nav-item"><a href="#turnover" class="nav-link">Turnover Analysis</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <div class="jumbotron text-left">
+
+    <div id="about" class="container-fluid">
+      <div class="row">
+        <div class="col-sm-12">
+          <h2>About</h2><br>
+          <h3>This page simulates games of ultimate</h3><br>
+		  
+		  Use it to see how the likelihood of turning the disc over affects your winning chances. 
+		  
+		  The simulation shows the distribution of scores based on your parameters (score to reach, chance of your offence and defence line turning it over)<br><br>
+		  
+          <h4>Assumptions</h4><br>
+		  
+          <p>Team A starts on offence and with their offensive line, team B starts with their defensive line.
+          </p><p> 
+          </p><p> Each team a team has possesion they have a fixed chance of turning it over, if they don't turn it over they score.
+          </p><p> Whenever a team scores they use their defensive line on the next point and the other team uses
+            their offensive line.
+          </p><p> The exception is when half time is reached, on the next point Team B starts on offence with their
+            offensive line and Team A uses their defensive line.
+
+          </p>
+		  <p> The simulation is very simplistic. Turnover likelihood is constant throughout the game, there is no accounting for fatigue, break trains, universe lines, multiple O and D lines, etc. .
+          </p>
+		  
+          <br>
+        </div>
+      </div>
+    </div>
+    <div id="estimate" class="container-fluid">
+      <h3> Turnover Likelihood Estimation </h3><br>
+      
+      <div class="row">
+        <div class="col-sm-12"> 
+          <p>Estimate how likely your team is to turn over the disc, enter the score and turnovers for both teams.</p>
+		  <p>
+		  The simple version only needs the score and number of turnovers for each team, but it will have the same turnover likelihood parameters for offence and defence lines. 
+		  </p>
+		  <p>The full version requires the number of breaks and break chances, it will give you seperate turnover likelihood parameters for offence and defence lines. 
+		  </p>
+		  
+        </div>
+        <br><br>
+      </div>  
+
+      <ul class="nav nav-tabs" role="tablist">
+        <li class="nav-item" role="presentation">
+          <a class="nav-link active" id="simple-tab-0" data-bs-toggle="tab" 
+          href="#simple-tabpanel-0" role="tab" aria-controls="simple-tabpanel-0" aria-selected="true">Simple</a>
+        </li>
+        <li class="nav-item" role="presentation">
+          <a class="nav-link" id="simple-tab-1" data-bs-toggle="tab" 
+          href="#simple-tabpanel-1" role="tab" aria-controls="simple-tabpanel-1" aria-selected="false">Full</a>
+        </li>
+      </ul>
+
+      <div class="tab-content pt-5" id="tab-content">
+        <div class="tab-pane active" id="simple-tabpanel-0" role="tabpanel" aria-labelledby="simple-tab-0">
+          <div class="row" >
+            <div class="col-sm-4"></div>
+            <div class="col-sm-1"> <span class="col-1-paragraph">A team score </span></div>  <input class="col-sm-1" type="text" type="number" id="a_score"> 
+            <div class="col-sm-1"> <span class="col-1-paragraph">B team score </span></div> <input class="col-sm-1" type="text" type="number" id="b_score"> 
+            <div class="col-sm-4"></div>
+          </div>
+          <br>
+          <div class="row" >
+            <div class="col-sm-4"></div>
+            <div class="col-sm-1"> A team turnovers </div> <input class="col-sm-1" type="text" type="number" id="a_turnovers"> 
+            <div class="col-sm-1"> B team turnovers </div> <input class="col-sm-1" type="text" type="number" id="b_turnovers"> 
+            <div class="col-sm-4"></div>
+          </div>
+          <div class="row" >
+            <div class="col-sm-12"> 
+              <br><input type="submit" id="calc_simple_turnover" value="Calculate" class="btn btn-default btn-lg btn-primary"></div>
+          </div>
+
+        </div>
+        <div class="tab-pane" id="simple-tabpanel-1" role="tabpanel" aria-labelledby="simple-tab-1">
+          <br>
+          <div class="row" >
+            <div class="col-sm-4"></div>
+            <div class="col-sm-1"> A team score </div> 
+            <input class="col-sm-1" type="text" type="number" id="a_score_full">
+            <div class="col-sm-1"> B team score </div> 
+            <input class="col-sm-1" type="text" type="number" id="b_score_full">
+            <div class="col-sm-4"></div>
+          </div>
+          <br>
+          <div class="row" >
+            <div class="col-sm-4"></div>
+            <div class="col-sm-1"> A team break chances </div> 
+            <input class="col-sm-1" type="text" type="number" id="a_break_chances">
+            <div class="col-sm-1"> B team break chances </div> 
+            <input class="col-sm-1" type="text" type="number" id="b_break_chances">
+            <div class="col-sm-4"></div>
+          </div>
+          <br>
+          <div class="row" >
+            <div class="col-sm-4"></div>
+            <div class="col-sm-1"> A team breaks </div> 
+            <input type="text" class="col-sm-1" type="number" id="a_breaks">
+            <div class="col-sm-1"> B team breaks </div> 
+            <input type="text" class="col-sm-1" type="number" id="b_breaks">
+            <div class="col-sm-4"></div>
+          </div>
+          <br>
+          <div class="row" >
+            <div class="col-sm-12"> 
+              <br><input type="submit" id="calc_full_alt_turnover" value="Calculate" class="btn btn-default btn-lg btn-primary"></div>
+          </div>
+        </div>
+      </div>
+      
+    </div>
+    <br><br>
+    <div id="turnover" class="container-fluid">
+      <h3> Simulation Parameters </h3><br>
+      <div class="row" data-mdb-range-init>
+        <div class="col-sm-2"><label class="form-label" for="score_max_slider">Maximum Score</label></div>
+        <div class="col-sm-8"><input type="range" class="form-range" min="1" max="15" value="15"
+            id="score_max_slider"> </div>
+        <div class="col-sm-2"><input type="number" id="score_max_slider_value"></div>
+      </div>
+
+      <br>
+
+      <div class="row" data-mdb-range-init>
+        <div class="col-sm-2"><label class="form-label" for="score_half_slider">Half Time Score </label></div>
+        <div class="col-sm-8"><input type="range" class="form-range" min="1" max="15" value="8"
+            id="score_half_slider"> </div>
+        <div class="col-sm-2"><input type="number" id="score_half_slider_value"></div>
+      </div>
+
+      <br>
+
+      <div class="row" data-mdb-range-init>
+        <div class="col-sm-2"><label class="form-label" for="a_o_hold_slider"> Team A Offence Line Turnover
+            Chance </label></div>
+        <div class="col-sm-8"><input type="range" class="form-range" min="0" max="0.99" value="0.1" step="0.01"
+            id="a_o_hold_slider"></div>
+        <div class="col-sm-2"><input type="number" id="a_o_hold_slider_value"></div>
+      </div>
+
+      <br>
+
+      <div class="row" data-mdb-range-init>
+        <div class="col-sm-2"><label class="form-label" for="a_d_hold_slider">Team A Defence Line Turnover
+            Chance</label></div>
+        <div class="col-sm-8"><input type="range" class="form-range" min="0" max="0.99" value="0.15" step="0.01"
+            id="a_d_hold_slider"></div>
+        <div class="col-sm-2"><input type="number" id="a_d_hold_slider_value"></div>
+      </div>
+
+      <br>
+
+      <div class="row" data-mdb-range-init>
+        <div class="col-sm-2"><label class="form-label" for="b_o_hold_slider">Team B Offence Line Turnover
+            Chance</label></div>
+        <div class="col-sm-8"><input type="range" class="form-range" min="0" max="0.99" value="0.1" step="0.01"
+            id="b_o_hold_slider"></div>
+        <div class="col-sm-2"><input type="number" id="b_o_hold_slider_value"></div>
+      </div>
+
+      <br>
+
+      <div class="row" data-mdb-range-init>
+        <div class="col-sm-2"><label class="form-label" for="b_d_hold_slider">Team B Defence Line Turnover
+            Chance</label></div>
+        <div class="col-sm-8"><input type="range" class="form-range" min="0" max="0.99" value="0.15" step="0.01"
+            id="b_d_hold_slider"></div>
+        <div class="col-sm-2"><input type="number" id="b_d_hold_slider_value"></div>
+      </div>
+
+      <br>
+
+      <div class="row" data-mdb-range-init>
+        <div class="col-sm-2"><label class="form-label" for="num_sims_slider">Number of Simulations</label>
+        </div>
+        <div class="col-sm-8"><input type="range" class="form-range" min="0" max="6" value="5" step="1"
+            id="num_sims_slider"></div>
+        <div class="col-sm-2"><input type="number" id="num_sims_slider_value"></div>
+      </div>
+      <input type="submit" id="submit" value="Simulate" class="btn btn-default btn-lg btn-primary">
+        
+      <div class="loader hidden" id = "scoreChartLoader">   </div>
+
+      <div class="hidden" id = "simResultsContainer">
+        <br>Team A win probablility  <div id="wins"></div>
+        <br>Team A offence line scoring probablility  <div id="team_a_offence_point_chance"></div>
+        <br>Team B offence line scoring probablility  <div id="team_b_offence_point_chance"></div>
+        <br>
+        <br><canvas id="scoreChart" width="400" height="200"></canvas>
+        <p>The score format is "Team A , Team B".</p>
+        <br>
+        <div id="d3_heatmap"></div>
+    </div>
+    </div>
+  </div>
+
+
+
+
+  <script>
+
+    var score_max_slider = document.getElementById("score_max_slider");
+    var score_half_slider = document.getElementById("score_half_slider");
+    var a_o_hold_slider = document.getElementById("a_o_hold_slider");
+    var a_d_hold_slider = document.getElementById("a_d_hold_slider");
+    var b_o_hold_slider = document.getElementById("b_o_hold_slider");
+    var b_d_hold_slider = document.getElementById("b_d_hold_slider");
+    var num_sims_slider = document.getElementById("num_sims_slider");
+
+    var init_score_max = document.getElementById("score_max_slider_value").value;
+    var init_score_half = document.getElementById("score_half_slider_value").value;
+
+    const init_assumptions = {
+      0: { 0: a_o_hold_slider.value, 1: a_d_hold_slider.value },
+      1: { 0: b_o_hold_slider.value, 1: b_d_hold_slider.value },
+    };
+
+    var num_sims_slider = document.getElementById("num_sims_slider_value").value;
+
+    function validateScoreTurnover(a_score, b_score, a_turnovers, b_turnovers) {
+      console.log(a_score, b_score, a_turnovers, b_turnovers);
+      score_turnover_diff = (a_score - b_score) - ( b_turnovers - a_turnovers ) ; 
+      return  ( score_turnover_diff => - 1 ) && ( score_turnover_diff <= 1 ) ; 
+    }
+
+    function validateScoreTurnoverFull(a_score, b_score, a_break_chances, b_break_chances, a_breaks, b_breaks) {
+      
+      if ( isNaN(a_score) || isNaN(b_score) || isNaN( a_break_chances) || isNaN( b_break_chances) || isNaN( a_breaks) || isNaN( b_breaks)  ){
+        return false ; 
+      } else if (b_breaks > b_break_chances){
+        return false ;
+      } else if (a_breaks > a_break_chances){
+        return false ;
+      } else {
+        return true ; 
+      }
+    }
+
+    function numberToPercentage(number) {
+      // Ensure the input is a number
+      if (typeof number !== 'number' || isNaN(number)) {
+        throw new Error('Input must be a valid number');
+      }
+
+      // Convert the number to percentage format
+      let percentage = (number * 100).toFixed(2) + '%';
+      return percentage;
+    }
+
+    function generateScoresDictionary(maxScore) {
+      const scores = {};
+      for (let i = 0; i < maxScore; i++) {
+        scores[[maxScore, i]] = 0;
+      }
+      for (let i = maxScore - 1; i >= 0; i--) {
+        scores[[i, maxScore]] = 0;
+      }
+      return scores;
+    }
+
+    function sim(assumptions, score_max = 15, score_half = 8) {
+
+      const state = {
+        score: [0, 0],
+        pullReceive: 0,
+        offence: 0,
+      };
+      var half_not_reached = true;
+      var turnovers = { 0: { 0: 0, 1: 0 }, 1: { 0: 0, 1: 0 } };
+
+      while (Math.max(...state.score) < score_max) {
+
+        // Turnover
+        if (Math.random() < assumptions[state.offence][state.pullReceive ^ state.offence]) {
+          // console.log("Turnover Offence:", state.offence);  // For debugging (uncomment if needed)
+          turnovers[state.offence][state.pullReceive ^ state.offence] += 1;
+          state.offence = 1 - state.offence;
+        } 
+        else {
+          // Score
+          state.score[state.offence] += 1;
+          if (Math.max(...state.score) == score_half && half_not_reached) {
+            state.pullReceive = 1; //at half make second team on offence
+            half_not_reached = false;
+            state.offence = state.pullReceive;
+          }
+          else {
+            state.pullReceive = 1 - state.offence;  //otherwise switch offence
+            state.offence = state.pullReceive;
+          }
+
+          
+          //console.log("Score:", state.score, "Turnovers:", JSON.stringify(turnovers) );  // For debugging (uncomment if needed)
+        }
+      }
+      outputs = { "score": state.score, "turnovers": turnovers, "combined_turnovers": [turnovers[0][0] + turnovers[0][1], turnovers[1][0] + turnovers[1][1]] };
+      return outputs;
+    }
+
+    function updateTurnovers(sim_results, turnovers, i, j) {
+      const key = sim_results["turnovers"][i][j];
+      if (key in turnovers[i][j]) {
+        turnovers[i][j][key] += 1;
+      } else {
+        turnovers[i][j][key] = 1;
+      }
+
+    }
+
+
+    function sims(num_sims, assumptions, score_max, score_half) {
+      //run the sims and store the summarised results 
+
+      scores = generateScoresDictionary(score_max)
+      turnovers = { 0: { 0: {}, 1: {} }, 1: { 0: {}, 1: {} } };
+      combined_turnovers = []
+
+      for (let i = 0; i < num_sims; i++) {
+        sim_results = sim(assumptions, score_max, score_half);
+        //TODO replace with function 
+
+        updateTurnovers(sim_results, turnovers, 0, 0);
+        updateTurnovers(sim_results, turnovers, 0, 1);
+        updateTurnovers(sim_results, turnovers, 1, 0);
+        updateTurnovers(sim_results, turnovers, 1, 1);
+
+        combined_turnovers.push({
+          "x": sim_results["combined_turnovers"][0],
+          "y": sim_results["combined_turnovers"][1]
+        });
+
+
+        //console.log(JSON.stringify(sim_results["turnovers"]));
+        score = sim_results["score"];
+        scores[score] += 1;
+
+      }
+      //console.log(JSON.stringify(combined_turnovers));  // For debugging (uncomment if needed)
+      outputs = { "scores": scores, "turnovers": turnovers, "combined_turnovers": combined_turnovers };
+      return (outputs)
+    }
+
+    function updateTextboxValue(id) {
+      document.getElementById(id + "_value").value = document.getElementById(id).value;
+    }
+
+    function calcPointChance(offence_turnover_chance, defence_turnover_chance) {
+      return ((1 - offence_turnover_chance) / (1 - defence_turnover_chance * offence_turnover_chance))
+    }
+
+
+    function updateTextboxValueLog(id) {
+      document.getElementById(id + "_value").value = Math.pow(10, document.getElementById(id).value);
+    }
+
+    // ************************* LISTENERS ************************* 
+
+    // Set up an event listener to call the updateTextboxValue function when the slider value changes
+    document.getElementById("score_max_slider").addEventListener("input", function () {
+      updateTextboxValue("score_max_slider");
+    });
+
+    document.getElementById("score_half_slider").addEventListener("input", function () {
+      updateTextboxValue("score_half_slider");
+    });
+
+    document.getElementById("a_o_hold_slider").addEventListener("input", function () {
+      updateTextboxValue("a_o_hold_slider");
+    });
+
+    document.getElementById("a_d_hold_slider").addEventListener("input", function () {
+      updateTextboxValue("a_d_hold_slider");
+    });
+
+    document.getElementById("b_o_hold_slider").addEventListener("input", function () {
+      updateTextboxValue("b_o_hold_slider");
+    });
+
+    document.getElementById("b_d_hold_slider").addEventListener("input", function () {
+      updateTextboxValue("b_d_hold_slider");
+    });
+
+    document.getElementById("num_sims_slider").addEventListener("input", function () {
+      updateTextboxValueLog("num_sims_slider");
+    });
+
+    
+    document.getElementById("calc_simple_turnover").addEventListener("click", function () {
+
+      var a_score = parseInt(document.getElementById("a_score").value, 10);
+      var b_score = parseInt(document.getElementById("b_score").value, 10);
+      var a_turnovers = parseInt(document.getElementById("a_turnovers").value, 10);
+      var b_turnovers = parseInt(document.getElementById("b_turnovers").value, 10);
+
+      var score_check = validateScoreTurnover(a_score, b_score, a_turnovers, b_turnovers) ; 
+
+      
+      if (!score_check)  {
+        document.getElementById('calc_simple_turnover').setCustomValidity("Scores and turnovers don't align, difference of scores must be within 1 of difference in turnovers");
+        document.getElementById('calc_simple_turnover').reportValidity();  
+      }
+      else{
+        var a_turnover_chance = a_turnovers / ( a_turnovers + a_score ) ; 
+        var b_turnover_chance = b_turnovers / ( b_turnovers + b_score ) ; 
+
+        document.getElementById("a_o_hold_slider").value = a_turnover_chance;
+        document.getElementById("b_o_hold_slider").value = b_turnover_chance;
+        document.getElementById("a_d_hold_slider").value = a_turnover_chance;
+        document.getElementById("b_d_hold_slider").value = b_turnover_chance;
+
+        updateTextboxValue("a_o_hold_slider");
+        updateTextboxValue("b_o_hold_slider");
+        updateTextboxValue("a_d_hold_slider");
+        updateTextboxValue("b_d_hold_slider");
+      }
+    })
+
+    document.getElementById("calc_full_alt_turnover").addEventListener("click", function () {
+
+      var a_score = parseInt(document.getElementById("a_score_full").value, 10);
+      var b_score = parseInt(document.getElementById("b_score_full").value, 10);
+
+      var a_break_chances = parseInt(document.getElementById("a_break_chances").value, 10);
+      var b_break_chances = parseInt(document.getElementById("b_break_chances").value, 10);
+
+      var a_breaks = parseInt(document.getElementById("a_breaks").value, 10);
+      var b_breaks = parseInt(document.getElementById("b_breaks").value, 10);
+      
+      var score_check = validateScoreTurnoverFull(a_score, b_score, a_break_chances, b_break_chances, a_breaks, b_breaks) ; 
+
+      if (!score_check)  {
+        document.getElementById('calc_full_alt_turnover').setCustomValidity("Scores or breaks and break chances don't align");
+        document.getElementById('calc_full_alt_turnover').reportValidity();  
+      }
+      else{
+
+        var a_d_turnovers = a_break_chances - a_breaks ; 
+        var b_d_turnovers = b_break_chances - b_breaks ; 
+        
+        var a_holds = a_score - a_breaks; 
+        var b_holds = b_score - b_breaks; 
+
+        var a_o_turnovers = b_break_chances; 
+        var b_o_turnovers = a_break_chances; 
+
+        var score_check_simple = validateScoreTurnover(a_score, b_score, a_d_turnovers + a_o_turnovers, b_d_turnovers + b_o_turnovers) ; 
+      
+        if (!score_check_simple)  {
+          document.getElementById('calc_full_alt_turnover').setCustomValidity("Scores and turnovers don't align");
+          document.getElementById('calc_full_alt_turnover').reportValidity();  
+        }
+        else {
+          var a_o_turnover_chance = a_o_turnovers / (a_o_turnovers + a_holds ) ; 
+          var b_o_turnover_chance = b_o_turnovers / (b_o_turnovers + b_holds ) ; 
+          var a_d_turnover_chance = a_d_turnovers / (a_d_turnovers + a_breaks ) ; 
+          var b_d_turnover_chance = b_d_turnovers / (b_d_turnovers + b_breaks ) ; 
+
+          document.getElementById("a_o_hold_slider").value = a_o_turnover_chance;
+          document.getElementById("b_o_hold_slider").value = b_o_turnover_chance;
+          document.getElementById("a_d_hold_slider").value = a_d_turnover_chance;
+          document.getElementById("b_d_hold_slider").value = b_d_turnover_chance;
+
+          updateTextboxValue("a_o_hold_slider");
+          updateTextboxValue("b_o_hold_slider");
+          updateTextboxValue("a_d_hold_slider");
+          updateTextboxValue("b_d_hold_slider");
+        }
+      }
+
+    })
+/*
+    document.getElementById("calc_full_turnover").addEventListener("click", function () {
+
+      var a_score = parseInt(document.getElementById("a_score").value, 10);
+      var b_score = parseInt(document.getElementById("b_score").value, 10);
+
+      var a_o_turnovers = parseInt(document.getElementById("a_o_turnovers").value, 10);
+      var b_o_turnovers = parseInt(document.getElementById("b_o_turnovers").value, 10);
+      var a_d_turnovers = parseInt(document.getElementById("a_d_turnovers").value, 10);
+      var b_d_turnovers = parseInt(document.getElementById("b_d_turnovers").value, 10);
+
+      var a_breaks = a_d_turnovers - b_o_turnovers; 
+      var b_breaks = b_d_turnovers - a_o_turnovers; 
+
+      var a_holds = a_score - a_breaks; 
+      var b_holds = b_score - b_breaks; 
+
+      var a_o_turnover_chance = a_o_turnovers / (a_o_turnovers + a_holds ) ; 
+      var b_o_turnover_chance = b_o_turnovers / (b_o_turnovers + b_holds ) ; 
+      var a_d_turnover_chance = a_d_turnovers / (a_d_turnovers + a_breaks ) ; 
+      var b_d_turnover_chance = b_d_turnovers / (b_d_turnovers + b_breaks ) ; 
+
+      document.getElementById("a_o_hold_slider").value = a_o_turnover_chance;
+      document.getElementById("b_o_hold_slider").value = b_o_turnover_chance;
+      document.getElementById("a_d_hold_slider").value = a_d_turnover_chance;
+      document.getElementById("b_d_hold_slider").value = b_d_turnover_chance;
+
+      updateTextboxValue("a_o_hold_slider");
+      updateTextboxValue("b_o_hold_slider");
+      updateTextboxValue("a_d_hold_slider");
+      updateTextboxValue("b_d_hold_slider");
+
+    })
+*/
+
+    document.getElementById("submit").addEventListener("click", function () {
+      document.getElementById('simResultsContainer').classList.remove('hidden');
+  
+      document.getElementById('scoreChartLoader').classList.remove('hidden');
+
+      init_assumptions[0][0] = parseFloat(document.getElementById("a_o_hold_slider_value").value);
+      init_assumptions[0][1] = parseFloat(document.getElementById("a_d_hold_slider_value").value);
+      init_assumptions[1][0] = parseFloat(document.getElementById("b_o_hold_slider_value").value);
+      init_assumptions[1][1] = parseFloat(document.getElementById("b_d_hold_slider_value").value);
+
+      init_score_max = parseInt(document.getElementById("score_max_slider_value").value, 10);
+      init_score_half = parseInt(document.getElementById("score_half_slider_value").value, 10);
+      init_num_sims = parseInt(document.getElementById("num_sims_slider_value").value, 10);
+
+      sims_results = sims(init_num_sims, init_assumptions, init_score_max, init_score_half);
+
+      document.getElementById('scoreChartLoader').classList.add('hidden');
+
+      sims_scores = sims_results['scores'];
+      sims_turnovers = sims_results['turnovers'];
+
+      var wins = 0
+      //calculate number of wins
+      for (var i = 0; i < init_score_max; i++) {
+        wins += sims_scores[[init_score_max, i]];
+      }
+
+      document.getElementById("wins").innerHTML = numberToPercentage(wins / init_num_sims);
+      document.getElementById("team_a_offence_point_chance").innerHTML = numberToPercentage(calcPointChance(init_assumptions[0][0], init_assumptions[1][1]));
+      document.getElementById("team_b_offence_point_chance").innerHTML = numberToPercentage(calcPointChance(init_assumptions[1][0], init_assumptions[0][1]));
+
+      var labels = Object.keys(sims_scores);
+      // Extract labels and data values from the data object
+      var values = Object.values(sims_scores);
+
+
+      var chartOptions = {
+        scales: {
+          x: { ticks: { color: 'white' } },
+          y: {
+            ticks: { color: 'white' },// Font color for y-axis labels} 
+            beginAtZero: true
+          }
+        },
+        plugins: {
+          legend: { labels: { color: 'white' } }, // Font color for legend labels
+          tooltip: {
+            bodyFontColor: 'white', // Font color for tooltip text
+            titleFontColor: 'white' // Font color for tooltip title
+          }
+        }
+      };
+
+      // Create a new chart instance
+      var ctx = document.getElementById('scoreChart').getContext('2d');
+
+      let chartStatus = Chart.getChart("scoreChart"); // <canvas> id
+      if (chartStatus != undefined) {
+        chartStatus.destroy();
+      }
+
+      var scoreChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Count',
+            data: values,
+            backgroundColor: 'rgba(54, 162, 235, 0.6)',
+            borderColor: 'rgba(54, 162, 235, 1)',
+            borderWidth: 1
+          }]
+        },
+        options: chartOptions
+      });
+
+
+      // set the dimensions and margins of the graph
+      const margin = { top: 10, right: 30, bottom: 30, left: 40 },
+        width = 460 - margin.left - margin.right,
+        height = 400 - margin.top - margin.bottom;
+
+
+      d3.select("#d3_heatmap").selectAll('svg').remove();
+      // append the svg object to the body of the page
+      const svg = d3.select("#d3_heatmap")
+        .append("svg")
+        .attr("viewBox", '-100 0 600 1200')
+        //.attr("width", width + margin.left + margin.right)
+        //.attr("height", height + margin.top + margin.bottom)
+        .append("g")
+        .attr("transform", `translate(${margin.left},${margin.top})`);
+
+        svg.append("text")
+        .attr("x", (width / 2))             
+        .attr("y",  (margin.top ))
+        .attr("text-anchor", "middle")  
+        .style("font-size", "16px")
+        .style("fill", "white") 
+        .style("text-decoration", "underline")  
+        .text("Turnover Joint Distribution");
+
+      // read data
+      var data = sims_results['combined_turnovers'];
+                                                                                        
+      var xs = data.map(function (item) { return item.x; }); /// convert list of dicts to list 
+      var ys = data.map(function (item) { return item.y; });
+
+      // Add X axis
+      const x = d3.scaleLinear()
+        .domain([0, xs.reduce((a, b) => Math.max(a, b), -Infinity) + 1]) // make the domain 0 to the max of x
+        .range([margin.left, width - margin.right]);
+      svg.append("g")
+        .attr("transform", `translate(0, ${height})`)
+        .call(d3.axisBottom(x));
+
+      var gX = svg.append("g")
+        .attr('class', 'axis')
+        .attr("transform","translate(270,400)")
+        .call(x)
+        .append("text")
+        .attr("fill", "white")
+        .attr("text-anchor", "end")
+        .text("Team A turnovers");
+          
+      // Add Y axis
+      const y = d3.scaleLinear()
+        .domain([0, ys.reduce((a, b) => Math.max(a, b), -Infinity) + 1])
+        .range([height - margin.bottom, margin.top]);
+      svg.append("g")
+        .call(d3.axisLeft(y));
+      
+      var gY = svg.append("g")
+        .attr('class', 'axis')
+        .attr("transform","translate(-30,100)")
+        .call(y)
+        .append("text")
+        .attr("fill", "white")
+        .attr("text-anchor", "end")
+        .attr("transform", "rotate(-90)")
+        .text("Team B turnovers");
+
+      // compute the density data
+      const densityData = d3.contourDensity()
+        .x(function (d) { return x(d.x); })
+        .y(function (d) { return y(d.y); })
+        .bandwidth(15)
+        (data)
+
+      const maxDensity = Math.max.apply(this, densityData.map(d => d.value));
+
+      // Prepare a color palette
+      const color = d3.scaleLinear()
+        .domain([0, maxDensity / 2]) // Points per square pixel.
+        .range(["#212529", "#b35555"])
+
+
+      // show the shape!
+      svg.insert("g", "g")
+        .selectAll("path")
+        .data(densityData)
+        .enter().append("path")
+        .attr("d", d3.geoPath())
+        .attr("fill", function (d) { return color(d.value); })
+
+
+    });
+
+
+
+    // Call the updateTextboxValue function initially to display the initial slider value
+    updateTextboxValue("score_max_slider");
+    updateTextboxValue("score_half_slider");
+    updateTextboxValue("a_o_hold_slider");
+    updateTextboxValue("a_d_hold_slider");
+    updateTextboxValue("b_o_hold_slider");
+    updateTextboxValue("b_d_hold_slider");
+    updateTextboxValueLog("num_sims_slider");
+  </script>
+
+  <script>
+    $(document).ready(function () {
+      // Add smooth scrolling to all links in navbar + footer link
+      $(".navbar a, footer a[href='#myPage']").on('click', function (event) {
+        // Make sure this.hash has a value before overriding default behavior
+        if (this.hash !== "") {
+          // Prevent default anchor click behavior
+          event.preventDefault();
+
+          // Store hash
+          var hash = this.hash;
+
+          // Using jQuery's animate() method to add smooth page scroll
+          // The optional number (900) specifies the number of milliseconds it takes to scroll to the specified area
+          $('html, body').animate({
+            scrollTop: $(hash).offset().top
+          }, 100, function () {
+
+            // Add hash (#) to URL when done scrolling (default click behavior)
+            window.location.hash = hash;
+          });
+        } // End if
+      });
+
+      $(window).scroll(function () {
+        $(".slideanim").each(function () {
+          var pos = $(this).offset().top;
+
+          var winTop = $(window).scrollTop();
+          if (pos < winTop + 600) {
+            $(this).addClass("slide");
+          }
+        });
+      });
+    })
+  </script>
+
+</body>
+
+</html>
