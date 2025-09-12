@@ -1,0 +1,12 @@
+## Pricing - Value vs Cost and Rent Seeking
+
+Why do goods and services cost as much as they do?
+
+Rent Seeking definition
+
+Landlord rent seeking
+
+Ultimate Frisbee rent seeking
+
+Barriers to entry
+Actuaries, tradies, doctors, dentists, migration, regulatory capture.
