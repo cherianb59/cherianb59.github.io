@@ -30,14 +30,14 @@ This means the number of turnovers + scores of A team is equal to (or one more t
 
 Accounting for half time is simple. Suppose team B won half, then B had possession at the end of the point, and at the start of the next point (i.e. the point after half time) therefore posession didn't change. $$ - I(B_{won\ half}) $$ in the formula accounts for the loss of one possession if B takes half.
 
-### Why do I care?
+### Why should I care?
 
 High level players already understand this, more turnovers = you lose. But when you start playing ultimate and finish a 90 minute game the reasons you won or lost may escape you. 
 
-Every turnover you have is costing you a point. If you lost by one point then you would have won the game if you had one less turnover. 
+Every turnover you make is costing you a point. If you lost by one point, then you would have won the game if you had one less turnover. 
 
 The bottom line is that if you want to win a game, you need to 1. not turn the disc over and 2. make the other team turn the disc over. 
 
-This doesn't mean that hucks and other high risk throws are bad, a 60% huck to the endzone is better than scoring via 10 throws that each have a 5% chance of turning over.
+This doesn't mean that hucks and other high risk throws are bad, a 60% huck to the endzone is a better option than scoring via 10 throws that each have a 5% chance of turning over.
 
 Want to know how the likelihood of turning the disc over affects your chances of winning? Take a look at this [ultimate simulator](https://cherianb59.github.io/static/ultisim.html).
