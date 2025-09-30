@@ -1,10 +1,13 @@
+theme: "minima"
+
 title: "Disassemble"
 author: "Ben Cherian"
-description: "Putting them back together, taking things apart" # This will show up in places like twitter, linkedin, etc, if you share your sites url as a post.
 
 timezone: Etc/UTC # GitHub uses UTC. This is to force dev environment to match
 future: false # GitHub Pages will publish future posts if this isn't set to false
 
+description: > 
+Putting them back together, taking things apart 
 
 # Email / Social media user names used by the minima theme:
 # All of these are optional and can be removed or commented out
@@ -19,20 +22,9 @@ github_username: "cherianb59"
 #youtube_username: username
 #googleplus_username: +username
 
-#########################################################################################
-######### Nothing below needs to be changed (unless you know what you're doing) #########
-#########################################################################################
-theme: "minima"
-
 rss: rss
 
-kramdown:
-  syntax_highlighter_opts:
-    disable: true
-    
-plugins:
-  - jekyll-feed
-  - jekyll-sitemap
+show_excerpts: false
 
 titles_from_headings:
   strip_title: true
@@ -41,12 +33,35 @@ collections:
   personal: # collection for personal blog posts
     output: true
 
-defaults:
-  - scope:
-      path: ""
-      type: post
-    values:
-      tags: Other
+header_pages:
+  - resume.html
+  - archive.html
+#  - books.md # Commenting out for now as putting more focus on pluralsight than reading
+  - bookmarks.md
+
+plugins:
+  - jekyll-feed
+  - jekyll-sitemap
 
 google_analytics:
   - ${JEKYLL_CONFIG_GOOGLE_ANALYICS}
+
+
+# The github repo that is to be used for looking up comments
+comments_repo: cherianb59/cherianb59.github.io
+
+defaults:
+  - scope:
+      path: ""
+  - scope:
+      path: ""
+      type: posts
+    values:
+      tags:
+        - Other # Add a default tag to all posts
+
+# Disable highlighting to use highlightJS instead
+# highlighter: none # Not supported by GitHub Pages
+kramdown:
+  syntax_highlighter_opts:
+    disable: true
