@@ -2,6 +2,10 @@ title: "Disassemble"
 author: "Ben Cherian"
 description: "Putting them back together, taking things apart" # This will show up in places like twitter, linkedin, etc, if you share your sites url as a post.
 
+timezone: Etc/UTC # GitHub uses UTC. This is to force dev environment to match
+future: false # GitHub Pages will publish future posts if this isn't set to false
+
+
 # Email / Social media user names used by the minima theme:
 # All of these are optional and can be removed or commented out
 #email: "example@mail.com"
@@ -32,7 +36,10 @@ plugins:
 
 titles_from_headings:
   strip_title: true
-  collections: true
+
+collections:
+  personal: # collection for personal blog posts
+    output: true
 
 defaults:
   - scope:
@@ -40,3 +47,6 @@ defaults:
       type: post
     values:
       tags: Other
+
+google_analytics:
+  - ${JEKYLL_CONFIG_GOOGLE_ANALYICS}
