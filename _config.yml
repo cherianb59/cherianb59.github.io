@@ -6,8 +6,7 @@ author: "Ben Cherian"
 timezone: Etc/UTC # GitHub uses UTC. This is to force dev environment to match
 future: false # GitHub Pages will publish future posts if this isn't set to false
 
-description: > 
-Putting them back together, taking things apart 
+description: "Putting them back together, taking things apart"
 
 # Email / Social media user names used by the minima theme:
 # All of these are optional and can be removed or commented out
@@ -32,12 +31,6 @@ titles_from_headings:
 collections:
   personal: # collection for personal blog posts
     output: true
-
-header_pages:
-  - resume.html
-  - archive.html
-#  - books.md # Commenting out for now as putting more focus on pluralsight than reading
-  - bookmarks.md
 
 plugins:
   - jekyll-feed
