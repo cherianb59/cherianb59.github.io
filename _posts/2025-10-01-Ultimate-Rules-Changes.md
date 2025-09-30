@@ -1,3 +1,11 @@
+---
+layout: post
+title: Ultimate Frisbee Rules I Would Change
+description: Ultimate Frisbee Rules I Would Change
+date: 2025-10-01 11:12:30 +1000
+tags: Ultimate
+---
+
 ## Ultimate Frisbee Rules I Would Change
 
 Official Rules have to be made for the high level, lower level games can make their own modifications.
