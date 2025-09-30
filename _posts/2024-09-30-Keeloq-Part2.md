@@ -1,3 +1,11 @@
+---
+layout: post
+title: Keeloq Part 2 - Power Analysis
+description: Measuring power to crack keys
+date: 2025-09-30 11:12:30 +1000
+tags: Programming
+---
+
 ## Keeloq Part 2 - Power Analysis
 
 Power analysis is a key recovery technique which uses the power consumed by the computational device to make derive a cryptographic key.

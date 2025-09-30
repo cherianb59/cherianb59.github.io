@@ -1,3 +1,11 @@
+---
+layout: post
+title: Cheap Chauffers
+description: Paying people properly
+date: 2025-09-30 11:12:30 +1000
+tags: Ultimate
+---
+
 # Cheap Chauffeurs
 
 I like to play ultimate frisbee competitively, not many other people do which means that competitive games have a small player base. Even though I live in the most populous city in Australia, there are only around 10 teams in Sydney. 2 of these teams are made of the best players in Sydney, they have no realistic competition in Sydney, the closest equally skilled teams is in Newcastle (2 hours drive) or Canberra (3 hours drive).  

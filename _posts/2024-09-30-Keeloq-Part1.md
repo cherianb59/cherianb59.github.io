@@ -1,3 +1,12 @@
+---
+layout: post
+title: Keeloq Part 4 - Algorithm
+description: How does Keelqo work?
+date: 2025-09-30 11:12:30 +1000
+tags: Programming
+---
+
+
 ## Keeloq Part 1 - The Algorithm
 
 

@@ -1,3 +1,11 @@
+---
+layout: post
+title: Keeloq Part 3 - Cracking the key
+description: Cracking the key
+date: 2025-09-30 11:12:30 +1000
+tags: Programming
+---
+
 ## Keeloq Part 3 - Cracking the key
 
 From the last section the power consumption during each round of the the encryption phase is proportional to the number of bits flipped in the state register before and after each round.

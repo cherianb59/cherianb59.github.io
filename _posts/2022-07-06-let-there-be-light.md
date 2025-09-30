@@ -1,3 +1,11 @@
+---
+layout: post
+title: Let there be light
+description: 
+date: 2022-07-06 11:12:30 +1000
+tags: Programming
+---
+
 ## Let There Be Light
 
 I moved into a place which used a remote control for turning the bedroom lights on and off. This lets me lie in bed and turn the lights off at night, however sometimes the remote control goes missing, or I forget to take it to the bed with me. It would be much more convenient if I could control it from my phone. This isn't farfetched as my phone is much smarter than a simple remote control but the problem was figuring out how the remote control talked to the light. The remote didn't have an infrared LED at the front like a TV remote control, hence I suspected it used radio. To find out which band it was using I whipped out an RTLSDR dongle I had lying around and tried the ISM bands. These are bands that are allowed for without licensing, for example the 2.4Ghz band (used for Wifi). I found that the remote was transmitting on 433.9 Mhz and used On Of Keying (OOK) modulation. My phone can't transmit on 433.9Mhz so using my phone to talk to the lights required a middleman. To get more clues I opened up the remote control and found it was 433.9Mhz transmitter connected to a simple microcontroller, there must be a receiver in the light that received the radio transmission from the remote and was connected to it's own microcontroller that turned on the light.

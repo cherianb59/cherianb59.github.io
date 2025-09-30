@@ -1,3 +1,11 @@
+---
+layout: post
+title: Keeloq Part 4 - Optimisations
+description: Optimisations
+date: 2025-09-30 11:12:30 +1000
+tags: Programming
+---
+
 ## Keeloq Part 4 - Optimisations
 
 This part will focus on optimising code for power analysis and speeding up brute force attacks.

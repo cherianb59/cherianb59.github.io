@@ -1,3 +1,11 @@
+---
+layout: post
+title: Visualising power
+description: Using smart plugs to measure power and then visualising it
+date: 2025-07-02 11:12:30 +1000
+tags: Programming
+---
+
 ## Recording and displaying power usage
 
 Energy prices have increased significantly and this made me want to reduce electricity usage. I didn't want to start turning everything off when I wasn't using it in order to save a few cents. It's annoying to wait for it when I turn it back on and it's worth the small cost to just leave it on. I wanted to find the major culprits, the electricity suckers, and turn them off when not in use. 
