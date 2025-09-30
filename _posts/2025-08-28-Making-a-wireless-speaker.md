@@ -1,3 +1,11 @@
+---
+layout: post
+title: Making a wireless speaker
+description: Making a wireless speaker
+date: 2025-08-28 11:12:30 +1000
+tags: DIY
+---
+
 ## Making a wireless speaker
 
 Someone threw out a pair of speakers connected, there was a larger speaker and a tweeter. There was very crude filtering for the tweeter, a single capcitor connected in series. 

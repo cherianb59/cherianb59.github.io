@@ -1,3 +1,11 @@
+---
+layout: post
+title: Why I play 
+description: Why I play
+date: 2025-09-12 11:12:30 +1000
+tags: Ultimate
+---
+
 ## Ultimate Frisbee - Why I play
 
 I've been playing Ultimate for seven years now, and I probably spend way too much time thinking about it. I'm always trying to convince friends and colleagues to come out and play, and I usually find myself rattling off the same list of  reasons. But the real reason I'm still playing isn't on that list.

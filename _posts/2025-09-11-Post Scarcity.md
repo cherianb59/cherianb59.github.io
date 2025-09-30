@@ -1,3 +1,11 @@
+---
+layout: post
+title: Approcahing a post scarcity world 
+description: Anti consumption is a thing now
+date: 2025-09-11 11:12:30 +1000
+tags: Economics
+---
+
 ## Approaching a post-scarcity world
 
 Walking thorugh the inner west, the streets are constantly adorned with household appliances that are too large for the wheelie bins. Bed frames, TVs, .

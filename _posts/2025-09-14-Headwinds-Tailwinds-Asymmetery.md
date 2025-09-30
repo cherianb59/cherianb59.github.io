@@ -1,3 +1,11 @@
+---
+layout: post
+title: Headwinds Tailwinds Asymmetry
+description: Why is my life so hard
+date: 2025-09-14 11:12:30 +1000
+tags: Life
+---
+
 ## Why is my life so hard - Headwinds Tailwinds Asymmetry
 
 I listen to a lot of podcasts, mainly during work so I can have something to listen to. They mostly go in one ear and out the other, but this podcast from 2017 has stuck with me for years.

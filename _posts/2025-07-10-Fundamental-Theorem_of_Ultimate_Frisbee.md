@@ -1,3 +1,11 @@
+---
+layout: post
+title: The fundamental theorem of ultimate frisbee
+description: Breaks 
+date: 2025-07-10 11:12:30 +1000
+tags: Ultimate
+---
+
 ## The Fundamental Theorem of Ultimate Frisbee
 
 The Fundamental Theorem of Ultimate Frisbee is that if you lost by X points, you had X or X-1 more turnovers.
