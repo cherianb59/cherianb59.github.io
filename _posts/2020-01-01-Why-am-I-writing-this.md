@@ -1,3 +1,12 @@
+---
+layout: post
+title: Why am I writing this
+description: 
+date: 2020-01-01 11:12:30 +1000
+tags: Life
+---
+
+
 ## Why am I writing this
 
 Because I have a lot of opnions that I think about constantly and need to get down on paper. I want to come back and see how these opinions change. 

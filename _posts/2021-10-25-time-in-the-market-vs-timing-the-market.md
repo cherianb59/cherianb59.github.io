@@ -1,3 +1,11 @@
+---
+layout: post
+title: Time in the market vs Timing the market
+description: Data behind the phrase
+date: 2021-09-30 11:12:30 +1000
+tags: Economics
+---
+
 ## Time in the Market vs Timing the Market
 
 Timing the perfect moment to buy and sell assets is difficult, fund managers spend all their time anlysing a specific asset class, but most of the time they can't even beat the index of that class and they charge high fees. The academic advice is to invest in a low fee fund that replicates the index, but this isn't risk free, indexes can fall. But what is better? Should you try and time the market by buying and selling at the right time, or just buy an asset and hold it for a long time.

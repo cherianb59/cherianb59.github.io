@@ -1,7 +1,7 @@
 ---
 layout: post
 title: Let there be light
-description: 
+description: Using ESP32 to control wireless lights and fans
 date: 2022-07-06 11:12:30 +1000
 tags: Programming
 ---

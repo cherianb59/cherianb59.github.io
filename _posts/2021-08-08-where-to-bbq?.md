@@ -1,3 +1,12 @@
+---
+layout: post
+title: Where to BBQ?
+description: 
+date: 2021-08-08 11:12:30 +1000
+tags: Programming
+---
+
+
 ##Where to BBQ?
 
 In 2021 I wanted to be part of a GovHack team. I was inspired by [Simon Victory's](https://github.com/svict4) presentation and it sounded like a fun way to meet like minded people interested in data and how to make it useful. Unfortunately the ACT went into lockdown a few weeks before the 2021 competition so it wasn't possible to meet in person and I decided to tackle a Govhack challenge by myself. 

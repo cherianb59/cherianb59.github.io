@@ -1,3 +1,12 @@
+---
+layout: post
+title: Table Tennis Scorer
+description: Using an arduino to score table tennis
+date: 2015-04-30 11:12:30 +1000
+tags: Programming
+---
+
+
 ## Table Tennis Scorer
 
 My housemate bought a table tennis table and we started to play  in between rounds of losing DoTA.
