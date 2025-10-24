@@ -1,6 +1,6 @@
 ---
 layout: post
-title: Approcahing a post scarcity world 
+title: Approaching a post scarcity world 
 description: Anti consumption is a thing now
 date: 2025-09-11 11:12:30 +1000
 tags: Economics
@@ -15,3 +15,14 @@ FB marketplace has a lot of great deals, and anything that might require a littl
 Most furniture that is too large for a car is also much cheaper than anythign bought new. 
 
 I made a modern day boombox out of a pair of hifi speakrs that had run their course
+
+### Food
+
+People eat too much food, starvation isn't a visible problem in Australia. Malnutrition affects but not starvation or famine. The price of food has gone down if you measure calories per hour worked. 
+
+### Bullshit jobs
+
+A lot of people have bullshit jobs (David Graeber)
+
+### Bullshit products and services 
+
