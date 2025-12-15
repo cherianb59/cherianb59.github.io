@@ -18,6 +18,7 @@ I made a modern day boombox out of a pair of hifi speakrs that had run their cou
 
 ### Food
 
+<<<<<<< HEAD
 People eat too much food. Starvation isn’t a visible problem in Australia; malnutrition affects some, but famine doesn’t exist. Walk into any supermarket, and shelves are overflowing with calories in every possible form — wrapped, preserved, frozen, or ready-to-eat.
 
 The price of food, especially if you measure it as calories per hour worked, has dropped massively. Chicken drumsticks are cheaper per kilo than potatoes or dried beans. For the average person, eating enough isn’t the challenge — eating well is. Obesity is now the visible symptom of abundance.
@@ -39,3 +40,13 @@ The same logic applies to products. Entire industries are built around making us
 You can buy an electric toothbrush that connects to Wi-Fi, or a fridge that tweets. Subscription boxes for things no one needs. Streaming services selling the same shows with different logos.
 
 The world is full of over-engineered solutions to non-problems, while the basic tools of living — food, shelter, furniture, community — have never been more accessible or abundant.
+=======
+People eat too much food, starvation isn't a visible problem in Australia. Malnutrition affects but not starvation or famine. The price of food has gone down if you measure calories per hour worked. 
+
+### Bullshit jobs
+
+A lot of people have bullshit jobs (David Graeber)
+
+### Bullshit products and services 
+
+>>>>>>> 3a07c9a65a6559e3caa2877be56d1a361f6a2fd5
