@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HSR API Calculator</title>
+    <style>
+        body { font-family: monospace; padding: 20px; background-color: #f0f0f0; }
+        pre { background: #fff; padding: 15px; border: 1px solid #ddd; border-radius: 5px; overflow-x: auto;}
+    </style>
+</head>
+<body>
+
+    <pre id="json-output">Processing...</pre>
+
+<script>
+
+    function get_next_highest_index(x, data_list) {
+        for (let index = 0; index < data_list.length; index++) {
+            if (data_list[index] > x) {
+                return index - 1;
+            }
+        }
+        return data_list.length - 1;
+    }
+
+    function hsr_input_validation(hsr_input, energy, saturated_fat, total_sugars, sodium, fibre, protein, concentrated_fruit_and_vegetable, FVNL) {
+        if (hsr_input < 0 || hsr_input > 4) throw new Error("Invalid hsr_input");
+        if (energy < 0 || energy > 4000) throw new Error("Invalid energy");
+        if (saturated_fat < 0 || saturated_fat > 100) throw new Error("Invalid saturated_fat");
+        if (total_sugars < 0 || total_sugars > 100) throw new Error("Invalid total_sugars");
+        if (fibre < 0 || fibre > 100) throw new Error("Invalid fibre");
+        if (protein < 0 || protein > 100) throw new Error("Invalid protein");
+        if (concentrated_fruit_and_vegetable < 0 || concentrated_fruit_and_vegetable * 2 > 100) throw new Error("Invalid concentrated_fruit_and_vegetable");
+        if (FVNL < 0 || FVNL > 100) throw new Error("Invalid FVNL");
+
+        if (saturated_fat + fibre + protein + total_sugars > 100) throw new Error("Nutrients exceed 100g");
+        if (concentrated_fruit_and_vegetable * 2 + FVNL > 100) throw new Error("Fruit/Veg exceeds 100%");
+
+        return true;
+    }
+
+    function hsr_calc(hsr_input, energy, saturated_fat, total_sugars, sodium, fibre, protein, concentrated_fruit_and_vegetable, FVNL) {
+        
+        const a_tipping_point = 13;
+        const fruit_veg_tipping_point = 5;
+
+        // Data Lookups
+        const hsr_to_npsc = {
+            "1D - Dairy beverages": {"category": "Beverages", "group_number": 1},
+            "2 - Foods": {"category": "Food", "group_number": 2},
+            "2D - Dairy foods": {"category": "Food", "group_number": 2},
+            "3 - Fats, oils": {"category": "Fats/Oils/Cheese", "group_number": 3},
+            "3D - Cheese": {"category": "Fats/Oils/Cheese", "group_number": 3}
+        };
+
+        const fopl_calibration_map = {
+            "1D - Dairy beverages": {"bad": 6, "good": -2, "range": 8},
+            "2 - Foods": {"bad": 29, "good": -15, "range": 44},
+            "2D - Dairy foods": {"bad": 14, "good": -3, "range": 17},
+            "3 - Fats, oils": {"bad": 45, "good": 10, "range": 35},
+            "3D - Cheese": {"bad": 41, "good": 23, "range": 18}
+        };
+
+        const star_conversion_divisor_map = {
+            "1D - Dairy beverages": 8.999,
+            "2 - Foods": 9.999,
+            "2D - Dairy foods": 9.999,
+            "3 - Fats, oils": 9.999,
+            "3D - Cheese": 9.999
+        };
+
+        // Threshold Tables
+        const energy_kj_1 = [0, 335.01, 670.01, 1005.01, 1340.01, 1675.01, 2010.01, 2345.01, 2680.01, 3015.01, 3350.01, 3685.01];
+        const sat_fat_g_1 = [0, 1.01, 2.01, 3.01, 4.01, 5.01, 6.01, 7.01, 8.01, 9.01, 10.01, 11.21, 12.51, 13.91, 15.51, 17.31, 19.31, 21.61, 24.11, 26.91, 30.01, 33.51, 37.41, 41.71, 46.61, 52.01, 58.01, 64.71, 72.31, 80.61, 90.01];
+        const tot_sug_g_1 = [0, 5.01, 8.91, 12.81, 16.81, 20.71, 24.61, 28.51, 32.41, 36.31, 40.31, 44.21, 48.11, 52.01, 55.91, 59.81, 63.81, 67.71, 71.61, 75.51, 79.41, 83.31, 87.31, 91.21, 95.11, 99.01];
+        const na_mg_1 = [0, 90.01, 180.01, 270.01, 360.01, 450.01, 540.01, 630.01, 720.01, 810.01, 900.01, 990.01, 1080.01, 1170.01, 1260.01, 1350.01, 1440.01, 1530.01, 1620.01, 1710.01, 1800.01, 1890.01, 1980.01, 2070.01, 2160.01, 2250.01, 2340.01, 2430.01, 2520.01, 2610.01, 2700.01];
+
+        const energy_kj_2 = [0, 335.01, 670.01, 1005.01, 1340.01, 1675.01, 2010.01, 2345.01, 2680.01, 3015.01, 3350.01, 3685.01];
+        const sat_fat_g_2 = [0, 1.01, 2.01, 3.01, 4.01, 5.01, 6.01, 7.01, 8.01, 9.01, 10.01, 11.01, 12.01, 13.01, 14.01, 15.01, 16.01, 17.01, 18.01, 19.01, 20.01, 21.01, 22.01, 23.01, 24.01, 25.01, 26.01, 27.01, 28.01, 29.01, 30.01];
+        const tot_sug_g_2 = [0, 5.01, 9.01, 13.51, 18.01, 22.51, 27.01, 31.01, 36.01, 40.01, 45.01];
+        const na_mg_2 = [0, 90.01, 180.01, 270.01, 360.01, 450.01, 540.01, 630.01, 720.01, 810.01, 900.01, 990.01, 1080.01, 1170.01, 1260.01, 1350.01, 1440.01, 1530.01, 1620.01, 1710.01, 1800.01, 1890.01, 1980.01, 2070.01, 2160.01, 2250.01, 2340.01, 2430.01, 2520.01, 2610.01, 2700.01];
+
+        const conc_fvnl_percent = [0.00, 25.00, 43.00, 52.00, 63.00, 67.00, 80.00, 90.00, 99.50, 100.00];
+        const fvnl_percent = [0.00, 40.01, 60.01, 67.01, 75.01, 80.01, 90.01, 95.01, 99.51, 100.00];
+        const percent_foods_fibre = [0.00, 0.91, 1.91, 2.81, 3.71, 4.71, 5.41, 6.31, 7.31, 8.41, 9.71, 11.21, 13.01, 15.01, 17.31, 20.01];
+        const percent_foods_protein = [0.00, 1.61, 3.20, 4.81, 6.41, 8.01, 9.61, 11.61, 13.91, 16.71, 20.01, 24.01, 28.91, 34.71, 41.61, 50.01];
+
+        // Logic Implementation
+        const HSR_categories = ['1D - Dairy beverages', '2 - Foods', '2D - Dairy foods', '3 - Fats, oils', '3D - Cheese'];
+        const hsr_category = HSR_categories[hsr_input];
+
+        const npsc_category_group_number = hsr_to_npsc[hsr_category]["group_number"];
+
+        const all_fav_concentrated = (concentrated_fruit_and_vegetable >= 0 && FVNL === 0) ? "Yes" : "No";
+
+        // Calc FVNL Percent
+        // Formula: 100 * (FVNL + 2*Conc) / (FVNL + 2*Conc + (100 - Conc - FVNL))
+        const numerator = FVNL + 2 * concentrated_fruit_and_vegetable;
+        const denominator = FVNL + 2 * concentrated_fruit_and_vegetable + (100 - concentrated_fruit_and_vegetable - FVNL);
+        let fruit_veg_nuts_pulses_percent = 0;
+        if(denominator !== 0) {
+            fruit_veg_nuts_pulses_percent = parseFloat(((numerator / denominator) * 100).toFixed(2));
+        }
+
+        // Baseline Points
+        const isGroup3 = (npsc_category_group_number === 3);
+        const baseline_energy_points = !isGroup3 ? get_next_highest_index(energy, energy_kj_1) : get_next_highest_index(energy, energy_kj_2);
+        const baseline_sat_fat_points = !isGroup3 ? get_next_highest_index(saturated_fat, sat_fat_g_1) : get_next_highest_index(saturated_fat, sat_fat_g_2);
+        const baseline_total_sugars_points = !isGroup3 ? get_next_highest_index(total_sugars, tot_sug_g_1) : get_next_highest_index(total_sugars, tot_sug_g_2);
+        
+        // Note: Logic in provided snippet had sodium looking up based on `energy`. I have corrected this to `sodium` variable as standard, 
+        // but if strict adherence to snippet is required, swap `sodium` below for `energy`.
+        const baseline_sodium_points = !isGroup3 ? get_next_highest_index(sodium, na_mg_1) : get_next_highest_index(sodium, na_mg_2);
+
+        const total_baseline_points_table_a = baseline_energy_points + baseline_sat_fat_points + baseline_total_sugars_points + baseline_sodium_points;
+
+        // Modifying Points
+        const modifying_points_percent_FVNL = (all_fav_concentrated === "Yes") 
+            ? get_next_highest_index(concentrated_fruit_and_vegetable, conc_fvnl_percent) 
+            : get_next_highest_index(fruit_veg_nuts_pulses_percent, fvnl_percent);
+
+        // Logic based on snippet: `if group == 1`
+        const modifying_points_percent_fibre = (npsc_category_group_number === 1) 
+            ? get_next_highest_index(fibre, percent_foods_fibre) 
+            : 0;
+
+        const modifying_points_percent_protein = get_next_highest_index(protein, percent_foods_protein);
+        const combined_modifying_percent = modifying_points_percent_FVNL + modifying_points_percent_fibre + modifying_points_percent_protein;
+
+        let total_modifying_points_table_c = 0;
+        
+        // Logic for tipping point
+        // Standard HSR: Score = Baseline - Modifying.
+        if (total_baseline_points_table_a < a_tipping_point || modifying_points_percent_FVNL >= fruit_veg_tipping_point) {
+            total_modifying_points_table_c = combined_modifying_percent;
+        } else {
+            total_modifying_points_table_c = modifying_points_percent_FVNL + modifying_points_percent_fibre;
+        }
+
+        const hsr_profile_score = total_baseline_points_table_a - total_modifying_points_table_c;
+
+        // Final Score
+        const fopl_calibration_good = fopl_calibration_map[hsr_category]["good"];
+        const fopl_calibration_range = fopl_calibration_map[hsr_category]["range"];
+        const star_conversion_divisor = star_conversion_divisor_map[hsr_category];
+
+        const raw_calc = 10.499 - ((hsr_profile_score - fopl_calibration_good) / fopl_calibration_range) * star_conversion_divisor;
+        const r = Math.round(raw_calc);
+        const hsr_star_points = Math.max(Math.min(r, 10), 1);
+
+        return hsr_star_points;
+    }
+
+    // --- Main Execution ---
+    try {
+        const urlParams = new URLSearchParams(window.location.search);
+        
+        // Helper to extract floats with a default of 0
+        const getVal = (key) => urlParams.has(key) ? parseFloat(urlParams.get(key)) : 0;
+
+        const inputs = {
+            hsr_input: getVal('hsr_input'),
+            energy: getVal('energy'),
+            saturated_fat: getVal('saturated_fat'),
+            total_sugars: getVal('total_sugars'),
+            sodium: getVal('sodium'),
+            fibre: getVal('fibre'),
+            protein: getVal('protein'),
+            concentrated_fruit_and_vegetable: getVal('concentrated_fruit_and_vegetable'),
+            FVNL: getVal('FVNL')
+        };
+
+        // Validate
+        hsr_input_validation(
+            inputs.hsr_input, inputs.energy, inputs.saturated_fat, inputs.total_sugars, 
+            inputs.sodium, inputs.fibre, inputs.protein, 
+            inputs.concentrated_fruit_and_vegetable, inputs.FVNL
+        );
+
+        // Calculate
+        const result = hsr_calc(
+            inputs.hsr_input, inputs.energy, inputs.saturated_fat, inputs.total_sugars, 
+            inputs.sodium, inputs.fibre, inputs.protein, 
+            inputs.concentrated_fruit_and_vegetable, inputs.FVNL
+        );
+
+        // Output
+        const response = {
+            "inputs": inputs,
+            "result_score": result
+        };
+
+        document.getElementById('json-output').textContent = JSON.stringify(response, null, 4);
+
+    } catch (e) {
+        document.getElementById('json-output').textContent = JSON.stringify({"error": e.message}, null, 4);
+    }
+
+</script>
+</body>
+</html>
