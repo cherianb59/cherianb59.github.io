@@ -12,7 +12,9 @@ Hamish and ANdy have been flummoxed at how , but they recently showed that the c
 There is a spreadhseet at the bottom of the page, which means we can get the formulas and figure out how it's calculated. 
 Unfortunately the worksheet is password protected, however it's pretty easy to remove the [password](https://cherianb59.github.io/static/HSR Calculator 4.2.xlsm).
 
+By removing the password, it's easy to see exactly how the points are calculated. Short version is that you lose points for more saturated fats and sugar, and you gain points for having more protein, fibre, fruits and vegetables.
+
 I've reverse engineered and converted it into an [api](https://cherianb59.github.io/static/hsr.html?hsr_input=1&energy=500&saturated_fat=2&total_sugars=5&sodium=200&fibre=3&protein=4&concentrated_fruit_and_vegetable=10&FVNL=20)
-. Just put the parameters and feel fre to copy the code yourself.
+. Just put the parameters and feel free to copy the code yourself.
 
 
