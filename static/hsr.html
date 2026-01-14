@@ -15,6 +15,20 @@
 
 <script>
 
+  function toStarRating(score) {
+    if (!Number.isInteger(score) || score < 1 || score > 10) {
+      throw new Error("Score must be an integer between 1 and 10");
+    }
+  
+    const fullStars = Math.floor(score / 2);
+    const halfStar = score % 2;          // represented as empty
+    
+    return (
+      "⭐".repeat(fullStars) +
+      "☆".repeat(halfStar) +
+    );
+  }
+  
     function get_next_highest_index(x, data_list) {
         for (let index = 0; index < data_list.length; index++) {
             if (data_list[index] > x) {
@@ -188,7 +202,8 @@
         // Output
         const response = {
             "inputs": inputs,
-            "result_score": result
+            "result_score": result,
+            "stars": toStarRating(result)
         };
 
         document.getElementById('json-output').textContent = JSON.stringify(response, null, 4);
