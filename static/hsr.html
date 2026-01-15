@@ -21,11 +21,11 @@
     }
   
     const fullStars = Math.floor(score / 2);
-    const halfStar = score % 2;          // represented as empty
+    const halfStar = score % 2;          // empty stars
     
     return (
-      "⭐".repeat(fullStars) +
-      "☆".repeat(halfStar) +
+      "★".repeat(fullStars) +
+      "☆".repeat(halfStar) 
     );
   }
   
@@ -119,12 +119,13 @@
 
         // Baseline Points
         const isGroup3 = (npsc_category_group_number === 3);
-        const baseline_energy_points = !isGroup3 ? get_next_highest_index(energy, energy_kj_1) : get_next_highest_index(energy, energy_kj_2);
-        const baseline_sat_fat_points = !isGroup3 ? get_next_highest_index(saturated_fat, sat_fat_g_1) : get_next_highest_index(saturated_fat, sat_fat_g_2);
-        const baseline_total_sugars_points = !isGroup3 ? get_next_highest_index(total_sugars, tot_sug_g_1) : get_next_highest_index(total_sugars, tot_sug_g_2);
         
-        // Note: Logic in provided snippet had sodium looking up based on `energy`. I have corrected this to `sodium` variable as standard, 
-        // but if strict adherence to snippet is required, swap `sodium` below for `energy`.
+		const baseline_energy_points = !isGroup3 ? get_next_highest_index(energy, energy_kj_1) : get_next_highest_index(energy, energy_kj_2);
+        
+		const baseline_sat_fat_points = !isGroup3 ? get_next_highest_index(saturated_fat, sat_fat_g_1) : get_next_highest_index(saturated_fat, sat_fat_g_2);
+        
+		const baseline_total_sugars_points = !isGroup3 ? get_next_highest_index(total_sugars, tot_sug_g_1) : get_next_highest_index(total_sugars, tot_sug_g_2);
+        
         const baseline_sodium_points = !isGroup3 ? get_next_highest_index(sodium, na_mg_1) : get_next_highest_index(sodium, na_mg_2);
 
         const total_baseline_points_table_a = baseline_energy_points + baseline_sat_fat_points + baseline_total_sugars_points + baseline_sodium_points;
@@ -201,6 +202,7 @@
 
         // Output
         const response = {
+            "version" : "4.2",
             "inputs": inputs,
             "result_score": result,
             "stars": toStarRating(result)
