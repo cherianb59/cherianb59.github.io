@@ -1,0 +1,423 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>HSR Calculator</title>
+  <style>
+    :root {
+      --bg: #f0f0f0;
+      --card: #fff;
+      --muted: #666;
+      --accent: #0078d4;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+    }
+    body { font-family: var(--mono); padding: 24px; background: var(--bg); }
+    h1 { margin: 0 0 16px; }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: start; }
+    .card { background: var(--card); border: 1px solid #ddd; border-radius: 8px; padding: 16px; }
+    .inputs { display: grid; gap: 16px; }
+    .control { display: grid; grid-template-columns: 420px 1fr 120px; gap: 12px; align-items: center; }
+    .control label { white-space: nowrap; }
+    .control input[type="range"] { width: 100%; }
+    .value-badge { text-align: right; min-width: 80px; padding: 4px 8px; border-radius: 4px; background: #f7f7f7; border: 1px solid #eee; }
+    .muted { color: var(--muted); }
+    .stars { font-size: 28px; line-height: 1; }
+    pre { background: #fff; padding: 15px; border: 1px solid #ddd; border-radius: 6px; overflow-x: auto; }
+    .kv { display: grid; grid-template-columns: max-content 1fr; gap: 8px 12px; }
+    .kv div:nth-child(odd) { color: var(--muted); }
+    .pill { display: inline-block; padding: 2px 8px; border-radius: 999px; border: 1px solid #eee; background: #fafafa; }
+    .footer { margin-top: 12px; font-size: 12px; color: var(--muted); }
+  </style>
+</head>
+<body>
+
+  <h1>HSR Calculator</h1>
+
+  <div class="row">
+    <!-- Inputs Panel -->
+    <div class="card">
+      <h2>Inputs</h2>
+      <div class="inputs" id="inputs-panel">
+ 
+		<div class="control">
+		  <label for="hsr_input">HSR category</label>
+		  <select id="hsr_input">
+			<option value="0">1D - Dairy beverages</option>
+			<option value="1">2 - Foods</option>
+			<option value="2">2D - Dairy foods</option>
+			<option value="3">3 - Fats, oils</option>
+			<option value="4">3D - Cheese</option>
+		  </select>
+		  <div class="value-badge">
+			<span class="muted">Selected: </span><span id="hsr_label">2 - Foods</span>
+		  </div>
+		</div>
+
+
+        <div class="control">
+          <label for="energy">Energy (kJ/100g)</label>
+          <input id="energy" type="range" min="0" max="4000" step="1"/>
+          <div class="value-badge" id="energy_value">0</div>
+        </div>
+
+        <div class="control">
+          <label for="saturated_fat">Saturated fat (g/100g)</label>
+          <input id="saturated_fat" type="range" min="0" max="100" step="0.1"/>
+          <div class="value-badge" id="saturated_fat_value">0.0</div>
+        </div>
+
+        <div class="control">
+          <label for="total_sugars">Total sugars (g/100g)</label>
+          <input id="total_sugars" type="range" min="0" max="100" step="0.1"/>
+          <div class="value-badge" id="total_sugars_value">0.0</div>
+        </div>
+
+        <div class="control">
+          <label for="sodium">Sodium (mg/100g)</label>
+          <input id="sodium" type="range" min="0" max="2700" step="10"/>
+          <div class="value-badge" id="sodium_value">0</div>
+        </div>
+
+        <div class="control">
+          <label for="fibre">Fibre (g/100g)</label>
+          <input id="fibre" type="range" min="0" max="100" step="0.1"/>
+          <div class="value-badge" id="fibre_value">0.0</div>
+        </div>
+
+        <div class="control">
+          <label for="protein">Protein (g/100g)</label>
+          <input id="protein" type="range" min="0" max="100" step="0.1"/>
+          <div class="value-badge" id="protein_value">0.0</div>
+        </div>
+
+        <div class="control">
+          <label for="concentrated_fruit_and_vegetable">Concentrated Fruit & Vegetable (%)</label>
+          <input id="concentrated_fruit_and_vegetable" type="range" min="0" max="50" step="0.1"/>
+          <div class="value-badge" id="concentrated_fruit_and_vegetable_value">0.0</div>
+        </div>
+
+        <div class="control">
+          <label for="FVNL">Fruits, Vegetables, Nuts and Legumes (FVNL) (%)</label>
+          <input id="FVNL" type="range" min="0" max="100" step="0.1"/>
+          <div class="value-badge" id="FVNL_value">0.0</div>
+        </div>
+      </div>
+
+      <div class="footer">
+        Tip: You can also pre-fill values via query params (e.g. <span class="pill">?energy=1200&total_sugars=8</span>).
+      </div>
+    </div>
+
+    <!-- Outputs Panel -->
+    <div class="card">
+      <h2>Outputs</h2>
+
+      <div class="kv" style="margin-bottom:12px">
+        <div>Version</div><div id="out_version">–</div>
+        <div>Result score</div><div id="out_result">–</div>
+        <div>Stars</div><div class="stars" id="out_stars">–</div>
+      </div>
+
+      <h3 class="muted" style="margin-top:8px;">Inputs echoed in response</h3>
+      <div class="kv" id="out_inputs"></div>
+    </div>
+  </div>
+
+  <h2 style="margin-top:20px;">Raw JSON response</h2>
+  <pre id="json-output">Processing...</pre>
+
+<script>
+  // ---------- Your existing helpers (kept as-is) ----------
+  function toStarRating(score) {
+    if (!Number.isInteger(score) || score < 1 || score > 10) {
+      throw new Error("Score must be an integer between 1 and 10");
+    }
+    const fullStars = Math.floor(score / 2);
+    const halfStar = score % 2;          // when odd, show one white star as half-step
+    return "★".repeat(fullStars) + "☆".repeat(halfStar);
+  }
+
+  function get_next_highest_index(x, data_list) {
+    for (let index = 0; index < data_list.length; index++) {
+      if (data_list[index] > x) {
+        return index - 1;
+      }
+    }
+    return data_list.length - 1;
+  }
+
+  function hsr_input_validation(hsr_input, energy, saturated_fat, total_sugars, sodium, fibre, protein, concentrated_fruit_and_vegetable, FVNL) {
+    if (hsr_input < 0 || hsr_input > 4) throw new Error("Invalid hsr_input");
+    if (energy < 0 || energy > 4000) throw new Error("Invalid energy");
+    if (saturated_fat < 0 || saturated_fat > 100) throw new Error("Invalid saturated_fat");
+    if (total_sugars < 0 || total_sugars > 100) throw new Error("Invalid total_sugars");
+    if (fibre < 0 || fibre > 100) throw new Error("Invalid fibre");
+    if (protein < 0 || protein > 100) throw new Error("Invalid protein");
+    if (concentrated_fruit_and_vegetable < 0 || concentrated_fruit_and_vegetable * 2 > 100) throw new Error("Invalid concentrated_fruit_and_vegetable");
+    if (FVNL < 0 || FVNL > 100) throw new Error("Invalid FVNL");
+    if (saturated_fat + fibre + protein + total_sugars > 100) throw new Error("Nutrients exceed 100g");
+    if (concentrated_fruit_and_vegetable * 2 + FVNL > 100) throw new Error("Fruit/Veg exceeds 100%");
+    return true;
+  }
+
+  function hsr_calc(hsr_input, energy, saturated_fat, total_sugars, sodium, fibre, protein, concentrated_fruit_and_vegetable, FVNL) {
+
+    // Threshold Tables
+    const energy_kj_1 = [0, 335.01, 670.01, 1005.01, 1340.01, 1675.01, 2010.01, 2345.01, 2680.01, 3015.01, 3350.01, 3685.01];
+    const sat_fat_g_1 = [0, 1.01, 2.01, 3.01, 4.01, 5.01, 6.01, 7.01, 8.01, 9.01, 10.01, 11.21, 12.51, 13.91, 15.51, 17.31, 19.31, 21.61, 24.11, 26.91, 30.01, 33.51, 37.41, 41.71, 46.61, 52.01, 58.01, 64.71, 72.31, 80.61, 90.01];
+    const tot_sug_g_1 = [0, 5.01, 8.91, 12.81, 16.81, 20.71, 24.61, 28.51, 32.41, 36.31, 40.31, 44.21, 48.11, 52.01, 55.91, 59.81, 63.81, 67.71, 71.61, 75.51, 79.41, 83.31, 87.31, 91.21, 95.11, 99.01];
+    const na_mg_1 = [0, 90.01, 180.01, 270.01, 360.01, 450.01, 540.01, 630.01, 720.01, 810.01, 900.01, 990.01, 1080.01, 1170.01, 1260.01, 1350.01, 1440.01, 1530.01, 1620.01, 1710.01, 1800.01, 1890.01, 1980.01, 2070.01, 2160.01, 2250.01, 2340.01, 2430.01, 2520.01, 2610.01, 2700.01];
+
+    const energy_kj_2 = [0, 335.01, 670.01, 1005.01, 1340.01, 1675.01, 2010.01, 2345.01, 2680.01, 3015.01, 3350.01, 3685.01];
+    const sat_fat_g_2 = [0, 1.01, 2.01, 3.01, 4.01, 5.01, 6.01, 7.01, 8.01, 9.01, 10.01, 11.01, 12.01, 13.01, 14.01, 15.01, 16.01, 17.01, 18.01, 19.01, 20.01, 21.01, 22.01, 23.01, 24.01, 25.01, 26.01, 27.01, 28.01, 29.01, 30.01];
+    const tot_sug_g_2 = [0, 5.01, 9.01, 13.51, 18.01, 22.51, 27.01, 31.01, 36.01, 40.01, 45.01];
+    const na_mg_2 = [0, 90.01, 180.01, 270.01, 360.01, 450.01, 540.01, 630.01, 720.01, 810.01, 900.01, 990.01, 1080.01, 1170.01, 1260.01, 1350.01, 1440.01, 1530.01, 1620.01, 1710.01, 1800.01, 1890.01, 1980.01, 2070.01, 2160.01, 2250.01, 2340.01, 2430.01, 2520.01, 2610.01, 2700.01];
+
+    const conc_fvnl_percent = [0.00, 25.00, 43.00, 52.00, 63.00, 67.00, 80.00, 90.00, 99.50, 100.00];
+    const fvnl_percent = [0.00, 40.01, 60.01, 67.01, 75.01, 80.01, 90.01, 95.01, 99.51, 100.00];
+    const percent_foods_fibre = [0.00, 0.91, 1.91, 2.81, 3.71, 4.71, 5.41, 6.31, 7.31, 8.41, 9.71, 11.21, 13.01, 15.01, 17.31, 20.01];
+    const percent_foods_protein = [0.00, 1.61, 3.20, 4.81, 6.41, 8.01, 9.61, 11.61, 13.91, 16.71, 20.01, 24.01, 28.91, 34.71, 41.61, 50.01];
+
+    const a_tipping_point = 13;
+    const fruit_veg_tipping_point = 5;
+
+    // Data Lookups
+    const hsr_to_npsc = {
+      "1D - Dairy beverages": {"category": "Beverages", "group_number": 1},
+      "2 - Foods": {"category": "Food", "group_number": 2},
+      "2D - Dairy foods": {"category": "Food", "group_number": 2},
+      "3 - Fats, oils": {"category": "Fats/Oils/Cheese", "group_number": 3},
+      "3D - Cheese": {"category": "Fats/Oils/Cheese", "group_number": 3}
+    };
+
+    const fopl_calibration_map = {
+      "1D - Dairy beverages": {"bad": 6, "good": -2, "range": 8},
+      "2 - Foods": {"bad": 29, "good": -15, "range": 44},
+      "2D - Dairy foods": {"bad": 14, "good": -3, "range": 17},
+      "3 - Fats, oils": {"bad": 45, "good": 10, "range": 35},
+      "3D - Cheese": {"bad": 41, "good": 23, "range": 18}
+    };
+
+    const star_conversion_divisor_map = {
+      "1D - Dairy beverages": 8.999,
+      "2 - Foods": 9.999,
+      "2D - Dairy foods": 9.999,
+      "3 - Fats, oils": 9.999,
+      "3D - Cheese": 9.999
+    };
+
+
+    // Logic Implementation
+    const HSR_categories = ['1D - Dairy beverages', '2 - Foods', '2D - Dairy foods', '3 - Fats, oils', '3D - Cheese'];
+    const hsr_category = HSR_categories[hsr_input];
+    const npsc_category_group_number = ({"1D - Dairy beverages":1,"2 - Foods":2,"2D - Dairy foods":2,"3 - Fats, oils":3,"3D - Cheese":3})[hsr_category];
+
+    const all_fav_concentrated = (concentrated_fruit_and_vegetable >= 0 && FVNL === 0) ? "Yes" : "No";
+
+    // Calc FVNL Percent
+    const numerator = FVNL + 2 * concentrated_fruit_and_vegetable;
+    const denominator = FVNL + 2 * concentrated_fruit_and_vegetable + (100 - concentrated_fruit_and_vegetable - FVNL);
+    let fruit_veg_nuts_pulses_percent = 0;
+    if (denominator !== 0) {
+      fruit_veg_nuts_pulses_percent = parseFloat(((numerator / denominator) * 100).toFixed(2));
+    }
+
+    // Baseline Points
+    const isGroup3 = (npsc_category_group_number === 3);
+    const baseline_energy_points = !isGroup3 ? get_next_highest_index(energy, energy_kj_1) : get_next_highest_index(energy, energy_kj_2);
+    const baseline_sat_fat_points = !isGroup3 ? get_next_highest_index(saturated_fat, sat_fat_g_1) : get_next_highest_index(saturated_fat, sat_fat_g_2);
+    const baseline_total_sugars_points = !isGroup3 ? get_next_highest_index(total_sugars, tot_sug_g_1) : get_next_highest_index(total_sugars, tot_sug_g_2);
+    const baseline_sodium_points = !isGroup3 ? get_next_highest_index(sodium, na_mg_1) : get_next_highest_index(sodium, na_mg_2);
+
+    const total_baseline_points_table_a = baseline_energy_points + baseline_sat_fat_points + baseline_total_sugars_points + baseline_sodium_points;
+
+    // Modifying Points
+    const modifying_points_percent_FVNL = (all_fav_concentrated === "Yes")
+      ? get_next_highest_index(concentrated_fruit_and_vegetable, conc_fvnl_percent)
+      : get_next_highest_index(fruit_veg_nuts_pulses_percent, fvnl_percent);
+
+    const modifying_points_percent_fibre = (npsc_category_group_number === 1)
+      ? get_next_highest_index(fibre, percent_foods_fibre)
+      : 0;
+
+    const modifying_points_percent_protein = get_next_highest_index(protein, percent_foods_protein);
+    const combined_modifying_percent = modifying_points_percent_FVNL + modifying_points_percent_fibre + modifying_points_percent_protein;
+
+    let total_modifying_points_table_c = 0;
+    if (total_baseline_points_table_a < 13 || modifying_points_percent_FVNL >= 5) {
+      total_modifying_points_table_c = combined_modifying_percent;
+    } else {
+      total_modifying_points_table_c = modifying_points_percent_FVNL + modifying_points_percent_fibre;
+    }
+
+    const hsr_profile_score = total_baseline_points_table_a - total_modifying_points_table_c;
+
+    // Final Score
+    const fopl_calibration_map_local = {
+      "1D - Dairy beverages": {"good": -2, "range": 8},
+      "2 - Foods": {"good": -15, "range": 44},
+      "2D - Dairy foods": {"good": -3, "range": 17},
+      "3 - Fats, oils": {"good": 10, "range": 35},
+      "3D - Cheese": {"good": 23, "range": 18}
+    };
+    const star_conversion_divisor_map_local = {
+      "1D - Dairy beverages": 8.999,
+      "2 - Foods": 9.999,
+      "2D - Dairy foods": 9.999,
+      "3 - Fats, oils": 9.999,
+      "3D - Cheese": 9.999
+    };
+
+    const fopl_calibration_good = fopl_calibration_map_local[hsr_category]["good"];
+    const fopl_calibration_range = fopl_calibration_map_local[hsr_category]["range"];
+    const star_conversion_divisor = star_conversion_divisor_map_local[hsr_category];
+
+    const raw_calc = 10.499 - ((hsr_profile_score - fopl_calibration_good) / fopl_calibration_range) * star_conversion_divisor;
+    const r = Math.round(raw_calc);
+    const hsr_star_points = Math.max(Math.min(r, 10), 1);
+    return hsr_star_points;
+  }
+
+  // ---------- New UI wiring ----------
+  const HSR_LABELS = ['1D - Dairy beverages', '2 - Foods', '2D - Dairy foods', '3 - Fats, oils', '3D - Cheese'];
+
+  function getURLNumber(params, key, fallback = 0) {
+    return params.has(key) ? parseFloat(params.get(key)) : fallback;
+  }
+
+  function readInputsFromUI() {
+    const inputs = {
+      hsr_input: parseInt(document.getElementById('hsr_input').value, 10),
+      energy: parseFloat(document.getElementById('energy').value),
+      saturated_fat: parseFloat(document.getElementById('saturated_fat').value),
+      total_sugars: parseFloat(document.getElementById('total_sugars').value),
+      sodium: parseFloat(document.getElementById('sodium').value),
+      fibre: parseFloat(document.getElementById('fibre').value),
+      protein: parseFloat(document.getElementById('protein').value),
+      concentrated_fruit_and_vegetable: parseFloat(document.getElementById('concentrated_fruit_and_vegetable').value),
+      FVNL: parseFloat(document.getElementById('FVNL').value)
+    };
+    return inputs;
+  }
+
+  
+function reflectInputsInUI(inputs) {
+  const setVal = (id, v) => { const el = document.getElementById(id); if (el) el.value = v; };
+  setVal('hsr_input', String(inputs.hsr_input)); // select expects a string value
+  setVal('energy', inputs.energy);
+  setVal('saturated_fat', inputs.saturated_fat);
+  setVal('total_sugars', inputs.total_sugars);
+  setVal('sodium', inputs.sodium);
+  setVal('fibre', inputs.fibre);
+  setVal('protein', inputs.protein);
+  setVal('concentrated_fruit_and_vegetable', inputs.concentrated_fruit_and_vegetable);
+  setVal('FVNL', inputs.FVNL);
+
+  // Update label text for selected HSR category
+  document.getElementById('hsr_label').textContent =
+    HSR_LABELS[inputs.hsr_input] ?? '—';
+
+  const ids = ['energy','saturated_fat','total_sugars','sodium','fibre','protein','concentrated_fruit_and_vegetable','FVNL'];
+  ids.forEach(id => {
+    const val = document.getElementById(id).value;
+    document.getElementById(id + '_value').textContent =
+      (id === 'energy' || id === 'sodium') ? parseFloat(val) : parseFloat(val).toFixed(1);
+  });
+}
+
+
+  function update() {
+    try {
+      const inputs = readInputsFromUI();
+
+      // Validation
+      hsr_input_validation(
+        inputs.hsr_input, inputs.energy, inputs.saturated_fat, inputs.total_sugars,
+        inputs.sodium, inputs.fibre, inputs.protein,
+        inputs.concentrated_fruit_and_vegetable, inputs.FVNL
+      );
+
+      // Compute
+      const result = hsr_calc(
+        inputs.hsr_input, inputs.energy, inputs.saturated_fat, inputs.total_sugars,
+        inputs.sodium, inputs.fibre, inputs.protein,
+        inputs.concentrated_fruit_and_vegetable, inputs.FVNL
+      );
+
+      const response = {
+        version : "4.2",
+        inputs: inputs,
+        result_score: result,
+        stars: toStarRating(result)
+      };
+
+      // Outputs: headline
+      document.getElementById('out_version').textContent = response.version;
+      document.getElementById('out_result').textContent = response.result_score;
+      document.getElementById('out_stars').textContent = response.stars;
+
+      // Outputs: inputs echoed
+      const outInputs = document.getElementById('out_inputs');
+      outInputs.innerHTML = "";
+      const entries = [
+        ["hsr_input", `${inputs.hsr_input} (→ ${HSR_LABELS[inputs.hsr_input] ?? '—'})`],
+        ["energy", inputs.energy],
+        ["saturated_fat", inputs.saturated_fat],
+        ["total_sugars", inputs.total_sugars],
+        ["sodium", inputs.sodium],
+        ["fibre", inputs.fibre],
+        ["protein", inputs.protein],
+        ["concentrated_fruit_and_vegetable", inputs.concentrated_fruit_and_vegetable],
+        ["FVNL", inputs.FVNL]
+      ];
+      for (const [k, v] of entries) {
+        const kDiv = document.createElement('div');
+        const vDiv = document.createElement('div');
+        kDiv.textContent = k;
+        vDiv.textContent = v;
+        outInputs.appendChild(kDiv);
+        outInputs.appendChild(vDiv);
+      }
+
+      // Raw JSON
+      document.getElementById('json-output').textContent = JSON.stringify(response, null, 4);
+    } catch (e) {
+      document.getElementById('json-output').textContent = JSON.stringify({ error: e.message }, null, 4);
+      document.getElementById('out_result').textContent = "—";
+      document.getElementById('out_stars').textContent = "—";
+    }
+  }
+
+  // Initialize from URL params (if provided)
+  (function initFromURL() {
+    const p = new URLSearchParams(window.location.search);
+    const inputs = {
+      hsr_input: Math.min(4, Math.max(0, parseInt(getURLNumber(p, 'hsr_input', 0), 10) || 0)),
+      energy: getURLNumber(p, 'energy', 0),
+      saturated_fat: getURLNumber(p, 'saturated_fat', 0),
+      total_sugars: getURLNumber(p, 'total_sugars', 0),
+      sodium: getURLNumber(p, 'sodium', 0),
+      fibre: getURLNumber(p, 'fibre', 0),
+      protein: getURLNumber(p, 'protein', 0),
+      concentrated_fruit_and_vegetable: getURLNumber(p, 'concentrated_fruit_and_vegetable', 0),
+      FVNL: getURLNumber(p, 'FVNL', 0)
+    };
+    reflectInputsInUI(inputs);
+    update();
+  })();
+
+  // Wire up listeners (live updates)
+  const inputIds = ['hsr_input','energy','saturated_fat','total_sugars','sodium','fibre','protein','concentrated_fruit_and_vegetable','FVNL'];
+  inputIds.forEach(id => {
+    const el = document.getElementById(id);
+    el.addEventListener('input', () => {
+      reflectInputsInUI(readInputsFromUI());
+      update();
+    });
+  });
+
+</script>
+</body>
+</html>
