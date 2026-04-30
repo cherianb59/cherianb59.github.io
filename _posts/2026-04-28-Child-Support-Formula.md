@@ -26,18 +26,18 @@ Modern formulas (specifically the one used by Services Australia) are built on t
 ### The Basic Equation
 The formula determines the "Cost of the Children" based on the parents' combined income, then splits that cost based on each parent's share of that income and their level of care.
 
-The basic "Support Amount" ($S$) can be expressed as:
+The basic Child Support Amount formula can be expressed as:
 
-$$S = ((\text{Income}\% - \text{Care}\%) \times \text{COC})$$
+$$ \text{Child Support Amount} = ( (\text{Care}\% - \text{Income}\%) \times \text{COC})$$
 
 Where:
-*   **$Income%$** is the **Income Percentage** (your share of the combined parental income).
-*   **$Care%$** is the **Care Percentage** (your share of caring for the chilren over the year).
-*   **$COC$** is the **Cost of Children** (a dollar amount determined by government tables based on the children's ages and total combined income).
+*   **Care%** is the **Care Percentage** (your share of caring for the chilren over the year).
+*   **Income%** is the **Income Percentage** (your share of the combined parental income).
+*   **COC** is the **Cost of Children** (a dollar amount determined by government tables based on the children's ages and total combined income).
 
 If you have 60% of the income and 60% of the care then there is no exchange, you and your partner are equally meeting the costs of the child by looking after them. 
 
-If you have 80% of the income and 60% of the care then you need to transfer 20% of the cost of the children to your partner. This is because they have 20% of the income and 40%, their care percentage is in excess of their income percentage. 
+If you have 80% of the combined income and 60% of the care then you need to transfer 20% of the cost of the children to your partner. This is because they have 20% of the combined  income and 40% of the care, their care percentage is in excess of their income percentage by 20 percentage points. 
 
 If you want to explore in more detail how it works I've made a claculator which goes into all the gory details [calculator](https://cherianb59.github.io/static/cs.html). It has all the inputs required for the assessment along with charts which show how the assessment changes as your income increases, and there is also a section if you want to adjust the costs of the children rates.
 
