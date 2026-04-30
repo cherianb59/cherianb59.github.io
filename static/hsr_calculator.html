@@ -183,6 +183,117 @@
       </p>
     </section>
 
+    <!-- Result: always visible -->
+    <section class="py-3">
+      <div id="star-result" class="result-card result-init">
+        Adjust the inputs to see the Health Star Rating.
+      </div>
+    </section>
+
+    <!-- Inputs + intermediate calcs: always visible -->
+    <section class="mb-3">
+      <div class="row g-3">
+
+        <!-- Inputs -->
+        <div class="col-lg-6">
+          <div class="content-card">
+            <h5 class="section-header">Inputs</h5>
+
+            <div class="mb-3">
+              <label class="form-label fw-semibold" for="hsr_input">Food category</label>
+              <select class="form-select" id="hsr_input">
+                <option value="0">1D – Dairy beverages</option>
+                <option value="1" selected>2 – Foods</option>
+                <option value="2">2D – Dairy foods</option>
+                <option value="3">3 – Fats &amp; oils</option>
+                <option value="4">3D – Cheese</option>
+              </select>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Energy <span class="text-muted small">(kJ / 100g)</span></label>
+              <div class="d-flex align-items-center gap-2">
+                <input type="range" class="form-range flex-grow-1" min="0" max="4000" step="1" value="0" id="energy">
+                <span class="badge val-badge" id="energy_val">0</span>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Saturated fat <span class="text-muted small">(g / 100g)</span></label>
+              <div class="d-flex align-items-center gap-2">
+                <input type="range" class="form-range flex-grow-1" min="0" max="100" step="0.1" value="0" id="saturated_fat">
+                <span class="badge val-badge" id="saturated_fat_val">0.0</span>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Total sugars <span class="text-muted small">(g / 100g)</span></label>
+              <div class="d-flex align-items-center gap-2">
+                <input type="range" class="form-range flex-grow-1" min="0" max="100" step="0.1" value="0" id="total_sugars">
+                <span class="badge val-badge" id="total_sugars_val">0.0</span>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Sodium <span class="text-muted small">(mg / 100g)</span></label>
+              <div class="d-flex align-items-center gap-2">
+                <input type="range" class="form-range flex-grow-1" min="0" max="2700" step="10" value="0" id="sodium">
+                <span class="badge val-badge" id="sodium_val">0</span>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Fibre <span class="text-muted small">(g / 100g)</span></label>
+              <div class="d-flex align-items-center gap-2">
+                <input type="range" class="form-range flex-grow-1" min="0" max="100" step="0.1" value="0" id="fibre">
+                <span class="badge val-badge" id="fibre_val">0.0</span>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Protein <span class="text-muted small">(g / 100g)</span></label>
+              <div class="d-flex align-items-center gap-2">
+                <input type="range" class="form-range flex-grow-1" min="0" max="100" step="0.1" value="0" id="protein">
+                <span class="badge val-badge" id="protein_val">0.0</span>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Concentrated fruit &amp; vegetables <span class="text-muted small">(%)</span></label>
+              <div class="d-flex align-items-center gap-2">
+                <input type="range" class="form-range flex-grow-1" min="0" max="50" step="0.1" value="0" id="concentrated_fruit_and_vegetable">
+                <span class="badge val-badge" id="conc_val">0.0</span>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">FVNL – Fruits, Vegetables, Nuts &amp; Legumes <span class="text-muted small">(%)</span></label>
+              <div class="d-flex align-items-center gap-2">
+                <input type="range" class="form-range flex-grow-1" min="0" max="100" step="0.1" value="0" id="FVNL">
+                <span class="badge val-badge" id="FVNL_val">0.0</span>
+              </div>
+            </div>
+
+            <div class="form-text mt-1">
+              Values per 100g (or 100mL for beverages).
+              Pre-fill via query params, e.g. <code>?energy=1200&amp;total_sugars=8</code>.
+            </div>
+          </div>
+        </div>
+
+        <!-- Intermediate calculations -->
+        <div class="col-lg-6">
+          <div class="content-card">
+            <h5 class="section-header">Intermediate calculations</h5>
+            <div id="calc-detail">
+              <p class="text-muted small">Adjust inputs to see step-by-step calculations.</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
     <ul class="nav nav-tabs mb-0" id="mainTab" role="tablist">
       <li class="nav-item" role="presentation">
         <button class="nav-link active" id="calc-tab-btn" data-bs-toggle="tab"
@@ -194,119 +305,11 @@
       </li>
     </ul>
 
-    <!-- Result: always visible -->
-    <section class="py-3">
-      <div id="star-result" class="result-card result-init">
-        Adjust the inputs to see the Health Star Rating.
-      </div>
-    </section>
-
     <!-- Tab content -->
     <div class="tab-content">
 
-      <!-- ── Calculator tab ── -->
-      <div class="tab-pane active" id="tab-calculator" role="tabpanel">
-        <div class="row g-3">
-
-          <!-- Inputs -->
-          <div class="col-lg-6">
-            <div class="content-card">
-              <h5 class="section-header">Inputs</h5>
-
-              <div class="mb-3">
-                <label class="form-label fw-semibold" for="hsr_input">Food category</label>
-                <select class="form-select" id="hsr_input">
-                  <option value="0">1D – Dairy beverages</option>
-                  <option value="1" selected>2 – Foods</option>
-                  <option value="2">2D – Dairy foods</option>
-                  <option value="3">3 – Fats &amp; oils</option>
-                  <option value="4">3D – Cheese</option>
-                </select>
-              </div>
-
-              <div class="mb-3">
-                <label class="form-label">Energy <span class="text-muted small">(kJ / 100g)</span></label>
-                <div class="d-flex align-items-center gap-2">
-                  <input type="range" class="form-range flex-grow-1" min="0" max="4000" step="1" value="0" id="energy">
-                  <span class="badge val-badge" id="energy_val">0</span>
-                </div>
-              </div>
-
-              <div class="mb-3">
-                <label class="form-label">Saturated fat <span class="text-muted small">(g / 100g)</span></label>
-                <div class="d-flex align-items-center gap-2">
-                  <input type="range" class="form-range flex-grow-1" min="0" max="100" step="0.1" value="0" id="saturated_fat">
-                  <span class="badge val-badge" id="saturated_fat_val">0.0</span>
-                </div>
-              </div>
-
-              <div class="mb-3">
-                <label class="form-label">Total sugars <span class="text-muted small">(g / 100g)</span></label>
-                <div class="d-flex align-items-center gap-2">
-                  <input type="range" class="form-range flex-grow-1" min="0" max="100" step="0.1" value="0" id="total_sugars">
-                  <span class="badge val-badge" id="total_sugars_val">0.0</span>
-                </div>
-              </div>
-
-              <div class="mb-3">
-                <label class="form-label">Sodium <span class="text-muted small">(mg / 100g)</span></label>
-                <div class="d-flex align-items-center gap-2">
-                  <input type="range" class="form-range flex-grow-1" min="0" max="2700" step="10" value="0" id="sodium">
-                  <span class="badge val-badge" id="sodium_val">0</span>
-                </div>
-              </div>
-
-              <div class="mb-3">
-                <label class="form-label">Fibre <span class="text-muted small">(g / 100g)</span></label>
-                <div class="d-flex align-items-center gap-2">
-                  <input type="range" class="form-range flex-grow-1" min="0" max="100" step="0.1" value="0" id="fibre">
-                  <span class="badge val-badge" id="fibre_val">0.0</span>
-                </div>
-              </div>
-
-              <div class="mb-3">
-                <label class="form-label">Protein <span class="text-muted small">(g / 100g)</span></label>
-                <div class="d-flex align-items-center gap-2">
-                  <input type="range" class="form-range flex-grow-1" min="0" max="100" step="0.1" value="0" id="protein">
-                  <span class="badge val-badge" id="protein_val">0.0</span>
-                </div>
-              </div>
-
-              <div class="mb-3">
-                <label class="form-label">Concentrated fruit &amp; vegetables <span class="text-muted small">(%)</span></label>
-                <div class="d-flex align-items-center gap-2">
-                  <input type="range" class="form-range flex-grow-1" min="0" max="50" step="0.1" value="0" id="concentrated_fruit_and_vegetable">
-                  <span class="badge val-badge" id="conc_val">0.0</span>
-                </div>
-              </div>
-
-              <div class="mb-3">
-                <label class="form-label">FVNL – Fruits, Vegetables, Nuts &amp; Legumes <span class="text-muted small">(%)</span></label>
-                <div class="d-flex align-items-center gap-2">
-                  <input type="range" class="form-range flex-grow-1" min="0" max="100" step="0.1" value="0" id="FVNL">
-                  <span class="badge val-badge" id="FVNL_val">0.0</span>
-                </div>
-              </div>
-
-              <div class="form-text mt-1">
-                Values per 100g (or 100mL for beverages).
-                Pre-fill via query params, e.g. <code>?energy=1200&amp;total_sugars=8</code>.
-              </div>
-            </div>
-          </div>
-
-          <!-- Intermediate calculations -->
-          <div class="col-lg-6">
-            <div class="content-card">
-              <h5 class="section-header">Intermediate calculations</h5>
-              <div id="calc-detail">
-                <p class="text-muted small">Adjust inputs to see step-by-step calculations.</p>
-              </div>
-            </div>
-          </div>
-
-        </div>
-      </div>
+      <!-- ── Calculator tab (inputs are always shown above) ── -->
+      <div class="tab-pane active" id="tab-calculator" role="tabpanel"></div>
 
       <!-- ── Model tab ── -->
       <div class="tab-pane" id="tab-model" role="tabpanel">
@@ -490,7 +493,7 @@ function hsrSafe(hsr_input, energy, saturated_fat, total_sugars, sodium, fibre, 
 function toStarDisplay(score) {
   const full = Math.floor(score / 2);
   const half = score % 2;
-  return '★'.repeat(full) + (half ? '½' : '');
+  return '★'.repeat(full) + (half ? '☆' : '');
 }
 
 // ================================================================
