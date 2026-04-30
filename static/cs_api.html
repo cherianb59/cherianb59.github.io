@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <style>body{font-family:monospace;white-space:pre;margin:1rem;background:#fff;color:#000;font-size:0.9rem}</style>
+</head>
+<body><script>
+// ============================================================
+// VERSION
+// ============================================================
+const VERSION = "1.0.0";
+
+// ============================================================
+// FORMULA
+// ============================================================
+
+const defaultIncomeBands = [40594, 81188, 121782, 162376, 202970];
+
+const defaultTapers = {
+  "12l": {
+    1: [0.17, 0.15, 0.12, 0.10, 0.07, 0],
+    2: [0.24, 0.23, 0.20, 0.18, 0.10, 0],
+    3: [0.27, 0.26, 0.25, 0.24, 0.18, 0]
+  },
+  "13p": {
+    1: [0.23, 0.22, 0.12, 0.10, 0.09, 0],
+    2: [0.29, 0.28, 0.25, 0.20, 0.13, 0],
+    3: [0.32, 0.31, 0.30, 0.29, 0.20, 0]
+  },
+  "mix": {}
+};
+defaultTapers.mix[1] = new Array(defaultTapers["12l"][1].length).fill(0);
+defaultTapers.mix[2] = defaultTapers["12l"][2].map((v, i) => (v + defaultTapers["13p"][2][i]) / 2);
+defaultTapers.mix[3] = defaultTapers["12l"][3].map((v, i) => (v + defaultTapers["13p"][3][i]) / 2);
+
+const bv = {
+  2008: { mtawe: 54756, far: 1122, pps: 13980,  mar: 339 },
+  2009: { mtawe: 56425, far: 1178, pps: 14615,  mar: 356 },
+  2010: { mtawe: 58854, far: 1193, pps: 14937,  mar: 360 },
+  2011: { mtawe: 61781, far: 1226, pps: 15909,  mar: 370 },
+  2012: { mtawe: 64865, far: 1269, pps: 16679,  mar: 383 },
+  2013: { mtawe: 67137, far: 1294, pps: 17256,  mar: 391 },
+  2014: { mtawe: 70569, far: 1322, pps: 18197,  mar: 399 },
+  2015: { mtawe: 70829, far: 1352, pps: 18728,  mar: 408 },
+  2016: { mtawe: 71256, far: 1373, pps: 19011,  mar: 414 },
+  2017: { mtawe: 72462, far: 1390, pps: 19201,  mar: 420 },
+  2018: { mtawe: 73606, far: 1416, pps: 19568,  mar: 427 },
+  2019: { mtawe: 75114, far: 1443, pps: 19981,  mar: 435 },
+  2020: { mtawe: 76726, far: 1467, pps: 20298,  mar: 443 },
+  2021: { mtawe: 78957, far: 1477, pps: 20621,  mar: 446 },
+  2022: { mtawe: 81188, far: 1521, pps: 22888,  mar: 459 },
+  2023: { mtawe: 82524, far: 1632, pps: 23800,  mar: 493 },
+  2024: { mtawe: 85389, far: 1720, pps: 25225,  mar: 519 },
+  2025: { mtawe: 89523, far: 1768, pps: 26195,  mar: 534 },
+  2026: { mtawe: 93137, far: 1825, pps: 26720,  mar: 551 }
+};
+for (const y in bv) bv[y].ssa = Math.round(bv[y].mtawe / 3);
+
+const VALID_YEARS = Object.keys(bv).map(Number);
+
+function careToCost(c) {
+  c = c < 0.5 ? Math.floor(100 * c) / 100 : Math.ceil(100 * c) / 100;
+  if      (c <  0.14) return 0;
+  else if (c <  0.35) return 0.24;
+  else if (c <  0.48) return Math.round((0.25 + 2 * (c - 0.35)) * 100) / 100;
+  else if (c <= 0.52) return 0.50;
+  else if (c <= 0.65) return Math.round((0.51 + 2 * (c - 0.53)) * 100) / 100;
+  else if (c <= 0.86) return 0.76;
+  else                return 1;
+}
+
+function ageMix(k12, k13) {
+  if (k12 > 0 && k13 === 0) return "12l";
+  if (k12 === 0 && k13 > 0) return "13p";
+  if (k12 > 0  && k13 > 0)  return "mix";
+  return "err";
+}
+
+function coc(numKids, ages, income, bands, tapers) {
+  numKids = Math.min(numKids, 3);
+  let cost = 0, prev = 0, i = 0;
+  for (const band of bands) {
+    if (income <= band) { cost += (income - prev) * tapers[ages][numKids][i]; return cost; }
+    cost += (band - prev) * tapers[ages][numKids][i];
+    i++; prev = band;
+  }
+  cost += (income - prev) * tapers[ages][numKids][i];
+  return cost;
+}
+
+function cocSimple(income, k12, k13, bands, tapers) {
+  if (k12 === 0 && k13 === 0) return 0;
+  return coc(k12 + k13, ageMix(k12, k13), income, bands, tapers);
+}
+
+function r2(n) { return Math.round(n * 100) / 100; }
+
+function calculate(year, ages, nchild, a_cn,
+  a_ati, a_othercase_n, a_oth_lsc, a_isp, a_reldep_12l, a_reldep_13p, a_othercase_12l, a_othercase_13p,
+  b_ati, b_othercase_n, b_oth_lsc, b_isp, b_reldep_12l, b_reldep_13p, b_othercase_12l, b_othercase_13p,
+  bands, tapers
+) {
+  const base = bv[year];
+
+  const a_ati_lessssa = Math.max(0, a_ati - base.ssa);
+  const b_ati_lessssa = Math.max(0, b_ati - base.ssa);
+
+  const a_reldep_coc = cocSimple(a_ati_lessssa, a_reldep_12l, a_reldep_13p, bands, tapers);
+  const b_reldep_coc = cocSimple(b_ati_lessssa, b_reldep_12l, b_reldep_13p, bands, tapers);
+  const a_ati_lessreldep = Math.max(0, a_ati_lessssa - a_reldep_coc);
+  const b_ati_lessreldep = Math.max(0, b_ati_lessssa - b_reldep_coc);
+
+  const a_allcases_nchild = a_othercase_12l + a_othercase_13p + nchild;
+  const b_allcases_nchild = b_othercase_12l + b_othercase_13p + nchild;
+
+  const a_mc_cost_pc_12l = a_allcases_nchild > 0 ? cocSimple(a_ati_lessreldep, a_allcases_nchild, 0, bands, tapers) / a_allcases_nchild : 0;
+  const a_mc_cost_pc_13p = a_allcases_nchild > 0 ? cocSimple(a_ati_lessreldep, 0, a_allcases_nchild, bands, tapers) / a_allcases_nchild : 0;
+  const b_mc_cost_pc_12l = b_allcases_nchild > 0 ? cocSimple(b_ati_lessreldep, b_allcases_nchild, 0, bands, tapers) / b_allcases_nchild : 0;
+  const b_mc_cost_pc_13p = b_allcases_nchild > 0 ? cocSimple(b_ati_lessreldep, 0, b_allcases_nchild, bands, tapers) / b_allcases_nchild : 0;
+
+  const a_mc_cost = a_othercase_12l * a_mc_cost_pc_12l + a_othercase_13p * a_mc_cost_pc_13p;
+  const b_mc_cost = b_othercase_12l * b_mc_cost_pc_12l + b_othercase_13p * b_mc_cost_pc_13p;
+
+  const a_csi = Math.max(0, a_ati_lessreldep - a_mc_cost);
+  const b_csi = Math.max(0, b_ati_lessreldep - b_mc_cost);
+  const combined_csi = Math.round(a_csi + b_csi);
+
+  const a_income_pct = combined_csi !== 0 ? a_csi / combined_csi : 0;
+  const b_income_pct = combined_csi !== 0 ? b_csi / combined_csi : 0;
+
+  const a_care_pct = [], a_cost_pct = [], a_cs_pct = [], a_mc_cap = [];
+  const b_care_pct = [], b_cost_pct = [], b_cs_pct = [], b_mc_cap = [];
+
+  for (let i = 0; i < nchild; i++) {
+    a_care_pct[i] = a_cn[i] / 365;
+    a_cost_pct[i] = careToCost(a_care_pct[i]);
+    a_cs_pct[i]   = Math.max(a_income_pct - a_cost_pct[i], 0);
+    b_care_pct[i] = 1 - a_care_pct[i];
+    b_cost_pct[i] = careToCost(b_care_pct[i]);
+    b_cs_pct[i]   = Math.max(b_income_pct - b_cost_pct[i], 0);
+    a_mc_cap[i]   = (1 - a_cost_pct[i]) * (ages[i] <= 12 ? a_mc_cost_pc_12l : a_mc_cost_pc_13p);
+    b_mc_cap[i]   = (1 - b_cost_pct[i]) * (ages[i] <= 12 ? b_mc_cost_pc_12l : b_mc_cost_pc_13p);
+  }
+
+  const ekids_12l = ages.filter(a => a <= 12).length;
+  const ekids_13p = ages.filter(a => a >= 13).length;
+  const basic_coc    = cocSimple(combined_csi, ekids_12l, ekids_13p, bands, tapers);
+  const basic_coc_pc = nchild > 0 ? basic_coc / nchild : 0;
+
+  const mc_12l_pc = nchild > 0 ? cocSimple(combined_csi, nchild, 0, bands, tapers) / nchild : 0;
+  const mc_13p_pc = nchild > 0 ? cocSimple(combined_csi, 0, nchild, bands, tapers) / nchild : 0;
+  const mcm_coc   = ages.map(a => a <= 12 ? mc_12l_pc : mc_13p_pc);
+
+  const multi_case_flag = (a_othercase_n + b_othercase_n) > 0;
+
+  const a_form_liab = [], b_form_liab = [];
+  for (let i = 0; i < nchild; i++) {
+    let al, bl;
+    if (!multi_case_flag) {
+      al = a_cs_pct[i] * basic_coc_pc;
+      bl = b_cs_pct[i] * basic_coc_pc;
+    } else {
+      al = Math.min(a_cs_pct[i] * mcm_coc[i], a_mc_cap[i]);
+      bl = Math.min(b_cs_pct[i] * mcm_coc[i], b_mc_cap[i]);
+    }
+    a_form_liab[i] = a_care_pct[i] > 0.65 ? 0 : al;
+    b_form_liab[i] = b_care_pct[i] > 0.65 ? 0 : bl;
+  }
+
+  const a_allchild_lsc = a_oth_lsc + a_care_pct.filter(p => p <= 0.35).length;
+  const b_allchild_lsc = b_oth_lsc + b_care_pct.filter(p => p <= 0.35).length;
+
+  const a_unit_far = a_allchild_lsc > 0 ? base.far * Math.min(3, a_allchild_lsc) / a_allchild_lsc : 0;
+  const b_unit_far = b_allchild_lsc > 0 ? base.far * Math.min(3, b_allchild_lsc) / b_allchild_lsc : 0;
+
+  const a_form_far = [], b_form_far = [];
+  for (let i = 0; i < nchild; i++) {
+    const a_far = (a_isp === 0 && a_ati < base.pps && a_care_pct[i] <= 0.35) ? a_unit_far : 0;
+    const b_far = (b_isp === 0 && b_ati < base.pps && b_care_pct[i] <= 0.35) ? b_unit_far : 0;
+    a_form_far[i] = Math.max(a_form_liab[i], a_far);
+    b_form_far[i] = Math.max(b_form_liab[i], b_far);
+  }
+
+  const sum = arr => arr.reduce((s, v) => s + v, 0);
+  const a_total = sum(a_form_far) - sum(b_form_far);
+  const b_total = -a_total;
+
+  const a_totalcases = 1 + a_othercase_n;
+  const b_totalcases = 1 + b_othercase_n;
+  const a_mar = base.mar * Math.min(3, a_totalcases) / a_totalcases;
+  const b_mar = base.mar * Math.min(3, b_totalcases) / b_totalcases;
+
+  const a_mar_eligible = a_care_pct.filter(p => p >= 0.14).length === 0;
+  const b_mar_eligible = b_care_pct.filter(p => p >= 0.14).length === 0;
+
+  let a_sel;
+  if (a_total >= 0) {
+    a_sel = (a_mar_eligible && !b_mar_eligible) ? Math.max(a_total, a_mar) : a_total;
+  } else {
+    const b_sel = (b_mar_eligible && !a_mar_eligible) ? Math.max(b_total, b_mar) : b_total;
+    a_sel = -b_sel;
+  }
+
+  const liability = Math.round(a_sel);
+
+  const per_child = [];
+  for (let i = 0; i < nchild; i++) {
+    per_child.push({
+      child_number:        i + 1,
+      age:                 ages[i],
+      a_care_nights:       a_cn[i],
+      b_care_nights:       365 - a_cn[i],
+      a_care_pct:          r2(a_care_pct[i]),
+      b_care_pct:          r2(b_care_pct[i]),
+      a_cost_pct:          a_cost_pct[i],
+      b_cost_pct:          b_cost_pct[i],
+      a_cs_pct:            r2(a_cs_pct[i]),
+      b_cs_pct:            r2(b_cs_pct[i]),
+      a_mc_cap:            r2(a_mc_cap[i]),
+      b_mc_cap:            r2(b_mc_cap[i]),
+      a_formula_liability: r2(a_form_liab[i]),
+      b_formula_liability: r2(b_form_liab[i]),
+      a_far_applied:       r2(a_form_far[i] - a_form_liab[i]),
+      b_far_applied:       r2(b_form_far[i] - b_form_liab[i]),
+      a_final_liability:   r2(a_form_far[i]),
+      b_final_liability:   r2(b_form_far[i]),
+    });
+  }
+
+  return {
+    base_values: {
+      mtawe: base.mtawe, ssa: base.ssa, far: base.far, pps: base.pps, mar: base.mar,
+    },
+    intermediates: {
+      parent_a: {
+        ati_less_ssa:          r2(a_ati_lessssa),
+        relationship_dep_coc:  r2(a_reldep_coc),
+        ati_less_reldep:       r2(a_ati_lessreldep),
+        allcases_nchild:       a_allcases_nchild,
+        mc_cost_per_child_12l: r2(a_mc_cost_pc_12l),
+        mc_cost_per_child_13p: r2(a_mc_cost_pc_13p),
+        multicase_cost:        r2(a_mc_cost),
+        child_support_income:  r2(a_csi),
+        income_pct:            r2(a_income_pct),
+        allchild_lsc:          a_allchild_lsc,
+        unit_far:              r2(a_unit_far),
+        mar:                   r2(a_mar),
+        mar_eligible:          a_mar_eligible,
+      },
+      parent_b: {
+        ati_less_ssa:          r2(b_ati_lessssa),
+        relationship_dep_coc:  r2(b_reldep_coc),
+        ati_less_reldep:       r2(b_ati_lessreldep),
+        allcases_nchild:       b_allcases_nchild,
+        mc_cost_per_child_12l: r2(b_mc_cost_pc_12l),
+        mc_cost_per_child_13p: r2(b_mc_cost_pc_13p),
+        multicase_cost:        r2(b_mc_cost),
+        child_support_income:  r2(b_csi),
+        income_pct:            r2(b_income_pct),
+        allchild_lsc:          b_allchild_lsc,
+        unit_far:              r2(b_unit_far),
+        mar:                   r2(b_mar),
+        mar_eligible:          b_mar_eligible,
+      },
+      combined_csi:            combined_csi,
+      eligible_kids_12l:       ekids_12l,
+      eligible_kids_13p:       ekids_13p,
+      basic_cost_of_children:  r2(basic_coc),
+      basic_coc_per_child:     r2(basic_coc_pc),
+      multi_case_flag:         multi_case_flag,
+      a_total_before_mar:      r2(a_total),
+      per_child,
+    },
+    entitlement: {
+      liability_a_to_b: liability,
+      description: liability > 0
+        ? `Parent A owes Parent B $${liability.toLocaleString('en-AU')} per year`
+        : liability < 0
+          ? `Parent B owes Parent A $${Math.abs(liability).toLocaleString('en-AU')} per year`
+          : 'No child support payable',
+    },
+  };
+}
+
+// ============================================================
+// PARAMETER PARSING & VALIDATION
+// ============================================================
+
+function errResponse(code, parameter, reason) {
+  return { version: VERSION, result: "error", error: { code, parameter, reason } };
+}
+
+function getInt(params, name, required, def, min, max) {
+  const raw = params.get(name);
+  if (raw === null || raw === '') {
+    if (required) return { err: errResponse("MISSING_PARAMETER", name, `Required parameter "${name}" is missing`) };
+    return { value: def };
+  }
+  const v = parseInt(raw, 10);
+  if (isNaN(v) || String(v) !== raw.trim())
+    return { err: errResponse("INVALID_PARAMETER", name, `Parameter "${name}" must be an integer, got "${raw}"`) };
+  if (min !== undefined && v < min)
+    return { err: errResponse("INVALID_PARAMETER", name, `Parameter "${name}" must be >= ${min}, got ${v}`) };
+  if (max !== undefined && v > max)
+    return { err: errResponse("INVALID_PARAMETER", name, `Parameter "${name}" must be <= ${max}, got ${v}`) };
+  return { value: v };
+}
+
+function getFloat(params, name, required, def, min) {
+  const raw = params.get(name);
+  if (raw === null || raw === '') {
+    if (required) return { err: errResponse("MISSING_PARAMETER", name, `Required parameter "${name}" is missing`) };
+    return { value: def };
+  }
+  const v = parseFloat(raw);
+  if (isNaN(v))
+    return { err: errResponse("INVALID_PARAMETER", name, `Parameter "${name}" must be a number, got "${raw}"`) };
+  if (min !== undefined && v < min)
+    return { err: errResponse("INVALID_PARAMETER", name, `Parameter "${name}" must be >= ${min}, got ${v}`) };
+  return { value: v };
+}
+
+// ============================================================
+// MAIN
+// ============================================================
+
+(function () {
+  const params = new URLSearchParams(window.location.search);
+
+  // If no parameters at all, return a usage hint
+  if (params.toString() === '') {
+    const usage = {
+      version: VERSION,
+      result: "error",
+      error: {
+        code: "NO_PARAMETERS",
+        parameter: null,
+        reason: "No query parameters provided. See 'parameters' for required and optional inputs."
+      },
+      parameters: {
+        required: [
+          "year         — financial year start (integer, 2008–2026, e.g. 2026 for 2025–26)",
+          "numkids      — number of children with other parent (1–5)",
+          "a_ati        — Parent A adjusted taxable income (>= 0)",
+          "b_ati        — Parent B adjusted taxable income (>= 0)",
+          "kid{n}_age   — age of child n, for n = 1..numkids (0–17)",
+          "kid{n}_cn    — Parent A nights of care per year for child n (0–365)"
+        ],
+        optional_defaults_zero: [
+          "a_othercase_n   — Parent A number of other CS cases",
+          "a_othercase_12l — Parent A other CS children aged <=12",
+          "a_othercase_13p — Parent A other CS children aged 13+",
+          "a_reldep_12l    — Non-CS children <=12 in Parent A's current relationship",
+          "a_reldep_13p    — Non-CS children 13+ in Parent A's current relationship",
+          "a_oth_lsc       — Other CS children where Parent A has <128 nights/yr care",
+          "a_isp           — Parent A received income support (0 or 1)",
+          "b_othercase_n   — Parent B number of other CS cases",
+          "b_othercase_12l — Parent B other CS children aged <=12",
+          "b_othercase_13p — Parent B other CS children aged 13+",
+          "b_reldep_12l    — Non-CS children <=12 in Parent B's current relationship",
+          "b_reldep_13p    — Non-CS children 13+ in Parent B's current relationship",
+          "b_oth_lsc       — Other CS children where Parent B has <128 nights/yr care",
+          "b_isp           — Parent B received income support (0 or 1)"
+        ]
+      }
+    };
+    document.body.textContent = JSON.stringify(usage, null, 2);
+    return;
+  }
+
+  // Parse core params
+  let p;
+
+  p = getInt(params, 'year', true, null, null, null);
+  if (p.err) { document.body.textContent = JSON.stringify(p.err, null, 2); return; }
+  const year = p.value;
+  if (!VALID_YEARS.includes(year)) {
+    document.body.textContent = JSON.stringify(errResponse("INVALID_PARAMETER", "year",
+      `Parameter "year" must be one of ${VALID_YEARS.join(', ')}, got ${year}`), null, 2);
+    return;
+  }
+
+  p = getInt(params, 'numkids', true, null, 1, 5);
+  if (p.err) { document.body.textContent = JSON.stringify(p.err, null, 2); return; }
+  const numkids = p.value;
+
+  // Per-child params
+  const ages = [], a_cn = [];
+  for (let i = 1; i <= numkids; i++) {
+    p = getInt(params, `kid${i}_age`, true, null, 0, 17);
+    if (p.err) { document.body.textContent = JSON.stringify(p.err, null, 2); return; }
+    ages.push(p.value);
+
+    p = getInt(params, `kid${i}_cn`, true, null, 0, 365);
+    if (p.err) { document.body.textContent = JSON.stringify(p.err, null, 2); return; }
+    a_cn.push(p.value);
+  }
+
+  p = getFloat(params, 'a_ati', true, null, 0); if (p.err) { document.body.textContent = JSON.stringify(p.err, null, 2); return; }
+  const a_ati = p.value;
+
+  p = getFloat(params, 'b_ati', true, null, 0); if (p.err) { document.body.textContent = JSON.stringify(p.err, null, 2); return; }
+  const b_ati = p.value;
+
+  // Optional params (all default 0)
+  const opt = {};
+  const optDefs = [
+    ['a_othercase_n',   0, 20], ['a_othercase_12l', 0, 20], ['a_othercase_13p', 0, 20],
+    ['a_reldep_12l',    0, 20], ['a_reldep_13p',    0, 20], ['a_oth_lsc',       0, 20],
+    ['a_isp',           0,  1],
+    ['b_othercase_n',   0, 20], ['b_othercase_12l', 0, 20], ['b_othercase_13p', 0, 20],
+    ['b_reldep_12l',    0, 20], ['b_reldep_13p',    0, 20], ['b_oth_lsc',       0, 20],
+    ['b_isp',           0,  1],
+  ];
+  for (const [name, def, max] of optDefs) {
+    p = getInt(params, name, false, def, 0, max);
+    if (p.err) { document.body.textContent = JSON.stringify(p.err, null, 2); return; }
+    opt[name] = p.value;
+  }
+
+  // Run formula
+  let calcResult;
+  try {
+    calcResult = calculate(
+      year, ages, numkids, a_cn,
+      a_ati, opt.a_othercase_n, opt.a_oth_lsc, opt.a_isp, opt.a_reldep_12l, opt.a_reldep_13p, opt.a_othercase_12l, opt.a_othercase_13p,
+      b_ati, opt.b_othercase_n, opt.b_oth_lsc, opt.b_isp, opt.b_reldep_12l, opt.b_reldep_13p, opt.b_othercase_12l, opt.b_othercase_13p,
+      defaultIncomeBands, defaultTapers
+    );
+  } catch (e) {
+    document.body.textContent = JSON.stringify(
+      errResponse("CALCULATION_ERROR", null, `Internal calculation error: ${e.message}`), null, 2);
+    return;
+  }
+
+  // Assemble inputs echo
+  const inputsEcho = {
+    year,
+    numkids,
+    children: ages.map((age, i) => ({ child_number: i + 1, age, a_care_nights: a_cn[i] })),
+    parent_a: { ati: a_ati, othercase_n: opt.a_othercase_n, othercase_12l: opt.a_othercase_12l, othercase_13p: opt.a_othercase_13p, reldep_12l: opt.a_reldep_12l, reldep_13p: opt.a_reldep_13p, oth_lsc: opt.a_oth_lsc, income_support: opt.a_isp === 1 },
+    parent_b: { ati: b_ati, othercase_n: opt.b_othercase_n, othercase_12l: opt.b_othercase_12l, othercase_13p: opt.b_othercase_13p, reldep_12l: opt.b_reldep_12l, reldep_13p: opt.b_reldep_13p, oth_lsc: opt.b_oth_lsc, income_support: opt.b_isp === 1 },
+    income_bands: defaultIncomeBands,
+  };
+
+  const response = {
+    version:       VERSION,
+    result:        "success",
+    inputs:        inputsEcho,
+    base_values:   calcResult.base_values,
+    intermediates: calcResult.intermediates,
+    entitlement:   calcResult.entitlement,
+  };
+
+  document.body.textContent = JSON.stringify(response, null, 2);
+})();
+</script></body>
+</html>

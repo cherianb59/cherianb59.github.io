@@ -219,12 +219,12 @@
     /* ── Tables ── */
     .table { color: var(--app-text); border-color: var(--app-border); }
     .table-bordered > :not(caption) > * { border-color: var(--app-border); }
-    .table-light {
-      --bs-table-bg: var(--app-card);
-      --bs-table-color: var(--app-text);
-      --bs-table-border-color: var(--app-border);
-    }
     .taper-input { width: 70px; font-size: 0.8rem; padding: 2px 4px; }
+
+    /* ── Tapers table: explicit theming so dark mode works reliably ── */
+    #tapers-table, #tapers-table td { background-color: var(--app-card); color: var(--app-text); border-color: var(--app-border) !important; }
+    #tapers-table thead th { background-color: var(--app-bg); color: var(--app-text); border-color: var(--app-border) !important; }
+    #tapers-table .taper-input { background-color: var(--app-card) !important; color: var(--app-text) !important; border-color: var(--app-border) !important; }
 
     /* ── Footer ── */
     .app-footer {
@@ -642,7 +642,7 @@
             <h5 class="section-header">Cost of children tapers</h5>
             <div class="table-responsive">
               <table class="table table-sm table-bordered align-middle" id="tapers-table">
-                <thead class="table-light">
+                <thead>
                   <tr>
                     <th>Income band</th>
                     <th>1 child (≤12)</th>
