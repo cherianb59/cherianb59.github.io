@@ -1,0 +1,1388 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Restore saved theme before CSS loads to avoid flash -->
+  <script>(function(){var t=localStorage.getItem('theme')||'light';document.documentElement.setAttribute('data-theme',t);})();</script>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='5' fill='%231b2e6e'/%3E%3Ctext x='16' y='23' text-anchor='middle' fill='white' font-size='14' font-family='Arial%2Csans-serif' font-weight='bold'%3ECS%3C/text%3E%3C/svg%3E">
+  <style>
+    /* ── Light mode tokens ── */
+    :root,
+    [data-theme="light"] {
+      --app-header:  #1b2e6e;
+      --app-accent:  #1b6ca8;
+      --app-bg:      #f0f4f8;
+      --app-card:    #ffffff;
+      --app-text:    #1a1a1a;
+      --app-muted:   #595959;
+      --app-border:  #c8d3db;
+      --app-range:   #1b6ca8;
+      --res-init-bg:   #f5f5f5; --res-init-bd:   #c8d3db; --res-init-tx:   #595959;
+      --res-ok-bg:     #e6f4ea; --res-ok-bd:     #2e7d32; --res-ok-tx:     #1b5e20;
+      --res-warn-bg:   #fff8e1; --res-warn-bd:   #e65100; --res-warn-tx:   #6d4700;
+      --res-info-bg:   #e8f0fe; --res-info-bd:   #1565c0; --res-info-tx:   #0d47a1;
+      --chart-grid:    rgba(0,0,0,0.07);
+      --chart-zero:    rgba(0,0,0,0.75);
+      --chart-color1:  rgba(27,108,168,0.9);
+      --chart-color2:  rgba(220,53,69,0.85);
+      --chart-color3:  rgba(27,108,168,0.8);
+      --chart-fill3:   rgba(27,108,168,0.08);
+      --chart-text:    #595959;
+      --chart-border:  rgba(0,0,0,0.1);
+    }
+
+    /* ── Dark mode tokens ── */
+    [data-theme="dark"] {
+      --app-header:  #0f172a;
+      --app-accent:  #60a5fa;
+      --app-bg:      #0f172a;
+      --app-card:    #1e293b;
+      --app-text:    #e2e8f0;
+      --app-muted:   #94a3b8;
+      --app-border:  #334155;
+      --app-range:   #60a5fa;
+      --res-init-bg:   #1e293b; --res-init-bd:   #334155; --res-init-tx:   #94a3b8;
+      --res-ok-bg:     #052e16; --res-ok-bd:     #16a34a; --res-ok-tx:     #86efac;
+      --res-warn-bg:   #431407; --res-warn-bd:   #ea580c; --res-warn-tx:   #fdba74;
+      --res-info-bg:   #1e3a5f; --res-info-bd:   #2563eb; --res-info-tx:   #93c5fd;
+      --chart-grid:    rgba(255,255,255,0.07);
+      --chart-zero:    rgba(255,255,255,0.8);
+      --chart-color1:  rgba(96,165,250,0.9);
+      --chart-color2:  rgba(248,113,113,0.85);
+      --chart-color3:  rgba(96,165,250,0.8);
+      --chart-fill3:   rgba(96,165,250,0.1);
+      --chart-text:    #94a3b8;
+      --chart-border:  rgba(255,255,255,0.1);
+    }
+
+    body {
+      background-color: var(--app-bg);
+      color: var(--app-text);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      padding-top: 60px;
+      transition: background-color 0.2s, color 0.2s;
+    }
+
+    /* ── Header ── */
+    .app-header {
+      background-color: var(--app-header);
+      padding: 0.5rem 0;
+      border-bottom: 2px solid var(--app-accent);
+    }
+    .app-header .brand-main {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #fff;
+      line-height: 1.2;
+    }
+
+    /* ── Dark mode toggle ── */
+    .theme-btn {
+      background: none;
+      border: 1px solid rgba(255,255,255,0.3);
+      color: rgba(255,255,255,0.85);
+      border-radius: 20px;
+      padding: 3px 11px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      line-height: 1.6;
+      transition: background 0.15s;
+    }
+    .theme-btn:hover { background: rgba(255,255,255,0.12); }
+
+    /* ── Section headers ── */
+    .section-header {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--app-accent);
+      border-bottom: 2px solid var(--app-accent);
+      padding-bottom: 0.35rem;
+      margin-bottom: 1rem;
+    }
+
+    /* ── Content cards ── */
+    .content-card {
+      background: var(--app-card);
+      border: 1px solid var(--app-border);
+      border-radius: 6px;
+      padding: 1.25rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.07);
+      height: 100%;
+    }
+
+    /* ── Kid panels ── */
+    .kid-panel {
+      border: 1px solid var(--app-border);
+      border-left: 3px solid var(--app-accent);
+      border-radius: 4px;
+      padding: 0.75rem;
+      margin-bottom: 0.75rem;
+      background: var(--app-bg);
+    }
+    .kid-label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--app-accent);
+      margin-bottom: 0.5rem;
+    }
+
+    /* ── Value badges ── */
+    .val-badge {
+      min-width: 3rem;
+      text-align: center;
+      font-size: 0.8rem;
+      background-color: var(--app-accent) !important;
+      color: #fff !important;
+      border-radius: 4px;
+      padding: 2px 6px;
+    }
+
+    /* ── Year bar ── */
+    .year-bar {
+      background: var(--app-card);
+      border: 1px solid var(--app-border);
+      border-radius: 6px;
+      padding: 0.6rem 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    /* ── Tabs ── */
+    .nav-tabs { border-bottom: 2px solid var(--app-border); }
+    .nav-tabs .nav-link {
+      color: var(--app-muted);
+      border: none;
+      border-bottom: 3px solid transparent;
+      padding: 0.5rem 1.25rem;
+      font-weight: 500;
+      margin-bottom: -2px;
+      border-radius: 0;
+    }
+    .nav-tabs .nav-link:hover { color: var(--app-accent); border-color: transparent; }
+    .nav-tabs .nav-link.active {
+      color: var(--app-text);
+      background: none;
+      border: none;
+      border-bottom: 3px solid var(--app-accent);
+      font-weight: 600;
+    }
+
+    /* ── Result card ── */
+    .result-card {
+      border-radius: 6px;
+      padding: 1rem 1.25rem;
+      font-size: 1.05rem;
+      font-weight: 500;
+    }
+    .result-card .fy-label {
+      display: block;
+      font-size: 0.78rem;
+      font-weight: 400;
+      opacity: 0.65;
+      margin-bottom: 0.2rem;
+    }
+    .result-init    { background: var(--res-init-bg); border: 1px solid var(--res-init-bd); color: var(--res-init-tx); }
+    .result-success { background: var(--res-ok-bg);   border: 1px solid var(--res-ok-bd);   color: var(--res-ok-tx);   }
+    .result-warning { background: var(--res-warn-bg); border: 1px solid var(--res-warn-bd); color: var(--res-warn-tx); }
+    .result-neutral { background: var(--res-info-bg); border: 1px solid var(--res-info-bd); color: var(--res-info-tx); }
+
+    /* ── Form controls ── */
+    .form-control, .form-select {
+      background-color: var(--app-card);
+      border-color: var(--app-border);
+      color: var(--app-text);
+    }
+    .form-control:focus, .form-select:focus {
+      background-color: var(--app-card);
+      color: var(--app-text);
+      border-color: var(--app-accent);
+      box-shadow: 0 0 0 0.2rem rgba(96,165,250,0.15);
+    }
+    .input-group-text {
+      background-color: var(--app-bg);
+      border-color: var(--app-border);
+      color: var(--app-muted);
+    }
+    .form-text  { color: var(--app-muted); }
+    .form-label { color: var(--app-text); }
+
+    /* ── Range sliders ── */
+    .form-range::-webkit-slider-thumb { background: var(--app-range); }
+    .form-range::-moz-range-thumb     { background: var(--app-range); border: none; }
+
+    /* ── Tables ── */
+    .table { color: var(--app-text); border-color: var(--app-border); }
+    .table-bordered > :not(caption) > * { border-color: var(--app-border); }
+    .table-light {
+      --bs-table-bg: var(--app-card);
+      --bs-table-color: var(--app-text);
+      --bs-table-border-color: var(--app-border);
+    }
+    .taper-input { width: 70px; font-size: 0.8rem; padding: 2px 4px; }
+
+    /* ── Footer ── */
+    .app-footer {
+      background-color: var(--app-header);
+      color: rgba(255,255,255,0.55);
+      padding: 1.1rem 1rem;
+      margin-top: 3rem;
+      font-size: 0.82rem;
+    }
+
+    /* ── Page heading ── */
+    .page-title { color: var(--app-text); }
+
+    .hidden { display: none; }
+  </style>
+  <title>Child Support Calculator</title>
+</head>
+
+<body>
+
+  <nav class="navbar fixed-top app-header">
+    <div class="container-fluid px-4">
+      <span class="brand-main">Child Support Calculator</span>
+      <button class="theme-btn ms-auto" id="theme-btn" onclick="toggleTheme()" title="Toggle dark mode">
+        <span id="theme-icon">🌙</span>
+      </button>
+    </div>
+  </nav>
+
+  <div class="container-fluid px-4">
+
+    <section class="py-4">
+      <h2 class="fw-bold mb-2 page-title">Child Support Calculator</h2>
+      <p class="mb-0" style="color:var(--app-muted)">
+        Calculate how much child support you may owe or be entitled to under the Australian Child Support formula.
+        Enter details about the children you share with the other parent, your income and dependants, and the other
+        parent's income and dependants. Switch to the <strong>Model</strong> tab to see how your entitlement changes
+        across a range of incomes and to adjust the formula parameters.
+      </p>
+    </section>
+
+    <ul class="nav nav-tabs mb-0" id="mainTab" role="tablist">
+      <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="calc-tab-btn" data-bs-toggle="tab" data-bs-target="#tab-calculator"
+          type="button" role="tab">Calculator</button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="model-tab-btn" data-bs-toggle="tab" data-bs-target="#tab-model"
+          type="button" role="tab">Model</button>
+      </li>
+    </ul>
+
+    <!-- Parameters: always visible -->
+    <section>
+      <div class="year-bar mt-3 mb-3">
+        <label class="form-label fw-semibold mb-0" for="year_i" style="white-space:nowrap">Financial year</label>
+        <select class="form-select form-select-sm w-auto" id="year_i">
+          <option value="2008">2007–08</option>
+          <option value="2009">2008–09</option>
+          <option value="2010">2009–10</option>
+          <option value="2011">2010–11</option>
+          <option value="2012">2011–12</option>
+          <option value="2013">2012–13</option>
+          <option value="2014">2013–14</option>
+          <option value="2015">2014–15</option>
+          <option value="2016">2015–16</option>
+          <option value="2017">2016–17</option>
+          <option value="2018">2017–18</option>
+          <option value="2019">2018–19</option>
+          <option value="2020">2019–20</option>
+          <option value="2021">2020–21</option>
+          <option value="2022">2021–22</option>
+          <option value="2023">2022–23</option>
+          <option value="2024">2023–24</option>
+          <option value="2025">2024–25</option>
+          <option value="2026" selected>2025–26</option>
+        </select>
+      </div>
+
+      <div class="row g-3">
+
+        <!-- Children column -->
+        <div class="col-lg-4">
+          <div class="content-card">
+            <h5 class="section-header">Children</h5>
+
+            <div class="mb-4">
+              <label class="form-label fw-semibold">Number of kids with other parent</label>
+              <div class="d-flex align-items-center gap-2">
+                <input type="range" class="form-range flex-grow-1" min="1" max="5" step="1" value="1" id="numkids">
+                <span class="badge val-badge" id="numkids_val">1</span>
+              </div>
+            </div>
+
+            <div id="kid_1_details" class="kid-panel">
+              <div class="kid-label">Kid 1</div>
+              <div class="mb-2">
+                <label class="form-label small mb-1">Your nights of care per year</label>
+                <div class="d-flex align-items-center gap-2">
+                  <input type="range" class="form-range flex-grow-1" min="0" max="365" step="1" value="365" id="a_kid_1_cn_i">
+                  <span class="badge val-badge" id="a_kid_1_cn_val">365</span>
+                </div>
+              </div>
+              <div>
+                <label class="form-label small mb-1">Age</label>
+                <div class="d-flex align-items-center gap-2">
+                  <input type="range" class="form-range flex-grow-1" min="0" max="17" step="1" value="0" id="kid_1_age_i">
+                  <span class="badge val-badge" id="kid_1_age_val">0</span>
+                </div>
+              </div>
+            </div>
+
+            <div id="kid_2_details" class="kid-panel hidden">
+              <div class="kid-label">Kid 2</div>
+              <div class="mb-2">
+                <label class="form-label small mb-1">Your nights of care per year</label>
+                <div class="d-flex align-items-center gap-2">
+                  <input type="range" class="form-range flex-grow-1" min="0" max="365" step="1" value="365" id="a_kid_2_cn_i">
+                  <span class="badge val-badge" id="a_kid_2_cn_val">365</span>
+                </div>
+              </div>
+              <div>
+                <label class="form-label small mb-1">Age</label>
+                <div class="d-flex align-items-center gap-2">
+                  <input type="range" class="form-range flex-grow-1" min="0" max="17" step="1" value="0" id="kid_2_age_i">
+                  <span class="badge val-badge" id="kid_2_age_val">0</span>
+                </div>
+              </div>
+            </div>
+
+            <div id="kid_3_details" class="kid-panel hidden">
+              <div class="kid-label">Kid 3</div>
+              <div class="mb-2">
+                <label class="form-label small mb-1">Your nights of care per year</label>
+                <div class="d-flex align-items-center gap-2">
+                  <input type="range" class="form-range flex-grow-1" min="0" max="365" step="1" value="365" id="a_kid_3_cn_i">
+                  <span class="badge val-badge" id="a_kid_3_cn_val">365</span>
+                </div>
+              </div>
+              <div>
+                <label class="form-label small mb-1">Age</label>
+                <div class="d-flex align-items-center gap-2">
+                  <input type="range" class="form-range flex-grow-1" min="0" max="17" step="1" value="0" id="kid_3_age_i">
+                  <span class="badge val-badge" id="kid_3_age_val">0</span>
+                </div>
+              </div>
+            </div>
+
+            <div id="kid_4_details" class="kid-panel hidden">
+              <div class="kid-label">Kid 4</div>
+              <div class="mb-2">
+                <label class="form-label small mb-1">Your nights of care per year</label>
+                <div class="d-flex align-items-center gap-2">
+                  <input type="range" class="form-range flex-grow-1" min="0" max="365" step="1" value="365" id="a_kid_4_cn_i">
+                  <span class="badge val-badge" id="a_kid_4_cn_val">365</span>
+                </div>
+              </div>
+              <div>
+                <label class="form-label small mb-1">Age</label>
+                <div class="d-flex align-items-center gap-2">
+                  <input type="range" class="form-range flex-grow-1" min="0" max="17" step="1" value="0" id="kid_4_age_i">
+                  <span class="badge val-badge" id="kid_4_age_val">0</span>
+                </div>
+              </div>
+            </div>
+
+            <div id="kid_5_details" class="kid-panel hidden">
+              <div class="kid-label">Kid 5</div>
+              <div class="mb-2">
+                <label class="form-label small mb-1">Your nights of care per year</label>
+                <div class="d-flex align-items-center gap-2">
+                  <input type="range" class="form-range flex-grow-1" min="0" max="365" step="1" value="365" id="a_kid_5_cn_i">
+                  <span class="badge val-badge" id="a_kid_5_cn_val">365</span>
+                </div>
+              </div>
+              <div>
+                <label class="form-label small mb-1">Age</label>
+                <div class="d-flex align-items-center gap-2">
+                  <input type="range" class="form-range flex-grow-1" min="0" max="17" step="1" value="0" id="kid_5_age_i">
+                  <span class="badge val-badge" id="kid_5_age_val">0</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Your details column (Parent A) -->
+        <div class="col-lg-4">
+          <div class="content-card">
+            <h5 class="section-header">Your details</h5>
+
+            <div class="mb-3">
+              <label class="form-label fw-semibold" for="a_ati_i">Pre-tax income last financial year</label>
+              <div class="input-group">
+                <span class="input-group-text">$</span>
+                <input type="text" inputmode="numeric" class="form-control" value="50,000" id="a_ati_i">
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Number of other CS cases you have</label>
+              <div class="d-flex align-items-center gap-2">
+                <input type="range" class="form-range flex-grow-1" min="0" max="10" step="1" value="0" id="a_othercase_n_i">
+                <span class="badge val-badge" id="a_othercase_n_val">0</span>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Other CS pre-teenagers you have (≤12)</label>
+              <div class="d-flex align-items-center gap-2">
+                <input type="range" class="form-range flex-grow-1" min="0" max="10" step="1" value="0" id="a_othercase_12l_i">
+                <span class="badge val-badge" id="a_othercase_12l_val">0</span>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Other CS teenagers you have (13–18)</label>
+              <div class="d-flex align-items-center gap-2">
+                <input type="range" class="form-range flex-grow-1" min="0" max="10" step="1" value="0" id="a_othercase_13p_i">
+                <span class="badge val-badge" id="a_othercase_13p_val">0</span>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Non-CS pre-teenagers in your current relationship</label>
+              <div class="d-flex align-items-center gap-2">
+                <input type="range" class="form-range flex-grow-1" min="0" max="10" step="1" value="0" id="a_reldep_12l_i">
+                <span class="badge val-badge" id="a_reldep_12l_val">0</span>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Non-CS teenagers in your current relationship</label>
+              <div class="d-flex align-items-center gap-2">
+                <input type="range" class="form-range flex-grow-1" min="0" max="10" step="1" value="0" id="a_reldep_13p_i">
+                <span class="badge val-badge" id="a_reldep_13p_val">0</span>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Other CS kids where you have &lt;128 nights/yr care</label>
+              <div class="d-flex align-items-center gap-2">
+                <input type="range" class="form-range flex-grow-1" min="0" max="10" step="1" value="0" id="a_othercase_okids_lsc_i">
+                <span class="badge val-badge" id="a_othercase_okids_lsc_val">0</span>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label fw-semibold" for="a_isp_i">Received income support last financial year?</label>
+              <select class="form-select" id="a_isp_i">
+                <option value="0" selected>No</option>
+                <option value="1">Yes</option>
+              </select>
+              <div class="form-text">Youth Allowance, Jobseeker, Age Pension, DSP, Carer Payment, Parenting Payment, etc.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Other parent column (Parent B) -->
+        <div class="col-lg-4">
+          <div class="content-card">
+            <h5 class="section-header">Other parent's details</h5>
+
+            <div class="mb-3">
+              <label class="form-label fw-semibold" for="b_ati_i">Pre-tax income last financial year</label>
+              <div class="input-group">
+                <span class="input-group-text">$</span>
+                <input type="text" inputmode="numeric" class="form-control" value="50,000" id="b_ati_i">
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Number of other CS cases the other parent has</label>
+              <div class="d-flex align-items-center gap-2">
+                <input type="range" class="form-range flex-grow-1" min="0" max="10" step="1" value="0" id="b_othercase_n_i">
+                <span class="badge val-badge" id="b_othercase_n_val">0</span>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Other parent's other CS pre-teenagers (≤12)</label>
+              <div class="d-flex align-items-center gap-2">
+                <input type="range" class="form-range flex-grow-1" min="0" max="10" step="1" value="0" id="b_othercase_12l_i">
+                <span class="badge val-badge" id="b_othercase_12l_val">0</span>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Other parent's other CS teenagers (13–18)</label>
+              <div class="d-flex align-items-center gap-2">
+                <input type="range" class="form-range flex-grow-1" min="0" max="10" step="1" value="0" id="b_othercase_13p_i">
+                <span class="badge val-badge" id="b_othercase_13p_val">0</span>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Non-CS pre-teenagers in other parent's current relationship</label>
+              <div class="d-flex align-items-center gap-2">
+                <input type="range" class="form-range flex-grow-1" min="0" max="10" step="1" value="0" id="b_reldep_12l_i">
+                <span class="badge val-badge" id="b_reldep_12l_val">0</span>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Non-CS teenagers in other parent's current relationship</label>
+              <div class="d-flex align-items-center gap-2">
+                <input type="range" class="form-range flex-grow-1" min="0" max="10" step="1" value="0" id="b_reldep_13p_i">
+                <span class="badge val-badge" id="b_reldep_13p_val">0</span>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Other CS kids where other parent has &lt;128 nights/yr care</label>
+              <div class="d-flex align-items-center gap-2">
+                <input type="range" class="form-range flex-grow-1" min="0" max="10" step="1" value="0" id="b_othercase_okids_lsc_i">
+                <span class="badge val-badge" id="b_othercase_okids_lsc_val">0</span>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label fw-semibold" for="b_isp_i">Other parent received income support last financial year?</label>
+              <select class="form-select" id="b_isp_i">
+                <option value="0" selected>No</option>
+                <option value="1">Yes</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Result: always visible -->
+    <section class="py-3">
+      <div id="liability-statement" class="result-card result-init">
+        Adjust the inputs above to see your child support calculation.
+      </div>
+    </section>
+
+    <!-- Tab content -->
+    <div class="tab-content">
+      <div class="tab-pane active" id="tab-calculator" role="tabpanel"></div>
+
+      <div class="tab-pane" id="tab-model" role="tabpanel">
+
+        <div class="row mb-5">
+          <div class="col-12">
+            <h5 class="section-header">Your income vs entitlement</h5>
+            <canvas id="entitlementChart"></canvas>
+          </div>
+        </div>
+
+        <div class="row mb-5">
+          <div class="col-12">
+            <h5 class="section-header">Your income vs cost of the children</h5>
+            <canvas id="coctChart"></canvas>
+          </div>
+        </div>
+
+        <div class="row mb-4">
+          <div class="col-12">
+            <h5 class="section-header">Income band breakpoints</h5>
+            <div class="d-flex gap-3 flex-wrap">
+              <div>
+                <label class="form-label small">Band 1</label>
+                <div class="input-group input-group-sm" style="width:175px">
+                  <span class="input-group-text">$</span>
+                  <input type="text" inputmode="numeric" class="form-control" id="band_1" value="40,594">
+                  <button class="btn btn-outline-secondary px-2" type="button" tabindex="-1" onclick="stepBand(1,1)">▲</button>
+                  <button class="btn btn-outline-secondary px-2" type="button" tabindex="-1" onclick="stepBand(1,-1)">▼</button>
+                </div>
+              </div>
+              <div>
+                <label class="form-label small">Band 2</label>
+                <div class="input-group input-group-sm" style="width:175px">
+                  <span class="input-group-text">$</span>
+                  <input type="text" inputmode="numeric" class="form-control" id="band_2" value="81,188">
+                  <button class="btn btn-outline-secondary px-2" type="button" tabindex="-1" onclick="stepBand(2,1)">▲</button>
+                  <button class="btn btn-outline-secondary px-2" type="button" tabindex="-1" onclick="stepBand(2,-1)">▼</button>
+                </div>
+              </div>
+              <div>
+                <label class="form-label small">Band 3</label>
+                <div class="input-group input-group-sm" style="width:175px">
+                  <span class="input-group-text">$</span>
+                  <input type="text" inputmode="numeric" class="form-control" id="band_3" value="121,782">
+                  <button class="btn btn-outline-secondary px-2" type="button" tabindex="-1" onclick="stepBand(3,1)">▲</button>
+                  <button class="btn btn-outline-secondary px-2" type="button" tabindex="-1" onclick="stepBand(3,-1)">▼</button>
+                </div>
+              </div>
+              <div>
+                <label class="form-label small">Band 4</label>
+                <div class="input-group input-group-sm" style="width:175px">
+                  <span class="input-group-text">$</span>
+                  <input type="text" inputmode="numeric" class="form-control" id="band_4" value="162,376">
+                  <button class="btn btn-outline-secondary px-2" type="button" tabindex="-1" onclick="stepBand(4,1)">▲</button>
+                  <button class="btn btn-outline-secondary px-2" type="button" tabindex="-1" onclick="stepBand(4,-1)">▼</button>
+                </div>
+              </div>
+              <div>
+                <label class="form-label small">Band 5</label>
+                <div class="input-group input-group-sm" style="width:175px">
+                  <span class="input-group-text">$</span>
+                  <input type="text" inputmode="numeric" class="form-control" id="band_5" value="202,970">
+                  <button class="btn btn-outline-secondary px-2" type="button" tabindex="-1" onclick="stepBand(5,1)">▲</button>
+                  <button class="btn btn-outline-secondary px-2" type="button" tabindex="-1" onclick="stepBand(5,-1)">▼</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row mb-5">
+          <div class="col-12">
+            <h5 class="section-header">Cost of children tapers</h5>
+            <div class="table-responsive">
+              <table class="table table-sm table-bordered align-middle" id="tapers-table">
+                <thead class="table-light">
+                  <tr>
+                    <th>Income band</th>
+                    <th>1 child (≤12)</th>
+                    <th>2 children (≤12)</th>
+                    <th>3+ children (≤12)</th>
+                    <th>1 child (13+)</th>
+                    <th>2 children (13+)</th>
+                    <th>3+ children (13+)</th>
+                  </tr>
+                </thead>
+                <tbody id="tapers-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div><!-- /container-fluid -->
+
+  <footer class="app-footer">
+    <div class="container-fluid px-4">
+      This is an indicative calculator only. Results may differ from an official assessment.
+    </div>
+  </footer>
+
+<script>
+
+// ============================================================
+// FORMULA — ported from cs_baseline.py
+// ============================================================
+
+const defaultIncomeBands = [40594, 81188, 121782, 162376, 202970];
+
+const defaultTapers = {
+  "12l": {
+    1: [0.17, 0.15, 0.12, 0.10, 0.07, 0],
+    2: [0.24, 0.23, 0.20, 0.18, 0.10, 0],
+    3: [0.27, 0.26, 0.25, 0.24, 0.18, 0]
+  },
+  "13p": {
+    1: [0.23, 0.22, 0.12, 0.10, 0.09, 0],
+    2: [0.29, 0.28, 0.25, 0.20, 0.13, 0],
+    3: [0.32, 0.31, 0.30, 0.29, 0.20, 0]
+  },
+  "mix": {}
+};
+
+defaultTapers.mix[1] = new Array(defaultTapers["12l"][1].length).fill(0);
+defaultTapers.mix[2] = defaultTapers["12l"][2].map((v, i) => (v + defaultTapers["13p"][2][i]) / 2);
+defaultTapers.mix[3] = defaultTapers["12l"][3].map((v, i) => (v + defaultTapers["13p"][3][i]) / 2);
+
+const bv = {
+  2008: { mtawe: 54756, far: 1122, pps: 13980, mar: 339 },
+  2009: { mtawe: 56425, far: 1178, pps: 14615, mar: 356 },
+  2010: { mtawe: 58854, far: 1193, pps: 14937, mar: 360 },
+  2011: { mtawe: 61781, far: 1226, pps: 15909, mar: 370 },
+  2012: { mtawe: 64865, far: 1269, pps: 16679, mar: 383 },
+  2013: { mtawe: 67137, far: 1294, pps: 17256, mar: 391 },
+  2014: { mtawe: 70569, far: 1322, pps: 18197, mar: 399 },
+  2015: { mtawe: 70829, far: 1352, pps: 18728, mar: 408 },
+  2016: { mtawe: 71256, far: 1373, pps: 19011, mar: 414 },
+  2017: { mtawe: 72462, far: 1390, pps: 19201, mar: 420 },
+  2018: { mtawe: 73606, far: 1416, pps: 19568, mar: 427 },
+  2019: { mtawe: 75114, far: 1443, pps: 19981, mar: 435 },
+  2020: { mtawe: 76726, far: 1467, pps: 20298, mar: 443 },
+  2021: { mtawe: 78957, far: 1477, pps: 20621, mar: 446 },
+  2022: { mtawe: 81188, far: 1521, pps: 22888, mar: 459 },
+  2023: { mtawe: 82524, far: 1632, pps: 23800, mar: 493 },
+  2024: { mtawe: 85389, far: 1720, pps: 25225, mar: 519 },
+  2025: { mtawe: 89523, far: 1768, pps: 26195, mar: 534 },
+  2026: { mtawe: 93137, far: 1825, pps: 26720, mar: 551 }
+};
+
+for (const year in bv) {
+  bv[year].ssa = Math.round(bv[year].mtawe / 3);
+}
+
+function careToCost(carePct) {
+  carePct = carePct < 0.5
+    ? Math.floor(100 * carePct) / 100
+    : Math.ceil(100 * carePct) / 100;
+
+  if      (carePct <  0.14) return 0;
+  else if (carePct <  0.35) return 0.24;
+  else if (carePct <  0.48) return Math.round((0.25 + 2 * (carePct - 0.35)) * 100) / 100;
+  else if (carePct <= 0.52) return 0.50;
+  else if (carePct <= 0.65) return Math.round((0.51 + 2 * (carePct - 0.53)) * 100) / 100;
+  else if (carePct <= 0.86) return 0.76;
+  else                      return 1;
+}
+
+function ageMix(kids12l, kids13p) {
+  if      (kids12l > 0 && kids13p === 0) return "12l";
+  else if (kids12l === 0 && kids13p > 0) return "13p";
+  else if (kids12l > 0 && kids13p > 0)  return "mix";
+  else                                   return "err";
+}
+
+function coc(numKids, ages, income, incomeBands, tapers) {
+  numKids = Math.min(numKids, 3);
+  let cost = 0, prevBand = 0, i = 0;
+  for (const band of incomeBands) {
+    if (income <= band) {
+      cost += (income - prevBand) * tapers[ages][numKids][i];
+      return cost;
+    }
+    cost += (band - prevBand) * tapers[ages][numKids][i];
+    i++;
+    prevBand = band;
+  }
+  cost += (income - prevBand) * tapers[ages][numKids][i];
+  return cost;
+}
+
+function cocSimple(income, kids12l, kids13p, incomeBands, tapers) {
+  if (kids12l === 0 && kids13p === 0) return 0;
+  return coc(kids12l + kids13p, ageMix(kids12l, kids13p), income, incomeBands, tapers);
+}
+
+function csBaseline(
+  year, ages, nchild,
+  a_name, a_cn, a_othercase_n, a_oth_lsc, a_isp, a_reldep_12l, a_reldep_13p, a_ati, a_othercase_12l, a_othercase_13p,
+  b_name, b_cn, b_othercase_n, b_oth_lsc, b_isp, b_reldep_12l, b_reldep_13p, b_ati, b_othercase_12l, b_othercase_13p,
+  incomeBands = defaultIncomeBands, tapers = defaultTapers
+) {
+  const out = {};
+
+  const a_ati_lessssa = Math.max(0, a_ati - bv[year].ssa);
+  const b_ati_lessssa = Math.max(0, b_ati - bv[year].ssa);
+
+  const a_ati_lessreldep = Math.max(0, a_ati_lessssa - cocSimple(a_ati_lessssa, a_reldep_12l, a_reldep_13p, incomeBands, tapers));
+  const b_ati_lessreldep = Math.max(0, b_ati_lessssa - cocSimple(b_ati_lessssa, b_reldep_12l, b_reldep_13p, incomeBands, tapers));
+
+  const a_allcases_nchild = a_othercase_12l + a_othercase_13p + nchild;
+  const b_allcases_nchild = b_othercase_12l + b_othercase_13p + nchild;
+
+  const a_mc_cost_pc_12l = a_allcases_nchild > 0 ? cocSimple(a_ati_lessreldep, a_allcases_nchild, 0, incomeBands, tapers) / a_allcases_nchild : 0;
+  const a_mc_cost_pc_13p = a_allcases_nchild > 0 ? cocSimple(a_ati_lessreldep, 0, a_allcases_nchild, incomeBands, tapers) / a_allcases_nchild : 0;
+  const b_mc_cost_pc_12l = b_allcases_nchild > 0 ? cocSimple(b_ati_lessreldep, b_allcases_nchild, 0, incomeBands, tapers) / b_allcases_nchild : 0;
+  const b_mc_cost_pc_13p = b_allcases_nchild > 0 ? cocSimple(b_ati_lessreldep, 0, b_allcases_nchild, incomeBands, tapers) / b_allcases_nchild : 0;
+
+  const a_mc_cost = a_othercase_12l * a_mc_cost_pc_12l + a_othercase_13p * a_mc_cost_pc_13p;
+  const b_mc_cost = b_othercase_12l * b_mc_cost_pc_12l + b_othercase_13p * b_mc_cost_pc_13p;
+
+  const a_csi = Math.max(0, a_ati_lessreldep - a_mc_cost);
+  const b_csi = Math.max(0, b_ati_lessreldep - b_mc_cost);
+  const combined_csi = Math.round(a_csi + b_csi);
+
+  const a_income_pct = combined_csi !== 0 ? a_csi / combined_csi : 0;
+  const b_income_pct = combined_csi !== 0 ? b_csi / combined_csi : 0;
+
+  const a_care_pct = [], a_cost_pct = [], a_cs_pct = [], a_mc_cap = [];
+  const b_care_pct = [], b_cost_pct = [], b_cs_pct = [], b_mc_cap = [];
+
+  for (let i = 0; i < nchild; i++) {
+    a_care_pct[i] = a_cn[i] / 365;
+    a_cost_pct[i] = careToCost(a_care_pct[i]);
+    a_cs_pct[i]   = Math.max(a_income_pct - a_cost_pct[i], 0);
+
+    b_care_pct[i] = 1 - a_care_pct[i];
+    b_cost_pct[i] = careToCost(b_care_pct[i]);
+    b_cs_pct[i]   = Math.max(b_income_pct - b_cost_pct[i], 0);
+
+    a_mc_cap[i] = (1 - a_cost_pct[i]) * (ages[i] <= 12 ? a_mc_cost_pc_12l : a_mc_cost_pc_13p);
+    b_mc_cap[i] = (1 - b_cost_pct[i]) * (ages[i] <= 12 ? b_mc_cost_pc_12l : b_mc_cost_pc_13p);
+  }
+
+  const ekids_12l = ages.filter(a => a <= 12).length;
+  const ekids_13p = ages.filter(a => a >= 13).length;
+
+  const basic_coc    = cocSimple(combined_csi, ekids_12l, ekids_13p, incomeBands, tapers);
+  out.basic_coc      = basic_coc;
+  const basic_coc_pc = nchild > 0 ? basic_coc / nchild : 0;
+
+  const mc_12l_pc = nchild > 0 ? cocSimple(combined_csi, nchild, 0, incomeBands, tapers) / nchild : 0;
+  const mc_13p_pc = nchild > 0 ? cocSimple(combined_csi, 0, nchild, incomeBands, tapers) / nchild : 0;
+  const mcm_coc   = ages.map(a => a <= 12 ? mc_12l_pc : mc_13p_pc);
+
+  const multi_case_flag = (a_othercase_n + b_othercase_n) > 0;
+
+  const a_form_liab = [], b_form_liab = [];
+  for (let i = 0; i < nchild; i++) {
+    let al, bl;
+    if (!multi_case_flag) {
+      al = a_cs_pct[i] * basic_coc_pc;
+      bl = b_cs_pct[i] * basic_coc_pc;
+    } else {
+      al = Math.min(a_cs_pct[i] * mcm_coc[i], a_mc_cap[i]);
+      bl = Math.min(b_cs_pct[i] * mcm_coc[i], b_mc_cap[i]);
+    }
+    a_form_liab[i] = a_care_pct[i] > 0.65 ? 0 : al;
+    b_form_liab[i] = b_care_pct[i] > 0.65 ? 0 : bl;
+  }
+
+  let a_allchild_lsc = a_oth_lsc + a_care_pct.filter(p => p <= 0.35).length;
+  let b_allchild_lsc = b_oth_lsc + b_care_pct.filter(p => p <= 0.35).length;
+
+  const a_unit_far = a_allchild_lsc > 0 ? bv[year].far * Math.min(3, a_allchild_lsc) / a_allchild_lsc : 0;
+  const b_unit_far = b_allchild_lsc > 0 ? bv[year].far * Math.min(3, b_allchild_lsc) / b_allchild_lsc : 0;
+
+  const a_form_far = [], b_form_far = [];
+  for (let i = 0; i < nchild; i++) {
+    const a_far = (a_isp === 0 && a_ati < bv[year].pps && a_care_pct[i] <= 0.35) ? a_unit_far : 0;
+    const b_far = (b_isp === 0 && b_ati < bv[year].pps && b_care_pct[i] <= 0.35) ? b_unit_far : 0;
+    a_form_far[i] = Math.max(a_form_liab[i], a_far);
+    b_form_far[i] = Math.max(b_form_liab[i], b_far);
+  }
+
+  const sum = arr => arr.reduce((s, v) => s + v, 0);
+  const a_total = sum(a_form_far) - sum(b_form_far);
+  const b_total = -a_total;
+
+  const a_totalcases = 1 + a_othercase_n;
+  const b_totalcases = 1 + b_othercase_n;
+  const a_mar = bv[year].mar * Math.min(3, a_totalcases) / a_totalcases;
+  const b_mar = bv[year].mar * Math.min(3, b_totalcases) / b_totalcases;
+
+  const a_mar_eligible = a_care_pct.filter(p => p >= 0.14).length === 0;
+  const b_mar_eligible = b_care_pct.filter(p => p >= 0.14).length === 0;
+
+  let a_sel;
+  if (a_total >= 0) {
+    a_sel = (a_mar_eligible && !b_mar_eligible) ? Math.max(a_total, a_mar) : a_total;
+  } else {
+    const b_sel = (b_mar_eligible && !a_mar_eligible) ? Math.max(b_total, b_mar) : b_total;
+    a_sel = -b_sel;
+  }
+
+  out.liability = Math.round(a_sel);
+  return out;
+}
+
+// ============================================================
+// THEME
+// ============================================================
+
+function toggleTheme() {
+  const current = document.documentElement.getAttribute('data-theme') || 'light';
+  const next = current === 'light' ? 'dark' : 'light';
+  document.documentElement.setAttribute('data-theme', next);
+  localStorage.setItem('theme', next);
+  document.getElementById('theme-icon').textContent = next === 'dark' ? '☀️' : '🌙';
+  // Destroy charts so they get recreated with new-theme colours
+  if (entitlementChart) { entitlementChart.destroy(); entitlementChart = null; }
+  if (coctChart)         { coctChart.destroy();         coctChart = null; }
+  if (document.getElementById('tab-model').classList.contains('active')) {
+    updateCharts(getInputs());
+  }
+}
+
+function stepBand(idx, dir) {
+  const el = document.getElementById(`band_${idx}`);
+  const v = parseInt(el.value.replace(/,/g, '')) || 0;
+  const newV = Math.max(1, v + dir * 1000);
+  el.value = newV.toLocaleString('en-AU');
+  onBandChange();
+}
+
+function syncThemeIcon() {
+  const t = document.documentElement.getAttribute('data-theme') || 'light';
+  document.getElementById('theme-icon').textContent = t === 'dark' ? '☀️' : '🌙';
+}
+
+// ============================================================
+// UI
+// ============================================================
+
+function getYear() { return parseInt(document.getElementById('year_i').value); }
+function getYearLabel() {
+  const sel = document.getElementById('year_i');
+  return sel.options[sel.selectedIndex].text;
+}
+
+function getCSSVar(name) {
+  return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+}
+
+let currentIncomeBands = [...defaultIncomeBands];
+let currentTapers = {
+  "12l": { 1: [...defaultTapers["12l"][1]], 2: [...defaultTapers["12l"][2]], 3: [...defaultTapers["12l"][3]] },
+  "13p": { 1: [...defaultTapers["13p"][1]], 2: [...defaultTapers["13p"][2]], 3: [...defaultTapers["13p"][3]] },
+  "mix": { 1: [...defaultTapers.mix[1]],    2: [...defaultTapers.mix[2]],    3: [...defaultTapers.mix[3]]    }
+};
+
+let entitlementChart = null;
+let coctChart = null;
+
+function val(id) { return document.getElementById(id).value; }
+
+function fmtDollar(n) {
+  return '$' + (parseFloat(n) || 0).toLocaleString('en-AU', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+}
+
+function syncFmt(inputId, fmtId) {
+  const el = document.getElementById(fmtId);
+  if (el) el.textContent = fmtDollar(document.getElementById(inputId).value);
+}
+
+function initSlider(sliderId, badgeId) {
+  const slider = document.getElementById(sliderId);
+  const badge  = document.getElementById(badgeId);
+  badge.textContent = slider.value;
+  slider.addEventListener('input', () => {
+    badge.textContent = slider.value;
+    calculateAndUpdate();
+  });
+}
+
+function updateKidVisibility() {
+  const n = parseInt(val('numkids'));
+  for (let i = 2; i <= 5; i++) {
+    document.getElementById(`kid_${i}_details`).classList.toggle('hidden', i > n);
+  }
+}
+
+function getInputs() {
+  const numkids = parseInt(val('numkids'));
+  const ages = [], a_cn = [];
+  for (let i = 1; i <= 5; i++) {
+    ages.push(parseInt(val(`kid_${i}_age_i`)));
+    a_cn.push(parseInt(val(`a_kid_${i}_cn_i`)));
+  }
+  return {
+    numkids,
+    ages:          ages.slice(0, numkids),
+    a_cn:          a_cn.slice(0, numkids),
+    a_ati:         parseFloat(val('a_ati_i').replace(/,/g, ''))  || 0,
+    a_othercase_n: parseInt(val('a_othercase_n_i')),
+    a_oth_lsc:     parseInt(val('a_othercase_okids_lsc_i')),
+    a_isp:         parseInt(val('a_isp_i')),
+    a_reldep_12l:  parseInt(val('a_reldep_12l_i')),
+    a_reldep_13p:  parseInt(val('a_reldep_13p_i')),
+    a_othercase_12l: parseInt(val('a_othercase_12l_i')),
+    a_othercase_13p: parseInt(val('a_othercase_13p_i')),
+    b_ati:         parseFloat(val('b_ati_i').replace(/,/g, ''))  || 0,
+    b_othercase_n: parseInt(val('b_othercase_n_i')),
+    b_oth_lsc:     parseInt(val('b_othercase_okids_lsc_i')),
+    b_isp:         parseInt(val('b_isp_i')),
+    b_reldep_12l:  parseInt(val('b_reldep_12l_i')),
+    b_reldep_13p:  parseInt(val('b_reldep_13p_i')),
+    b_othercase_12l: parseInt(val('b_othercase_12l_i')),
+    b_othercase_13p: parseInt(val('b_othercase_13p_i')),
+  };
+}
+
+function calculateAndUpdate() {
+  const inp = getInputs();
+  const b_cn = new Array(inp.numkids).fill(0);
+
+  const result = csBaseline(
+    getYear(), inp.ages, inp.numkids,
+    'Parent A', inp.a_cn, inp.a_othercase_n, inp.a_oth_lsc, inp.a_isp,
+      inp.a_reldep_12l, inp.a_reldep_13p, inp.a_ati, inp.a_othercase_12l, inp.a_othercase_13p,
+    'Parent B', b_cn, inp.b_othercase_n, inp.b_oth_lsc, inp.b_isp,
+      inp.b_reldep_12l, inp.b_reldep_13p, inp.b_ati, inp.b_othercase_12l, inp.b_othercase_13p,
+    currentIncomeBands, currentTapers
+  );
+
+  const entitlement = -result.liability;
+  const el  = document.getElementById('liability-statement');
+  const fmt = n => Math.abs(n).toLocaleString('en-AU', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+  const fyLabel = `<span class="fy-label">Financial year ${getYearLabel()}</span>`;
+
+  if (entitlement > 0) {
+    el.innerHTML = `${fyLabel}The other parent owes you <strong>$${fmt(entitlement)}</strong> per year`;
+    el.className = 'result-card result-success';
+  } else if (entitlement < 0) {
+    el.innerHTML = `${fyLabel}You owe the other parent <strong>$${fmt(-entitlement)}</strong> per year`;
+    el.className = 'result-card result-warning';
+  } else {
+    el.innerHTML = `${fyLabel}No child support payable`;
+    el.className = 'result-card result-neutral';
+  }
+
+  if (document.getElementById('tab-model').classList.contains('active')) {
+    updateCharts(inp);
+  }
+}
+
+function computeIncomeSweep(inp) {
+  const incomes = [], entitlements = [], cocts = [];
+  const b_cn = new Array(inp.numkids).fill(0);
+  const STEP = 100;
+  const HALF_WINDOW = 60; // ±60 steps = ±$6,000 smoothing window
+
+  for (let income = 0; income <= 300000; income += STEP) {
+    const r = csBaseline(
+      getYear(), inp.ages, inp.numkids,
+      'Parent A', inp.a_cn, inp.a_othercase_n, inp.a_oth_lsc, inp.a_isp,
+        inp.a_reldep_12l, inp.a_reldep_13p, income, inp.a_othercase_12l, inp.a_othercase_13p,
+      'Parent B', b_cn, inp.b_othercase_n, inp.b_oth_lsc, inp.b_isp,
+        inp.b_reldep_12l, inp.b_reldep_13p, inp.b_ati, inp.b_othercase_12l, inp.b_othercase_13p,
+      currentIncomeBands, currentTapers
+    );
+    incomes.push(income);
+    entitlements.push(-r.liability);
+    cocts.push(r.basic_coc);
+  }
+
+  const marginals = entitlements.map((_, i) => {
+    const lo = Math.max(0, i - HALF_WINDOW);
+    const hi = Math.min(entitlements.length - 1, i + HALF_WINDOW);
+    const m = (entitlements[hi] - entitlements[lo]) / ((hi - lo) * STEP);
+    return Math.max(Math.min(m, 1), -0.125);
+  });
+
+  return { incomes, entitlements, marginals, cocts };
+}
+
+function updateCharts(inp) {
+  const { incomes, entitlements, marginals, cocts } = computeIncomeSweep(inp);
+
+  Chart.defaults.color        = getCSSVar('--chart-text');
+  Chart.defaults.borderColor  = getCSSVar('--chart-border');
+
+  const gridColor = getCSSVar('--chart-grid');
+  const zeroColor = getCSSVar('--chart-zero');
+  const color1    = getCSSVar('--chart-color1');
+  const color2    = getCSSVar('--chart-color2');
+  const color3    = getCSSVar('--chart-color3');
+  const fill3     = getCSSVar('--chart-fill3');
+
+  const xFmt = v => '$' + (v / 1000).toFixed(0) + 'k';
+  const yFmt = v => '$' + v.toLocaleString('en-AU', { maximumFractionDigits: 0 });
+  const xAxis = {
+    type: 'linear',
+    title: { display: true, text: 'Your pre-tax income' },
+    ticks: { callback: xFmt, maxTicksLimit: 16 },
+    grid: { color: gridColor }
+  };
+
+  const entData  = incomes.map((x, i) => ({ x, y: entitlements[i] }));
+  const margData = incomes.map((x, i) => ({ x, y: marginals[i] }));
+  const coctData = incomes.map((x, i) => ({ x, y: cocts[i] }));
+
+  if (entitlementChart) {
+    // Update data and colours in-place — avoids canvas destruction and scroll snap
+    entitlementChart.data.datasets[0].data = entData;
+    entitlementChart.data.datasets[0].borderColor = color1;
+    entitlementChart.data.datasets[1].data = margData;
+    entitlementChart.data.datasets[1].borderColor = color2;
+    entitlementChart.options.scales.x.grid.color = gridColor;
+    entitlementChart.options.scales.y.grid.color = ctx => ctx.tick.value === 0 ? zeroColor : gridColor;
+    entitlementChart.options.scales.y.grid.lineWidth = ctx => ctx.tick.value === 0 ? 2 : 1;
+    entitlementChart.update('none');
+  } else {
+    entitlementChart = new Chart(document.getElementById('entitlementChart'), {
+      type: 'line',
+      data: {
+        datasets: [
+          { label: 'Entitlement',   data: entData,  borderColor: color1, backgroundColor: 'transparent', pointRadius: 0, tension: 0, yAxisID: 'y'  },
+          { label: 'Marginal rate', data: margData, borderColor: color2, backgroundColor: 'transparent', pointRadius: 0, tension: 0, yAxisID: 'y1' }
+        ]
+      },
+      options: {
+        responsive: true,
+        animation: false,
+        interaction: { mode: 'index', intersect: false },
+        plugins: {
+          tooltip: {
+            callbacks: {
+              title: items => xFmt(items[0].parsed.x),
+              label: ctx => ctx.datasetIndex === 0
+                ? `Entitlement: ${yFmt(ctx.parsed.y)}`
+                : `Marginal rate: ${(ctx.parsed.y * 100).toFixed(1)}%`
+            }
+          }
+        },
+        scales: {
+          x: xAxis,
+          y: {
+            position: 'left',
+            title: { display: true, text: 'Entitlement ($)' },
+            ticks: { callback: yFmt },
+            grid: {
+              color: ctx => ctx.tick.value === 0 ? zeroColor : gridColor,
+              lineWidth: ctx => ctx.tick.value === 0 ? 2 : 1
+            }
+          },
+          y1: {
+            position: 'right',
+            title: { display: true, text: 'Marginal rate' },
+            ticks: { callback: v => (v * 100).toFixed(0) + '%' },
+            grid: { drawOnChartArea: false }
+          }
+        }
+      }
+    });
+  }
+
+  if (coctChart) {
+    coctChart.data.datasets[0].data = coctData;
+    coctChart.data.datasets[0].borderColor = color3;
+    coctChart.data.datasets[0].backgroundColor = fill3;
+    coctChart.options.scales.x.grid.color = gridColor;
+    coctChart.update('none');
+  } else {
+    coctChart = new Chart(document.getElementById('coctChart'), {
+      type: 'line',
+      data: {
+        datasets: [{
+          label: 'Cost of children',
+          data: coctData,
+          borderColor: color3,
+          backgroundColor: fill3,
+          fill: true,
+          pointRadius: 0,
+          tension: 0,
+        }]
+      },
+      options: {
+        responsive: true,
+        animation: false,
+        interaction: { mode: 'index', intersect: false },
+        plugins: {
+          tooltip: {
+            callbacks: {
+              title: items => xFmt(items[0].parsed.x),
+              label: ctx => `Cost: ${yFmt(ctx.parsed.y)}`
+            }
+          }
+        },
+        scales: {
+          x: xAxis,
+          y: {
+            min: 0,
+            title: { display: true, text: 'Cost of children ($)' },
+            ticks: { callback: yFmt },
+            grid: { color: gridColor }
+          }
+        }
+      }
+    });
+  }
+}
+
+function buildTapersTable() {
+  const tbody = document.getElementById('tapers-tbody');
+  if (tbody.rows.length === 6) {
+    // Already built — only refresh row labels to avoid focus loss / scroll
+    updateTaperLabels();
+    return;
+  }
+  const cols = [['12l',1],['12l',2],['12l',3],['13p',1],['13p',2],['13p',3]];
+  for (let row = 0; row < 6; row++) {
+    const tr = document.createElement('tr');
+    const tdLabel = document.createElement('td');
+    tdLabel.className = 'text-nowrap small';
+    tr.appendChild(tdLabel);
+    for (const [ag, nk] of cols) {
+      const td = document.createElement('td');
+      const inp = document.createElement('input');
+      inp.type = 'number';
+      inp.className = 'form-control form-control-sm taper-input';
+      inp.min = '0'; inp.max = '1'; inp.step = '0.01';
+      inp.value = currentTapers[ag][nk][row];
+      inp.dataset.ag = ag; inp.dataset.nk = nk; inp.dataset.row = row;
+      inp.addEventListener('change', onTaperChange);
+      td.appendChild(inp);
+      tr.appendChild(td);
+    }
+    tbody.appendChild(tr);
+  }
+  updateTaperLabels();
+}
+
+function updateTaperLabels() {
+  const bands = currentIncomeBands;
+  const labels = [
+    `$0 – ${fmtBand(bands[0])}`,
+    `${fmtBand(bands[0])} – ${fmtBand(bands[1])}`,
+    `${fmtBand(bands[1])} – ${fmtBand(bands[2])}`,
+    `${fmtBand(bands[2])} – ${fmtBand(bands[3])}`,
+    `${fmtBand(bands[3])} – ${fmtBand(bands[4])}`,
+    `${fmtBand(bands[4])}+`,
+  ];
+  const rows = document.getElementById('tapers-tbody').rows;
+  for (let i = 0; i < 6; i++) rows[i].cells[0].textContent = labels[i];
+}
+
+function fmtBand(v) {
+  return '$' + v.toLocaleString('en-AU');
+}
+
+function onTaperChange(e) {
+  const { ag, nk, row } = e.target.dataset;
+  currentTapers[ag][parseInt(nk)][parseInt(row)] = parseFloat(e.target.value) || 0;
+  for (let i = 0; i < 6; i++) {
+    currentTapers.mix[2][i] = (currentTapers['12l'][2][i] + currentTapers['13p'][2][i]) / 2;
+    currentTapers.mix[3][i] = (currentTapers['12l'][3][i] + currentTapers['13p'][3][i]) / 2;
+  }
+  calculateAndUpdate();
+}
+
+function onBandChange() {
+  for (let i = 1; i <= 5; i++) {
+    const v = parseInt(document.getElementById(`band_${i}`).value.replace(/,/g, ''));
+    if (!isNaN(v) && v > 0) currentIncomeBands[i - 1] = v;
+  }
+  updateTaperLabels();
+  calculateAndUpdate();
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  syncThemeIcon();
+
+  // numkids
+  const numkidsSlider = document.getElementById('numkids');
+  numkidsSlider.addEventListener('input', () => {
+    document.getElementById('numkids_val').textContent = numkidsSlider.value;
+    updateKidVisibility();
+    calculateAndUpdate();
+  });
+
+  for (let i = 1; i <= 5; i++) {
+    initSlider(`a_kid_${i}_cn_i`, `a_kid_${i}_cn_val`);
+    initSlider(`kid_${i}_age_i`,  `kid_${i}_age_val`);
+  }
+
+  for (const id of ['a_othercase_n', 'a_othercase_12l', 'a_othercase_13p',
+                    'a_reldep_12l', 'a_reldep_13p', 'a_othercase_okids_lsc']) {
+    initSlider(`${id}_i`, `${id}_val`);
+  }
+
+  for (const id of ['b_othercase_n', 'b_othercase_12l', 'b_othercase_13p',
+                    'b_reldep_12l', 'b_reldep_13p', 'b_othercase_okids_lsc']) {
+    initSlider(`${id}_i`, `${id}_val`);
+  }
+
+  ['a_ati_i', 'b_ati_i'].forEach(id => {
+    const el = document.getElementById(id);
+    el.addEventListener('input', function() {
+      const before = this.value.slice(0, this.selectionStart).replace(/,/g, '').length;
+      const digits = this.value.replace(/[^\d]/g, '');
+      const num = parseInt(digits);
+      const formatted = isNaN(num) ? '' : num.toLocaleString('en-AU');
+      this.value = formatted;
+      let count = 0, pos = formatted.length;
+      for (let i = 0; i < formatted.length; i++) {
+        if (formatted[i] !== ',') count++;
+        if (count === before) { pos = i + 1; break; }
+      }
+      this.setSelectionRange(pos, pos);
+      calculateAndUpdate();
+    });
+  });
+
+  document.getElementById('year_i').addEventListener('change', calculateAndUpdate);
+  document.getElementById('a_isp_i').addEventListener('change', calculateAndUpdate);
+  document.getElementById('b_isp_i').addEventListener('change', calculateAndUpdate);
+
+  for (let i = 1; i <= 5; i++) {
+    const bandEl = document.getElementById(`band_${i}`);
+    bandEl.addEventListener('input', function() {
+      const digits = this.value.replace(/[^\d]/g, '');
+      const num = parseInt(digits);
+      if (!isNaN(num)) this.value = num.toLocaleString('en-AU');
+      else if (digits === '') this.value = '';
+      onBandChange();
+    });
+  }
+
+  document.getElementById('model-tab-btn').addEventListener('shown.bs.tab', () => {
+    updateCharts(getInputs());
+  });
+
+  buildTapersTable();
+  calculateAndUpdate();
+});
+
+
+  // List of all input IDs we want to sync with the URL
+const paramIds = [
+    'year_i', 'numkids', 'a_ati_i', 'b_ati_i', 'a_isp_i', 'b_isp_i',
+    'a_kid_1_cn_i', 'kid_1_age_i', 'a_kid_2_cn_i', 'kid_2_age_i',
+    'a_kid_3_cn_i', 'kid_3_age_i', 'a_kid_4_cn_i', 'kid_4_age_i',
+    'a_kid_5_cn_i', 'kid_5_age_i', 'a_othercase_n_i', 'a_othercase_12l_i',
+    'a_othercase_13p_i', 'a_reldep_12l_i', 'a_reldep_13p_i', 'a_othercase_okids_lsc_i',
+    'b_othercase_n_i', 'b_othercase_12l_i', 'b_othercase_13p_i', 'b_reldep_12l_i',
+    'b_reldep_13p_i', 'b_othercase_okids_lsc_i', 'band_1', 'band_2', 'band_3', 'band_4', 'band_5'
+];
+
+/**
+ * Updates the URL parameters to match the current state of the UI
+ */
+function updateURL() {
+    const params = new URLSearchParams();
+    paramIds.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+            // Remove commas from currency inputs for cleaner URLs
+            const val = el.value.replace(/,/g, '');
+            params.set(id, val);
+        }
+    });
+    
+    // Update the address bar without reloading the page
+    const newRelativePathQuery = window.location.pathname + '?' + params.toString();
+    history.replaceState(null, '', newRelativePathQuery);
+}
+
+/**
+ * Reads URL parameters and sets the UI inputs accordingly
+ */
+function loadFromURL() {
+    const params = new URLSearchParams(window.location.search);
+    params.forEach((value, key) => {
+        const el = document.getElementById(key);
+        if (el) {
+            el.value = value;
+            // Manually trigger the input event to update badges/UI logic
+            el.dispatchEvent(new Event('input'));
+            el.dispatchEvent(new Event('change'));
+        }
+    });
+}
+
+// 1. Initialize listeners on all inputs to auto-update URL
+document.addEventListener('DOMContentLoaded', () => {
+    // Load existing state first
+    loadFromURL();
+
+    // Attach listeners to update URL whenever something changes
+    paramIds.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+            el.addEventListener('change', updateURL);
+            // Use 'input' for ranges so the URL updates as you slide
+            if (el.type === 'range') {
+                el.addEventListener('input', updateURL);
+            }
+        }
+    });
+
+    // Run the calculator once at start to process loaded URL params
+    if (typeof calculate === "function") calculate();
+});
+  
+</script>
+</body>
+</html>
