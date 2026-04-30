@@ -31,8 +31,8 @@ The basic "Support Amount" ($S$) can be expressed as:
 $$S = ((\text{Income}\% - \text{Care}\%) \times \text{COC})$$
 
 Where:
-*   **$\text{Income}\%$** is the **Income Percentage** (your share of the combined parental income).
-*   **$\text{Income}\%$** is the **Care Percentage** (your share of caring for the chilren over the year).
+*   **$Income%$** is the **Income Percentage** (your share of the combined parental income).
+*   **$Care%$** is the **Care Percentage** (your share of caring for the chilren over the year).
 *   **$COC$** is the **Cost of Children** (a dollar amount determined by government tables based on the children's ages and total combined income).
 
 If you have 60% of the income and 60% of the care then there is no exchange, you and your partner are equally meeting the costs of the child by looking after them. 
@@ -61,7 +61,7 @@ While the formula is efficient, it is often a point of contention for both payin
 # Child Support Calculator API
 
 
-`cs_api.html` [`cs_api.html`](https://cherianb59.github.io/static/cs_api.html) is a client-side JSON API. All inputs are passed as URL query parameters; the page returns a single JSON object with no HTML. There is no server — it runs entirely in the browser.
+[`cs_api.html`](https://cherianb59.github.io/static/cs_api.html) is a client-side JSON API. All inputs are passed as URL query parameters; the page returns a single JSON object with no HTML. There is no server — it runs entirely in the browser.
 
 ## Base URL
 
