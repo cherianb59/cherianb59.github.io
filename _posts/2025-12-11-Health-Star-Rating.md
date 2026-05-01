@@ -14,6 +14,8 @@ Unfortunately the worksheet is password protected, however it's pretty easy to r
 
 By removing the password, it's easy to see exactly how the points are calculated. Short version is that you lose points for more saturated fats and sugar, and you gain points for having more protein, fibre, fruits and vegetables.
 
+I've reverse engineered the spreadsheet and converted it into a [calculator](https://cherianb59.github.io/static/hsr_calculator.html) and an [api](https://cherianb59.github.io/static/hsr.html?hsr_input=1&energy=500&saturated_fat=2&total_sugars=5&sodium=200&fibre=3&protein=4&concentrated_fruit_and_vegetable=10&FVNL=20). Just put in the parameters and feel free to copy the code yourself.
+
 ## Spreadsheet breakdown
 
 The `HSR Calculator 4.2.xlsm` spreadsheet implements the Australian/New Zealand Health Star Rating (HSR) system, version 4.2. It is the authoritative source for lookup tables used by all implementations (Python notebooks, web UI). It allows batch calculation of HSR star ratings from nutritional data, producing a rating on a 1–5 star scale (displayed as 1–10 half-star increments internally).
@@ -393,9 +395,6 @@ The calibration was designed to satisfy these criteria:
 8. The "least healthy" food is set at or above the **95th percentile** of NPSC scores for the category
 
 ## My implementations
-
-I've reverse engineered the spreadsheet and converted it into a [calculator](https://cherianb59.github.io/static/hsr_calculator.html) and an [api](https://cherianb59.github.io/static/hsr.html?hsr_input=1&energy=500&saturated_fat=2&total_sugars=5&sodium=200&fibre=3&protein=4&concentrated_fruit_and_vegetable=10&FVNL=20)
-. Just put in the parameters and feel free to copy the code yourself.
 
 
 My python implementation 
