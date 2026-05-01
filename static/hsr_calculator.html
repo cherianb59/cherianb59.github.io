@@ -318,42 +318,49 @@
             <div class="chart-card">
               <h5 class="section-header">Energy (kJ / 100g)</h5>
               <canvas id="chart-energy"></canvas>
+              <input type="range" class="form-range mt-2" id="model-slider-energy" min="0" max="4000" step="1" value="0">
             </div>
           </div>
           <div class="col-lg-6">
             <div class="chart-card">
               <h5 class="section-header">Saturated Fat (g / 100g)</h5>
               <canvas id="chart-satfat"></canvas>
+              <input type="range" class="form-range mt-2" id="model-slider-saturated_fat" min="0" max="100" step="0.1" value="0">
             </div>
           </div>
           <div class="col-lg-6">
             <div class="chart-card">
               <h5 class="section-header">Total Sugars (g / 100g)</h5>
               <canvas id="chart-sugars"></canvas>
+              <input type="range" class="form-range mt-2" id="model-slider-total_sugars" min="0" max="100" step="0.1" value="0">
             </div>
           </div>
           <div class="col-lg-6">
             <div class="chart-card">
               <h5 class="section-header">Sodium (mg / 100g)</h5>
               <canvas id="chart-sodium"></canvas>
+              <input type="range" class="form-range mt-2" id="model-slider-sodium" min="0" max="2700" step="10" value="0">
             </div>
           </div>
           <div class="col-lg-6">
             <div class="chart-card">
               <h5 class="section-header">Fibre (g / 100g)</h5>
               <canvas id="chart-fibre"></canvas>
+              <input type="range" class="form-range mt-2" id="model-slider-fibre" min="0" max="100" step="0.1" value="0">
             </div>
           </div>
           <div class="col-lg-6">
             <div class="chart-card">
               <h5 class="section-header">Protein (g / 100g)</h5>
               <canvas id="chart-protein"></canvas>
+              <input type="range" class="form-range mt-2" id="model-slider-protein" min="0" max="100" step="0.1" value="0">
             </div>
           </div>
           <div class="col-lg-6 offset-lg-3">
             <div class="chart-card">
               <h5 class="section-header">FVNL – Fruit, Vegetables, Nuts &amp; Legumes (%)</h5>
               <canvas id="chart-fvnl"></canvas>
+              <input type="range" class="form-range mt-2" id="model-slider-FVNL" min="0" max="100" step="0.1" value="0">
             </div>
           </div>
         </div>
@@ -767,6 +774,18 @@ function initSlider(sliderId, badgeId, isInt) {
   slider.addEventListener('input', () => { badge.textContent = fmt(slider.value); updateCalculator(); });
 }
 
+function syncSlider(mainId, modelId) {
+  const main = document.getElementById(mainId);
+  const model = document.getElementById(modelId);
+  if (!main || !model) return;
+  model.value = main.value;
+  main.addEventListener('input', () => { model.value = main.value; });
+  model.addEventListener('input', () => {
+    main.value = model.value;
+    main.dispatchEvent(new Event('input'));
+  });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   syncThemeIcon();
 
@@ -800,6 +819,15 @@ document.addEventListener('DOMContentLoaded', () => {
       if (badge) badge.textContent = isInt ? parseInt(el.value) : parseFloat(el.value).toFixed(1);
     }
   }
+
+  // Sync model sliders
+  syncSlider('energy',        'model-slider-energy');
+  syncSlider('saturated_fat', 'model-slider-saturated_fat');
+  syncSlider('total_sugars',  'model-slider-total_sugars');
+  syncSlider('sodium',        'model-slider-sodium');
+  syncSlider('fibre',         'model-slider-fibre');
+  syncSlider('protein',       'model-slider-protein');
+  syncSlider('FVNL',          'model-slider-FVNL');
 
   updateCalculator();
 });
