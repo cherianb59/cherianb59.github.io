@@ -37,6 +37,7 @@ collections:
 plugins:
   - jekyll-feed
   - jekyll-sitemap
+  - jekyll-seo-tag
 
 google_analytics:
   - ${JEKYLL_CONFIG_GOOGLE_ANALYICS}
