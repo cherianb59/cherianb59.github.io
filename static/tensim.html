@@ -79,7 +79,7 @@
 <body>
     <main class="container">
         <div class="theme-toggle-container">
-            <button class="outline" onclick="toggleTheme()" id="theme_btn">☀️ Light Mode</button>
+            <button class="outline" onclick="toggleTheme()" id="theme_btn">☀️ </button>
         </div>
 
         <div class="hero">
@@ -91,7 +91,7 @@
             <div>
                 <article>
                     <header><strong>Player A Settings</strong></header>
-                    <label for="a_base_p">Baseline Win Prob (%)
+                    <label for="a_base_p">Serve Win Prob (%)
                         <input type="range" id="a_base_p" min="0" max="100" value="50" oninput="updateVal('a_base_p')">
                         <span id="a_base_p_val" class="val-display">50%</span>
                         <div class="slider-scale"><span>0%</span><span>25%</span><span>50%</span><span>75%</span><span>100%</span></div>
@@ -111,7 +111,7 @@
             <div>
                 <article>
                     <header><strong>Player B Settings</strong></header>
-                    <label for="b_base_p">Baseline Win Prob (%)
+                    <label for="b_base_p">Serve Win Prob (%)
                         <input type="range" id="b_base_p" min="0" max="100" value="50" oninput="updateVal('b_base_p')">
                         <span id="b_base_p_val" class="val-display">50%</span>
                         <div class="slider-scale"><span>0%</span><span>25%</span><span>50%</span><span>75%</span><span>100%</span></div>
@@ -142,7 +142,8 @@
                 <div>
                     <label for="sim_count">Number of Simulations</label>
                     <div class="sim-control">
-                        <input type="number" id="sim_count" value="10000" min="1" max="1000000">
+                        <input type="number" id="sim_count" value="10000" min="1" max="1000000" 
+                               onkeydown="if(event.key==='ArrowUp'){event.preventDefault();adjustSims(10);}else if(event.key==='ArrowDown'){event.preventDefault();adjustSims(0.1);}">
                         <div class="sim-arrows">
                             <button class="sim-arrow-btn contrast" onclick="adjustSims(10)" title="Increase 10x">▲</button>
                             <button class="sim-arrow-btn contrast" onclick="adjustSims(0.1)" title="Decrease 10x">▼</button>
@@ -158,10 +159,6 @@
                 <header><strong>Simulation Results</strong></header>
                 <div id="summary_text" style="font-size: 1.2rem; text-align: center; margin-bottom: 1rem;"></div>
                 <progress id="win_progress" value="0" max="100"></progress>
-                <div style="display: flex; justify-content: space-between; font-size: 0.9rem;">
-                    <span>Player A Wins</span>
-                    <span>Player B Wins</span>
-                </div>
             </article>
         </div>
     </main>
@@ -185,7 +182,7 @@
             const current = html.getAttribute('data-theme');
             const next = current === 'dark' ? 'light' : 'dark';
             html.setAttribute('data-theme', next);
-            document.getElementById('theme_btn').textContent = next === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode';
+            document.getElementById('theme_btn').textContent = next === 'dark' ? '☀️' : '🌙';
         }
 
         function runSimulations() {
@@ -300,6 +297,26 @@
                 if (pointsInService === 1 || (pointsInService > 1 && pointsInService % 2 === 1)) {
                     aServing = !aServing;
                 }
+            }
+        }
+    </script>
+</body>
+</html>
+           }
+            }
+        }
+    </script>
+</body>
+</html>
+| (pointsInService > 1 && pointsInService % 2 === 1)) {
+                    aServing = !aServing;
+                }
+            }
+        }
+    </script>
+</body>
+</html>
+           }
             }
         }
     </script>
