@@ -12,9 +12,6 @@
         body {
             padding-top: 1rem;
         }
-        nav {
-            margin-bottom: 2rem;
-        }
         .hero {
             text-align: center;
             padding: 1rem 0;
@@ -29,8 +26,9 @@
         }
         .val-display {
             display: block;
-            font-size: 0.8rem;
-            color: var(--pico-muted-color);
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--pico-primary);
             margin-bottom: 0.5rem;
         }
         .slider-scale {
@@ -42,7 +40,7 @@
             padding: 0 5px;
         }
         #win_progress {
-            height: 1.5rem;
+            height: 2rem;
             margin-bottom: 0.5rem;
         }
         .results-box {
@@ -51,23 +49,39 @@
         }
         .sim-control {
             display: flex;
-            align-items: center;
+            align-items: stretch;
             gap: 0.5rem;
+        }
+        .sim-control input {
+            margin-bottom: 0;
+            flex: 1;
+        }
+        /* Hide default number spinners */
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        input[type=number] {
+            -moz-appearance: textfield;
         }
         .sim-arrows {
             display: flex;
             flex-direction: column;
             gap: 2px;
+            justify-content: center;
         }
         .sim-arrow-btn {
             padding: 0 0.5rem;
-            font-size: 0.8rem;
+            font-size: 0.65rem;
+            font-weight: 700;
             line-height: 1;
             height: 22px;
             margin: 0;
             display: flex;
             align-items: center;
             justify-content: center;
+            min-width: 45px;
         }
         .theme-toggle-container {
             display: flex;
@@ -79,7 +93,7 @@
 <body>
     <main class="container">
         <div class="theme-toggle-container">
-            <button class="outline" onclick="toggleTheme()" id="theme_btn">☀️ </button>
+            <button class="outline" onclick="toggleTheme()" id="theme_btn">☀️ Light Mode</button>
         </div>
 
         <div class="hero">
@@ -91,18 +105,18 @@
             <div>
                 <article>
                     <header><strong>Player A Settings</strong></header>
-                    <label for="a_base_p">Serve Win Prob (%)
-                        <input type="range" id="a_base_p" min="0" max="100" value="50" oninput="updateVal('a_base_p')">
+                    <label for="a_base_p">Baseline Win Prob (%)
+                        <input type="range" id="a_base_p" min="0" max="100" value="50" oninput="updateVal('a_base_p')" title="The base probability of winning a point on service.">
                         <span id="a_base_p_val" class="val-display">50%</span>
                         <div class="slider-scale"><span>0%</span><span>25%</span><span>50%</span><span>75%</span><span>100%</span></div>
                     </label>
                     <label for="a_streak_adv">Streak Modifier (%)
-                        <input type="range" id="a_streak_adv" min="-10" max="10" value="0" step="0.5" oninput="updateVal('a_streak_adv')">
+                        <input type="range" id="a_streak_adv" min="-10" max="10" value="0" step="0.5" oninput="updateVal('a_streak_adv')" title="How much the probability increases or decreases based on winning consecutive points.">
                         <span id="a_streak_adv_val" class="val-display">0%</span>
                         <div class="slider-scale"><span>-10%</span><span>-5%</span><span>0%</span><span>5%</span><span>10%</span></div>
                     </label>
                     <label for="a_pressure_adv">Pressure Modifier (%)
-                        <input type="range" id="a_pressure_adv" min="-10" max="10" value="0" step="0.5" oninput="updateVal('a_pressure_adv')">
+                        <input type="range" id="a_pressure_adv" min="-10" max="10" value="0" step="0.5" oninput="updateVal('a_pressure_adv')" title="The performance modifier applied during break points or set points.">
                         <span id="a_pressure_adv_val" class="val-display">0%</span>
                         <div class="slider-scale"><span>-10%</span><span>-5%</span><span>0%</span><span>5%</span><span>10%</span></div>
                     </label>
@@ -111,18 +125,18 @@
             <div>
                 <article>
                     <header><strong>Player B Settings</strong></header>
-                    <label for="b_base_p">Serve Win Prob (%)
-                        <input type="range" id="b_base_p" min="0" max="100" value="50" oninput="updateVal('b_base_p')">
+                    <label for="b_base_p">Baseline Win Prob (%)
+                        <input type="range" id="b_base_p" min="0" max="100" value="50" oninput="updateVal('b_base_p')" title="The base probability of winning a point on service.">
                         <span id="b_base_p_val" class="val-display">50%</span>
                         <div class="slider-scale"><span>0%</span><span>25%</span><span>50%</span><span>75%</span><span>100%</span></div>
                     </label>
                     <label for="b_streak_adv">Streak Modifier (%)
-                        <input type="range" id="b_streak_adv" min="-10" max="10" value="0" step="0.5" oninput="updateVal('b_streak_adv')">
+                        <input type="range" id="b_streak_adv" min="-10" max="10" value="0" step="0.5" oninput="updateVal('b_streak_adv')" title="How much the probability increases or decreases based on winning consecutive points.">
                         <span id="b_streak_adv_val" class="val-display">0%</span>
                         <div class="slider-scale"><span>-10%</span><span>-5%</span><span>0%</span><span>5%</span><span>10%</span></div>
                     </label>
                     <label for="b_pressure_adv">Pressure Modifier (%)
-                        <input type="range" id="b_pressure_adv" min="-10" max="10" value="0" step="0.5" oninput="updateVal('b_pressure_adv')">
+                        <input type="range" id="b_pressure_adv" min="-10" max="10" value="0" step="0.5" oninput="updateVal('b_pressure_adv')" title="The performance modifier applied during break points or set points.">
                         <span id="b_pressure_adv_val" class="val-display">0%</span>
                         <div class="slider-scale"><span>-10%</span><span>-5%</span><span>0%</span><span>5%</span><span>10%</span></div>
                     </label>
@@ -145,8 +159,8 @@
                         <input type="number" id="sim_count" value="10000" min="1" max="1000000" 
                                onkeydown="if(event.key==='ArrowUp'){event.preventDefault();adjustSims(10);}else if(event.key==='ArrowDown'){event.preventDefault();adjustSims(0.1);}">
                         <div class="sim-arrows">
-                            <button class="sim-arrow-btn contrast" onclick="adjustSims(10)" title="Increase 10x">▲</button>
-                            <button class="sim-arrow-btn contrast" onclick="adjustSims(0.1)" title="Decrease 10x">▼</button>
+                            <button class="sim-arrow-btn contrast" onclick="adjustSims(10)" title="Increase 10x">10x</button>
+                            <button class="sim-arrow-btn contrast" onclick="adjustSims(0.1)" title="Decrease 10x">0.1x</button>
                         </div>
                     </div>
                 </div>
@@ -182,7 +196,7 @@
             const current = html.getAttribute('data-theme');
             const next = current === 'dark' ? 'light' : 'dark';
             html.setAttribute('data-theme', next);
-            document.getElementById('theme_btn').textContent = next === 'dark' ? '☀️' : '🌙';
+            document.getElementById('theme_btn').textContent = next === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode';
         }
 
         function runSimulations() {
@@ -297,26 +311,6 @@
                 if (pointsInService === 1 || (pointsInService > 1 && pointsInService % 2 === 1)) {
                     aServing = !aServing;
                 }
-            }
-        }
-    </script>
-</body>
-</html>
-           }
-            }
-        }
-    </script>
-</body>
-</html>
-| (pointsInService > 1 && pointsInService % 2 === 1)) {
-                    aServing = !aServing;
-                }
-            }
-        }
-    </script>
-</body>
-</html>
-           }
             }
         }
     </script>
