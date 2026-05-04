@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="en" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -10,11 +10,14 @@
             --pico-primary: #3b82f6;
         }
         body {
-            padding-top: 2rem;
+            padding-top: 1rem;
+        }
+        nav {
+            margin-bottom: 2rem;
         }
         .hero {
             text-align: center;
-            padding: 2rem 0;
+            padding: 1rem 0;
             border-bottom: 1px solid var(--pico-muted-border-color);
             margin-bottom: 2rem;
         }
@@ -22,13 +25,21 @@
             margin-bottom: 1rem;
         }
         input[type="range"] {
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.25rem;
         }
         .val-display {
             display: block;
             font-size: 0.8rem;
             color: var(--pico-muted-color);
+            margin-bottom: 0.5rem;
+        }
+        .slider-scale {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.7rem;
+            color: var(--pico-muted-color);
             margin-bottom: 1rem;
+            padding: 0 5px;
         }
         #win_progress {
             height: 1.5rem;
@@ -38,10 +49,39 @@
             display: none;
             margin-top: 2rem;
         }
+        .sim-control {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .sim-arrows {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        .sim-arrow-btn {
+            padding: 0 0.5rem;
+            font-size: 0.8rem;
+            line-height: 1;
+            height: 22px;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .theme-toggle-container {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 1rem;
+        }
     </style>
 </head>
 <body>
     <main class="container">
+        <div class="theme-toggle-container">
+            <button class="outline" onclick="toggleTheme()" id="theme_btn">☀️ Light Mode</button>
+        </div>
+
         <div class="hero">
             <h1>🎾 Tennis Simulator</h1>
             <p>Standalone client-side simulation based on momentum and skill modifiers.</p>
@@ -54,14 +94,17 @@
                     <label for="a_base_p">Baseline Win Prob (%)
                         <input type="range" id="a_base_p" min="0" max="100" value="50" oninput="updateVal('a_base_p')">
                         <span id="a_base_p_val" class="val-display">50%</span>
+                        <div class="slider-scale"><span>0%</span><span>25%</span><span>50%</span><span>75%</span><span>100%</span></div>
                     </label>
                     <label for="a_streak_adv">Streak Modifier (%)
-                        <input type="range" id="a_streak_adv" min="-10" max="10" value="2" step="0.5" oninput="updateVal('a_streak_adv')">
-                        <span id="a_streak_adv_val" class="val-display">2%</span>
+                        <input type="range" id="a_streak_adv" min="-10" max="10" value="0" step="0.5" oninput="updateVal('a_streak_adv')">
+                        <span id="a_streak_adv_val" class="val-display">0%</span>
+                        <div class="slider-scale"><span>-10%</span><span>-5%</span><span>0%</span><span>5%</span><span>10%</span></div>
                     </label>
                     <label for="a_pressure_adv">Pressure Modifier (%)
-                        <input type="range" id="a_pressure_adv" min="-10" max="10" value="1" step="0.5" oninput="updateVal('a_pressure_adv')">
-                        <span id="a_pressure_adv_val" class="val-display">1%</span>
+                        <input type="range" id="a_pressure_adv" min="-10" max="10" value="0" step="0.5" oninput="updateVal('a_pressure_adv')">
+                        <span id="a_pressure_adv_val" class="val-display">0%</span>
+                        <div class="slider-scale"><span>-10%</span><span>-5%</span><span>0%</span><span>5%</span><span>10%</span></div>
                     </label>
                 </article>
             </div>
@@ -71,14 +114,17 @@
                     <label for="b_base_p">Baseline Win Prob (%)
                         <input type="range" id="b_base_p" min="0" max="100" value="50" oninput="updateVal('b_base_p')">
                         <span id="b_base_p_val" class="val-display">50%</span>
+                        <div class="slider-scale"><span>0%</span><span>25%</span><span>50%</span><span>75%</span><span>100%</span></div>
                     </label>
                     <label for="b_streak_adv">Streak Modifier (%)
-                        <input type="range" id="b_streak_adv" min="-10" max="10" value="2" step="0.5" oninput="updateVal('b_streak_adv')">
-                        <span id="b_streak_adv_val" class="val-display">2%</span>
+                        <input type="range" id="b_streak_adv" min="-10" max="10" value="0" step="0.5" oninput="updateVal('b_streak_adv')">
+                        <span id="b_streak_adv_val" class="val-display">0%</span>
+                        <div class="slider-scale"><span>-10%</span><span>-5%</span><span>0%</span><span>5%</span><span>10%</span></div>
                     </label>
                     <label for="b_pressure_adv">Pressure Modifier (%)
-                        <input type="range" id="b_pressure_adv" min="-10" max="10" value="1" step="0.5" oninput="updateVal('b_pressure_adv')">
-                        <span id="b_pressure_adv_val" class="val-display">1%</span>
+                        <input type="range" id="b_pressure_adv" min="-10" max="10" value="0" step="0.5" oninput="updateVal('b_pressure_adv')">
+                        <span id="b_pressure_adv_val" class="val-display">0%</span>
+                        <div class="slider-scale"><span>-10%</span><span>-5%</span><span>0%</span><span>5%</span><span>10%</span></div>
                     </label>
                 </article>
             </div>
@@ -93,9 +139,16 @@
                         <option value="3">Best of 5 (Win 3)</option>
                     </select>
                 </label>
-                <label for="sim_count">Number of Simulations
-                    <input type="number" id="sim_count" value="1000" min="1" max="50000">
-                </label>
+                <div>
+                    <label for="sim_count">Number of Simulations</label>
+                    <div class="sim-control">
+                        <input type="number" id="sim_count" value="10000" min="1" max="1000000">
+                        <div class="sim-arrows">
+                            <button class="sim-arrow-btn contrast" onclick="adjustSims(10)" title="Increase 10x">▲</button>
+                            <button class="sim-arrow-btn contrast" onclick="adjustSims(0.1)" title="Decrease 10x">▼</button>
+                        </div>
+                    </div>
+                </div>
             </div>
             <button onclick="runSimulations()" id="sim_btn">Run Simulation</button>
         </article>
@@ -116,6 +169,23 @@
     <script>
         function updateVal(id) {
             document.getElementById(id + '_val').textContent = document.getElementById(id).value + '%';
+        }
+
+        function adjustSims(factor) {
+            const input = document.getElementById('sim_count');
+            let val = parseInt(input.value) || 10000;
+            val = Math.round(val * factor);
+            if (val < 1) val = 1;
+            if (val > 1000000) val = 1000000;
+            input.value = val;
+        }
+
+        function toggleTheme() {
+            const html = document.documentElement;
+            const current = html.getAttribute('data-theme');
+            const next = current === 'dark' ? 'light' : 'dark';
+            html.setAttribute('data-theme', next);
+            document.getElementById('theme_btn').textContent = next === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode';
         }
 
         function runSimulations() {
@@ -141,7 +211,6 @@
             btn.disabled = true;
             btn.textContent = 'Simulating...';
 
-            // Brief delay to allow UI to update disabled button state
             setTimeout(() => {
                 const startTime = performance.now();
                 for (let i = 0; i < simCount; i++) {
@@ -152,7 +221,7 @@
 
                 const winRate = (aWins / simCount * 100).toFixed(1);
                 document.getElementById('results_container').style.display = 'block';
-                document.getElementById('summary_text').innerHTML = `Player A won <strong>${aWins}</strong> out of <strong>${simCount}</strong> matches (<strong>${winRate}%</strong>)`;
+                document.getElementById('summary_text').innerHTML = `Player A won <strong>${aWins.toLocaleString()}</strong> out of <strong>${simCount.toLocaleString()}</strong> matches (<strong>${winRate}%</strong>)`;
                 document.getElementById('win_progress').value = winRate;
                 
                 btn.disabled = false;
@@ -163,7 +232,7 @@
 
         function simulateMatch(config) {
             let aSets = 0, bSets = 0;
-            let aServing = Math.random() < 0.5; // Random initial server
+            let aServing = Math.random() < 0.5;
 
             while (aSets < config.setLimit && bSets < config.setLimit) {
                 const setWinner = simulateSet(config, aServing);
@@ -178,14 +247,9 @@
             let aServing = initialService;
 
             while (true) {
-                // Check for set win (regular games)
                 if (aGames >= 6 && aGames - bGames >= 2) return 'a';
                 if (bGames >= 6 && bGames - aGames >= 2) return 'b';
-                
-                // Tiebreaker at 6-6
-                if (aGames === 6 && bGames === 6) {
-                    return simulateTiebreaker(config, aServing);
-                }
+                if (aGames === 6 && bGames === 6) return simulateTiebreaker(config, aServing);
 
                 const gameWinner = simulateGame(config, aServing, aGames, bGames);
                 if (gameWinner === 'a') aGames++; else bGames++;
@@ -202,7 +266,6 @@
                 if (bPoints >= 4 && bPoints - aPoints >= 2) return 'b';
 
                 let aPressure = 0, bPressure = 0;
-                // Simplified Pressure Detection: Break points or Set points
                 if (bPoints >= 3 && bPoints > aPoints) aPressure = 1;
                 if (aPoints >= 3 && aPoints > bPoints) bPressure = 1;
 
@@ -230,17 +293,10 @@
                 if (aPoints >= 7 && aPoints - bPoints >= 2) return 'a';
                 if (bPoints >= 7 && bPoints - aPoints >= 2) return 'b';
 
-                let pA;
-                if (aServing) {
-                    pA = config.a.base_p;
-                } else {
-                    pA = 1 - config.b.base_p;
-                }
-
+                let pA = aServing ? config.a.base_p : (1 - config.b.base_p);
                 if (Math.random() < pA) aPoints++; else bPoints++;
 
                 pointsInService++;
-                // Tiebreaker service rotation: 1st point server A, then 2 points each
                 if (pointsInService === 1 || (pointsInService > 1 && pointsInService % 2 === 1)) {
                     aServing = !aServing;
                 }
