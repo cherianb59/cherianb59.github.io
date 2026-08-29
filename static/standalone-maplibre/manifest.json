@@ -1,0 +1,16 @@
+{
+  "name": "BOM Weather & Rain Radar",
+  "short_name": "BOM Weather",
+  "description": "100% Client-Side Bureau of Meteorology Rain Radar and Forecast App",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0C2340",
+  "theme_color": "#0C2340",
+  "icons": [
+    {
+      "src": "https://raw.githubusercontent.com/feathericons/feather/master/icons/cloud-rain.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml"
+    }
+  ]
+}
