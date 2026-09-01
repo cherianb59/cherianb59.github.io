@@ -16,7 +16,7 @@ AI to the rescue, I could download the apk and then have AI analyse it to see mo
 
 With the apk and the network data it could figure out the structure of the app and all the calls needed to replicate the app. One tricky part was that there are API cals to mapbox that need to be authenticated. The caputred network traffic helped decipher how to replicate the authentication and generate session keys. 
 
-[Client Side BoM Site](https://milkmaidmarian.com/2012/04/17/ethical-milk-which-brand-to-buy/)
+[Client Side BoM Site](https://cherianb59.github.io/static/standalone-maplibre/)
 
 ### Future Work
 
