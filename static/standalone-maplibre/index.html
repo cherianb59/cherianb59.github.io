@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>BOM Weather — Bureau of Meteorology</title>
+
+  <!-- PWA Manifest & App Icons -->
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#0C2340" />
+  <link rel="icon" type="image/svg+xml" href="assets/icon.svg" />
+
+  <!-- Typography: Inter Font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <!-- MapLibre GL JS (Official WebGL Vector Engine) -->
+  <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+  <link href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" rel="stylesheet" />
+
+  <!-- Application Stylesheet -->
+  <link rel="stylesheet" href="css/app.css" />
+</head>
+<body>
+  <!-- Global App Header -->
+  <header class="app-header">
+    <div class="header-content">
+      <div class="logo-area">
+        <span class="bom-badge">BOM</span>
+        <span class="app-title">Weather</span>
+      </div>
+      <div class="location-picker" id="locationHeader" role="button" tabindex="0" title="Click to Change Location">
+        <span class="loc-pin">📍</span>
+        <span class="loc-name" id="currentLocationText">Sydney 2000</span>
+        <span class="loc-arrow">▼</span>
+      </div>
+      <button class="btn-icon" id="btnSearchOpen" title="Search Suburb or Postcode">🔍</button>
+    </div>
+  </header>
+
+  <!-- Main Multi-Tab Viewport -->
+  <main class="app-content">
+    <!-- Tab 1: Forecast Screen -->
+    <div id="tab-forecast" class="tab-pane active">
+      <div class="spinner"></div>
+    </div>
+
+    <!-- Tab 2: Past Observations Screen -->
+    <div id="tab-past" class="tab-pane">
+      <div class="spinner"></div>
+    </div>
+
+    <!-- Tab 3: Maps & Rain Radar Screen -->
+    <div id="tab-maps" class="tab-pane">
+      <div id="maplibre-map-container"></div>
+
+      <!-- Floating Radar Scrubber Toolbar -->
+      <div class="radar-overlay-controls">
+        <div class="player-top-row">
+          <div class="frame-info">
+            <span id="frameTypeTag" class="frame-tag tag-obs">Observation</span>
+            <span id="frameTimeLabel" class="frame-time">--:--</span>
+            <span id="frameOffsetLabel" class="frame-offset">NOW</span>
+          </div>
+          <div class="player-controls">
+            <button class="btn-ctrl" id="btnStepBack" title="Step Back (Left Arrow)">⏮</button>
+            <button class="btn-ctrl" id="btnPlayPause" title="Play/Pause (Space)">⏸</button>
+            <button class="btn-ctrl" id="btnStepForward" title="Step Forward (Right Arrow)">⏭</button>
+            <input type="range" id="radarOpacity" min="0.2" max="1" step="0.05" value="0.95" style="width: 55px;" title="Radar Opacity" />
+          </div>
+        </div>
+
+        <div class="timeline-slider-box">
+          <input type="range" id="radarScrubber" class="timeline-slider" min="0" max="36" step="1" value="0" />
+          <div class="timeline-labels">
+            <span>-85m</span>
+            <span>-60m</span>
+            <span>-30m</span>
+            <span style="color: var(--brand-cyan); font-weight: 800;">NOW</span>
+            <span style="color: var(--accent-gold);">+30m</span>
+            <span style="color: var(--accent-gold);">+60m</span>
+            <span style="color: var(--accent-gold);">+90m</span>
+          </div>
+        </div>
+
+        <div class="radar-legend">
+          <span>Rain:</span>
+          <span>0.2</span>
+          <div class="legend-bar" id="legendBar"></div>
+          <span>360 mm/h</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab 4: Warnings & Bulletins Screen -->
+    <div id="tab-warnings" class="tab-pane">
+      <div class="spinner"></div>
+    </div>
+  </main>
+
+  <!-- Fixed Bottom Navigation Bar -->
+  <nav class="bottom-nav">
+    <button class="nav-tab active" data-tab="forecast">
+      <span class="tab-icon">🌤️</span>
+      <span class="tab-label">Forecast</span>
+    </button>
+    <button class="nav-tab" data-tab="past">
+      <span class="tab-icon">📊</span>
+      <span class="tab-label">Past 72hr</span>
+    </button>
+    <button class="nav-tab" data-tab="maps">
+      <span class="tab-icon">🗺️</span>
+      <span class="tab-label">Radar Map</span>
+    </button>
+    <button class="nav-tab" data-tab="warnings">
+      <span class="tab-icon">⚠️</span>
+      <span class="tab-label">Warnings</span>
+    </button>
+  </nav>
+
+  <!-- Location Search Modal -->
+  <div id="searchModal" class="modal-overlay" style="display: none;">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>Find Location</h3>
+        <button id="btnSearchClose" class="btn-icon">✕</button>
+      </div>
+      <div class="search-box">
+        <input type="text" id="searchInput" placeholder="Search town, suburb, or postcode..." autocomplete="off" />
+        <button id="btnGeoLocation" class="btn-location" title="Use current GPS">📍 Current</button>
+      </div>
+      <div id="searchResults" class="search-results-list"></div>
+    </div>
+  </div>
+
+  <!-- Main JavaScript App Entrypoint -->
+  <script type="module" src="js/app.js"></script>
+
+  <!-- ServiceWorker Offline Registration -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js').catch(err => console.log('SW registration:', err));
+      });
+    }
+  </script>
+</body>
+</html>
