@@ -1,6 +1,6 @@
 ---
 layout: post
-title: AI Reflections and Predictions
+title: AI is the BoM
 description: 
 date: 2026-09-01 11:12:30 +1000
 tags: Programming
