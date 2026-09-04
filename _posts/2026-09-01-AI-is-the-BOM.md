@@ -20,7 +20,7 @@ With the apk and the network data it could figure out the structure of the app a
 
 ### Future Work
 
-A potentially interesting use is seeing how the 5 minut predictions vary by time.
+A potentially interesting use is seeing how the 5 minute predictions vary by time.
 
 i.e how the prediction at 3pm looks like at 1:30 vs 2:55.
 

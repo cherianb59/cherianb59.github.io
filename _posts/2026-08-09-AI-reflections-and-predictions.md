@@ -25,3 +25,7 @@ AI screws up a lot and original research and  primary sources will be most impor
 
 It helps build more software and it can replace people, but there is still some technical knowledge required. There isn't a finite amount of software that is needed; the cost of developing it has reduced, so there will be more of it. 
 Maybe at some point AI will write its own language, but until then languages are human-designed, so a human should be able to understand programming languages and still be required when the AI goes awry.
+
+## UI and UX will be more sought after skills 
+
+THe AI is great at adding features to an app, however making it look good and feel good is lacking. At the moment I dont think an AI can develop taste or understand usuabliilty so a human will be rquired to guide the AI to add form and function to apps 
