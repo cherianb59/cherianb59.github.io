@@ -21,6 +21,7 @@ Multiple bits are tested and the best keys are kept using the following algorith
 Input: m (length of key guess), n (number of surviving key guesses), k (known previous key bits)
 
 Output: SurvivingKeys
+
     1: KeyHyp = {0, 1}^m 
     
     2: for all KeyHypi; 0 ≤ i < 2^m do
