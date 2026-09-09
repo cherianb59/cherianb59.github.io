@@ -27,7 +27,7 @@ Knowing the 32 bits from the last round of encryption means we also know 31 bits
 
 Let $$ Y^{(i + 1)} $$ be the state register after $$ i $$ rounds of encryption.
 
-Let $$ \left( y_{k}^{(i)}) $$  be the the k'th bit after $$ i $$ rounds of encryption.
+Let $$ y_{k}^{(i)} $$  be the the k'th bit after $$ i $$ rounds of encryption.
 
 Let $$ \varphi^{(i)} $$ be the bit calculated after  $$ i $$ rounds of encryption.
 
