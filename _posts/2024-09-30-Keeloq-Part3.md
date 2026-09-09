@@ -18,15 +18,19 @@ Multiple bits are tested and the best keys are kept using the following algorith
 
 #### Algorithm 1 ####
 
-Input: m : length of key guess, n: number of surviving key guesses, k: known previous key bits
+Input: m (length of key guess), n (number of surviving key guesses), k (known previous key bits)
 
 Output: SurvivingKeys
-    1: KeyHyp = {0, 1}^m
+    1: KeyHyp = {0, 1}^m 
+    
     2: for all KeyHypi; 0 ≤ i < 2^m do
+    
         3: Perform Correlated Power Analysis on round (528 − m) using PHyp and k
+        
     4: end for
+    
     5: SurvivingKeys = n most probable partial keys of KeyHyp
-
+    
 
 The data required is a number of ciphertexts and powertraces at each round of the encryption. This is recorded by pressing the keyfob button a number of times and capturing the radio transmission and using an oscilliscope to capture the power used. The first m bits of the key are guessed, e.g. if m = 4, 16 keys would be tested. For each of the ciphertexts recorded, each of the keys will have their power consumption modelled for 4 rounds, this is the hypothetical power consumption. For each of the keys the hypothetical power consumption at round 4 is correlated with the actual power consumption at round 4 and the n most correlated keys are kept for the next round. For the next round the next 4 bits are guessed. This means there are 16n guesses for each of the subsequent rounds. The proceses is finished after 64/4 = 16 rounds.  
 
@@ -107,8 +111,8 @@ for i in range(64//bits):
 
 dummy_ciphertexts is a list of cipher texts and ciphertexts_d is a dictionary containing the power trace for each of the ciphertexts
 
-Where do we get this data from? I don't have an oscilliscope to get the power traces. There are two sources, the first comes form the researachers who ran a workshop at 25C3, they provided the ciphertexts and traces. Unfortunately the ciphertexts are random and they don't procide the plaintext which means there is no way to verify the keys. 
+Where do we get this data from? I didn't have an oscilliscope to get the power traces. However there are two sources, the first comes form the researachers who ran a workshop at 25C3, they provided the ciphertexts and traces. Unfortunately the ciphertexts are random and they don't provide the plaintext which means there is no way to verify the keys. 
 
-The second source is from https://github.com/marc-invalid/chipwhisperer-marc/blob/master/doc/marc/keeloq/examples_hcs301. This guy used the chipwhiseperer framework to perform power analysis. He also helpfully provided the raw power traces and the method to refine them. Because his traces and ciphertexts are from sequential presses from an actual keyfob the plaintext have a section with the serial number, which stays constant accross transmissions. This allowed me to verify that my method was correct. 
+The second source is from https://github.com/marc-invalid/chipwhisperer-marc/blob/master/doc/marc/keeloq/examples_hcs301. This guy used the chipwhisperer framework to perform power analysis. He also helpfully provided the raw power traces and the method to refine them. Because his traces and ciphertexts are from sequential presses from an actual keyfob the plaintext have a section with the serial number, which stays constant accross transmissions. This allowed me to verify that my method was correct. 
 
 Using pure python is slow, it takes minutes to conduct the full power analysis, the next section covers methods to speed up power analysis and also bruteforce Keeloq keys.

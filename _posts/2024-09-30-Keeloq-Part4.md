@@ -92,7 +92,7 @@ Sidetrack: How do the keyfob and garage door opener know which key is used? The 
 
 There are 4 methods used, all of them use a 64 bit manufacturer key which is the same across all garage door opener units from the same manufacturer. 
 
-Method 1 - The 64 bit manufacturer key is used to decrypt the serial number of the keyfob, and the decrypted serial number is used as the keyfob key (device key). The keyfob is programmed with the device key at the factory. The user has to press a learning button on the garage door opener, and then press any button on the keyfob. This will register the serial number with the garage door opener. When the keyfob transmits, the opener will read the serial number (which is sent unencrypted), check that it is registered, then decrypt the serial number it using the manufacturer key to derive the device key, then use the device key to decrypt the encrypted section. 
+Method 1 - The 64 bit manufacturer key is used to decrypt the serial number of the keyfob, and the decrypted serial number is used as the keyfob key (device key). The keyfob is programmed with the device key at the factory. The user has to press a learning button on the garage door opener, and then press any button on the keyfob. This will register the serial number with the garage door opener. When the keyfob transmits, the opener will read the serial number (which is sent unencrypted), check that it is registered, then derive the device key by decrypting the serial number using the manufacturer key, then use the device key to decrypt the encrypted section. 
 
 Method 2 - Similar to method 1 but instead of using the serial number a random seed is used. The user setup is more complicated, they press the learning button on the garage door opener, and then press a specific button on the keyfob. This button sends the seed to the garage door opener. The garage door opener will decrypt the seed using the manufacturer key, this produces the device key. 
 
@@ -114,6 +114,8 @@ It's not really fair to compare CPU and GPU as it depends on a particular setup.
 
 ### Bit Slicing
 
+Brute forcing has previously worked on one key at a time.
+
 Bit slicing speeds up bruteforcing by working with more than one bit at a time. 
 
 So far the Keeloq encryptions have calculated one bit in each round. 
@@ -129,8 +131,6 @@ i.e. these keys
 0000000000000000000000000000000000000000000000000000000000000001 - key 1
 ...
 0000000000000000000000000000000000000000000000000000000000011111 - key 31
-
-Brute forcing has previosuly worked on one key at a time.
 
 First transpose such that they keys are an array of 32 bit words. The first element of the array represents the bit 0 of each of the 32 keys, second element is bit 1, etc.
 
@@ -167,7 +167,7 @@ Bit Slicing and GPGPU can be combined to use the GPU's word size.
 
 These guys did it in 2012 https://barenghi.faculty.polimi.it/lib/exe/fetch.php?media=parma2012.pdf
 
-Using an i7 920 single threaded gave 0.451 Mk keys / second, while using a GTX 270 gives 19.6 M keys / second, a speed up of 42x. 
+Using an i7 920 single threaded gave 0.451 M keys / second, while using a GTX 270 gives 19.6 M keys / second, a speed up of 42x. 
 
 My own results using a 
 and a GTX 1060 

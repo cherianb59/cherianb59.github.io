@@ -10,7 +10,7 @@ tags: Programming
 
 Power analysis is a key recovery technique which uses the power consumed by the computational device to make derive a cryptographic key.
 
-Here is a very somple power analysis made up example. Keeloq uses one key bit every round, suppose that if a 1 bit of the key was used then more power is consumed, if a 0 bit was used then less power is consumed. By measuring the power used over the 528 rounds and seeing if more or less power was used each round the key could be inferred.
+Here is a very simple made up power analysis example. Keeloq uses one bit from teh 64 bit key every round. Suppose that if the key bit is 1 then more power is consumed, if it was a 0 bit then less power is consumed. By measuring the power used over the 528 rounds and seeing if more or less power was used each round the key could be inferred.
 
 Unfortunately it is not quite this simple.
 
@@ -20,11 +20,16 @@ There are two registers in the chip, the key register and the state register. Th
 
 The state register is used to encrypt the 32 bits of the plaintext. This register also rotates every round, however the most significant bit changes (see part one for details). Hence it can be used for power analysis. 
 
-We can collect two peices of data from the  the fob, the amount of power used, and the transmission (the cipher text or the 32 bits of the final round of keeloq).
+We can collect two pieces of data from the fob, the amount of power used, and the transmission (the cipher text or the 32 bits of the final round of keeloq).
 
 Knowing the 32 bits from the last round of encryption means we also know 31 bits of the second last round, round 527. Only bit 0 from round 527 is not known.
 
-From part one 
+
+Let $$ Y^{(i + 1)} $$ be the state register after $$ i $$ rounds of encryption.
+
+Let $$ \left( y_{k}^{(i)}) $$  be the the k'th bit after $$ i $$ rounds of encryption.
+
+Let $$ \varphi^{(i)} $$ be the bit calculated after  $$ i $$ rounds of encryption.
 
 After each round the new most significant bit is  
 
@@ -35,7 +40,7 @@ hence
 
 $$ Y^{(i+1)} = \left( \varphi^{(i)}, y_{31}^{(i)}, \ldots, y_{1}^{(i)} \right) $$
 
-For the last round
+The last round, which is transmitted by the key fob is:
 
 $$ Y^{(528)} = \left( y_{31}^{(528)}, y_{30}^{(528)}, \ldots , y_{0}^{(528)} \right)  = \left( \varphi^{(527)}, y_{31}^{(527)}, \ldots, y_{1}^{(527)} \right) $$
 
@@ -54,12 +59,6 @@ We get
 $$ y_{0}^{(527)}  =  k_{527 \mod 64}  \oplus  \text{NLF} \left( y_{30}^{(528)}, y_{25}^{(528)}, y_{19}^{(528)}, y_{8}^{(528)}, y_{0}^{(528)} \right) 
 \oplus y_{15}^{(528)} \oplus y_{31}^{(528)}$$
 
-The gives the relationship between $$y_{0}^{(527)}$$  and  $$ k_{527 \mod 64}  $$, therefore correctly guessing one bit of the state register using power analysis will reveal one bit of the key.
+The gives the relationship between $$y_{0}^{(527)}$$  and  $$ k_{527 \mod 64}  $$, therefore correctly guessing one bit of the state register $$ y_{0}^{(527)}  $$ using power analysis will reveal one bit of the key.
 
 This covers all the theory, the next section will cover how this is done practically. 
-
-
-
-
-![](/img/4x4-font.jpg)
-
