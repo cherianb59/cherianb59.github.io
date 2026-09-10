@@ -13,9 +13,7 @@ This part will focus on optimising code for power analysis and speeding up brute
 
 ### ctypes
 
-Calling C functions from python
-
-Greatly speeds up power analysis
+Calling C functions from python greatly speeds up power analysis
 
 If 4 bits of a key are guessed each round and the best 6 keys are kept
 64/4 = 16 rounds. 16 (first round, 16 guess to try) + 16*6 (16 * 6 key guesses for all further rounds) * 15 (15 further rounds) guesses. The power analysis is performed on 1456 key guesses.
@@ -88,7 +86,7 @@ In algorithm 1 the function needs to be replaced with the ctype equivalent
 
 The following two techniques looks at bruteforcing guessing keys. Why would we want to bruteforce?
 
-Sidetrack: How do the keyfob and garage door opener know which key is used? The key has to be kept secure, it shouldn't be transmitted out in the open. The key sharing also needs to be idiot proof. A lot of simpletons own garage doors and any mildly complicated setup will mean the garage door opener won't sell.  
+Sidetrack: How do the keyfob and garage door opener know the which key is used? The key has to be kept secure, it shouldn't be transmitted out in the open. The key sharing also needs to be idiot proof. A lot of simpletons own garage doors and any mildly complicated setup will mean the garage door opener won't sell.  
 
 There are 4 methods used, all of them use a 64 bit manufacturer key which is the same across all garage door opener units from the same manufacturer. 
 
@@ -124,8 +122,7 @@ If many keys are trying to be guessed the processor word size can be exploited.
 
 Imagine we have a 32 bit processor, it can perform AND and XOR operations on 32 bit operands, this allows guessing 32 keys at once.
 
-Suppose we test out keys 0-31
-i.e. these keys 
+Suppose we test out keys 0-31 i.e. these keys 
  
 0000000000000000000000000000000000000000000000000000000000000000 - key 0
 
@@ -168,27 +165,30 @@ There are two downsides.
 The NLF can't use the lookup table anymore it has to be converted to Algebraic normal form (i.e. into XOR and AND)
 Bit shifting also doesn't work. When a rotate is needed the elements of the array can be moved to a lower (left shift) or higher (right shift) index.
 
-A smarter way would be to use an offset index, but I'm not that smart.
+A smarter way would be to use an offset index, instead of tying .
 
 Another inefficiency comes from tranposing the key and text at the start and end of the encryption.
-
-Speed up 
-
-Power Consumption 
 
 ### Por Que No Los Dos?
 
 Bit Slicing and GPGPU can be combined to use the GPU's word size.
 
-These guys did it in 2012 https://barenghi.faculty.polimi.it/lib/exe/fetch.php?media=parma2012.pdf
+These guys did it in 2012 [](https://barenghi.faculty.polimi.it/lib/exe/fetch.php?media=parma2012.pdf)
 
 Using an i7 920 single threaded gave 0.451 M keys / second, while using a GTX 270 gives 19.6 M keys / second, a speed up of 42x. 
 
-My own results using a 
-and a GTX 1060 
+My own results using a Ryzen 5 7600 and a GTX 1060 are 
 
-are 
-Speed Up
-
-Power Consumption
-
+| Implementation | Engine / Hardware | Decryption (Ops/sec) | Encryption (Ops/sec) | Parity Ratio |
+| :--- | :--- | ---: | ---: | ---: |
+| Pure Python (Inlined) | 1 Core (Python Bytecode) | 4,308 | 4,183 | 97.1% |
+| Pure Python (64-Way Bitslice) | 1 Core (Python Integers) | 140,248 | 143,892 | 102.6% |
+| Standard C Reference (1 Core) | 1 Core (Native Scalar C) | 1,068,754 | 912,231 | 85.4% |
+| Python + ctypes (Standard C) | 1 Core (Native C DLL) | 1,047,302 | 912,154 | 87.1% |
+| Python + ctypes (64-Way Bitslice) | 1 Core (uint64 C DLL) | 36,571,436 | 37,255,396 | 101.8% |
+| Python + ctypes (256-Way AVX2) | 1 Core (AVX2 C DLL) | 83,900,403 | 83,912,119 | 100.0% |
+| 64-Way Bitslice C (1 Core) | 1 Core (Native uint64) | 54,746,425 | 55,966,060 | 102.2% |
+| 64-Way Bitslice C (12 Cores) | 12 Cores (Native uint64) | 310,760,101 | 305,200,000 | 98.2% |
+| 256-Way AVX2 Bitslice C (1 Core) | 1 Core (Native AVX2) | 279,208,358 | 291,059,175 | 104.2% |
+| 256-Way AVX2 Bitslice C (12 Cores) | 12 Cores (Native AVX2) | 1,507,414,602 | 1,653,198,353 | 109.6% |
+| GPU Bitsliced Parallel CUDA | NVIDIA GTX 1060 (1280 Cores) | 1,191,005,940 | 1,117,881,685 | 93.8% |

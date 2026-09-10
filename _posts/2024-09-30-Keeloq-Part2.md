@@ -25,11 +25,13 @@ We can collect two pieces of data from the fob, the amount of power used, and th
 Knowing the 32 bits from the last round of encryption means we also know 31 bits of the second last round, round 527. Only bit 0 from round 527 is not known.
 
 
-Let $$ Y^{(i + 1)} $$ be the state register after $$ i $$ rounds of encryption.
+Let $$ Y^{(i)} $$ be the state register after $$ i $$ rounds of encryption.
 
 Let $$ y_{k}^{(i)} $$  be the the k'th bit after $$ i $$ rounds of encryption.
 
 Let $$ \varphi^{(i)} $$ be the bit calculated after  $$ i $$ rounds of encryption.
+
+Hence $$ Y^{(i)} = \left( y_{31}^{(i)}, y_{30}^{(i)}, \ldots , y_{2}^{(528) , y_{1}^{(528) , y_{0}^{(528)} \right) $$
 
 After each round the new most significant bit is  
 
