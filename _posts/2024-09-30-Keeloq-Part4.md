@@ -179,16 +179,17 @@ Using an i7 920 single threaded gave 0.451 M keys / second, while using a GTX 27
 
 My own results using a Ryzen 5 7600 and a GTX 1060 are 
 
-| Implementation | Engine / Hardware | Decryption (Ops/sec) | Encryption (Ops/sec) | Parity Ratio |
-| :--- | :--- | ---: | ---: | ---: |
-| Pure Python (Inlined) | 1 Core (Python Bytecode) | 4,308 | 4,183 | 97.1% |
-| Pure Python (64-Way Bitslice) | 1 Core (Python Integers) | 140,248 | 143,892 | 102.6% |
-| Standard C Reference (1 Core) | 1 Core (Native Scalar C) | 1,068,754 | 912,231 | 85.4% |
-| Python + ctypes (Standard C) | 1 Core (Native C DLL) | 1,047,302 | 912,154 | 87.1% |
-| Python + ctypes (64-Way Bitslice) | 1 Core (uint64 C DLL) | 36,571,436 | 37,255,396 | 101.8% |
-| Python + ctypes (256-Way AVX2) | 1 Core (AVX2 C DLL) | 83,900,403 | 83,912,119 | 100.0% |
-| 64-Way Bitslice C (1 Core) | 1 Core (Native uint64) | 54,746,425 | 55,966,060 | 102.2% |
-| 64-Way Bitslice C (12 Cores) | 12 Cores (Native uint64) | 310,760,101 | 305,200,000 | 98.2% |
-| 256-Way AVX2 Bitslice C (1 Core) | 1 Core (Native AVX2) | 279,208,358 | 291,059,175 | 104.2% |
-| 256-Way AVX2 Bitslice C (12 Cores) | 12 Cores (Native AVX2) | 1,507,414,602 | 1,653,198,353 | 109.6% |
-| GPU Bitsliced Parallel CUDA | NVIDIA GTX 1060 (1280 Cores) | 1,191,005,940 | 1,117,881,685 | 93.8% |
+
++------------------------------------------+---------------------+---------------------+------------------+------------------+-----------+---------------+
+| Implementation / Engine                  |   Decrypt (Ops/sec) |   Encrypt (Ops/sec) |  Decrypt Latency |  Encrypt Latency |    Parity |     vs C Base |
++------------------------------------------+---------------------+---------------------+------------------+------------------+-----------+---------------+
+| Standard C (1 Core)                      |     1,033,794 ops/s |       871,562 ops/s |        967.31 ns |       1147.36 ns |     84.3% |  1.00x [BASE] |
+| Standard C (12 Cores)                    |     9,013,370 ops/s |     8,191,966 ops/s |        110.95 ns |        122.07 ns |     90.9% |          8.7x |
+| Bitslice 64 (1 Core)                     |    51,606,415 ops/s |    52,531,419 ops/s |         19.38 ns |         19.04 ns |    101.8% |         49.9x |
+| Bitslice 64 (12 Cores)                   |   310,408,192 ops/s |   336,966,332 ops/s |          3.22 ns |          2.97 ns |    108.6% |        300.3x |
+| AVX2 Bitslice (1 Core)                   |   280,793,350 ops/s |   289,854,784 ops/s |          3.56 ns |          3.45 ns |    103.2% |        271.6x |
+| AVX2 Bitslice (12 Cores)                 | 1,499,934,753 ops/s | 1,663,746,552 ops/s |          0.67 ns |          0.60 ns |    110.9% |      1,450.9x |
+| GPU Standard Parallel CUDA               |   260,935,314 ops/s |   198,300,838 ops/s |          3.83 ns |          5.04 ns |     76.0% |        252.4x |
+| GPU Bitsliced Parallel CUDA              | 2,741,702,415 ops/s | 2,576,019,087 ops/s |          0.36 ns |          0.39 ns |     94.0% |      2,652.1x |
++------------------------------------------+---------------------+---------------------+------------------+------------------+-----------+---------------+
+
