@@ -180,16 +180,14 @@ Using an i7 920 single threaded gave 0.451 M keys / second, while using a GTX 27
 My own results using a Ryzen 5 7600 and a GTX 1060 are 
 
 
-+------------------------------------------+---------------------+---------------------+------------------+------------------+-----------+---------------+
-| Implementation / Engine                  |   Decrypt (Ops/sec) |   Encrypt (Ops/sec) |  Decrypt Latency |  Encrypt Latency |    Parity |     vs C Base |
-+------------------------------------------+---------------------+---------------------+------------------+------------------+-----------+---------------+
-| Standard C (1 Core)                      |     1,033,794 ops/s |       871,562 ops/s |        967.31 ns |       1147.36 ns |     84.3% |  1.00x [BASE] |
-| Standard C (12 Cores)                    |     9,013,370 ops/s |     8,191,966 ops/s |        110.95 ns |        122.07 ns |     90.9% |          8.7x |
-| Bitslice 64 (1 Core)                     |    51,606,415 ops/s |    52,531,419 ops/s |         19.38 ns |         19.04 ns |    101.8% |         49.9x |
-| Bitslice 64 (12 Cores)                   |   310,408,192 ops/s |   336,966,332 ops/s |          3.22 ns |          2.97 ns |    108.6% |        300.3x |
-| AVX2 Bitslice (1 Core)                   |   280,793,350 ops/s |   289,854,784 ops/s |          3.56 ns |          3.45 ns |    103.2% |        271.6x |
-| AVX2 Bitslice (12 Cores)                 | 1,499,934,753 ops/s | 1,663,746,552 ops/s |          0.67 ns |          0.60 ns |    110.9% |      1,450.9x |
-| GPU Standard Parallel CUDA               |   260,935,314 ops/s |   198,300,838 ops/s |          3.83 ns |          5.04 ns |     76.0% |        252.4x |
-| GPU Bitsliced Parallel CUDA              | 2,741,702,415 ops/s | 2,576,019,087 ops/s |          0.36 ns |          0.39 ns |     94.0% |      2,652.1x |
-+------------------------------------------+---------------------+---------------------+------------------+------------------+-----------+---------------+
+| Implementation / Engine     |   Decrypt (Ops/sec) |   Encrypt (Ops/sec) | Decrypt Latency | Encrypt Latency | vs C Base |
+|:----------------------------|--------------------:|--------------------:|----------------:|----------------:|----------:|
+| Standard C (1 Core)         |     1,033,794 ops/s |       871,562 ops/s |       967.31 ns |      1147.36 ns |     1.00x |
+| Standard C (12 Cores)       |     9,013,370 ops/s |     8,191,966 ops/s |       110.95 ns |        122.07 ns |      8.7x |
+| Bitslice 64 (1 Core)        |    51,606,415 ops/s |    52,531,419 ops/s |        19.38 ns |         19.04 ns |     49.9x |
+| Bitslice 64 (12 Cores)      |   310,408,192 ops/s |   336,966,332 ops/s |          3.22 ns |          2.97 ns |    300.3x |
+| AVX2 Bitslice (1 Core)      |   280,793,350 ops/s |   289,854,784 ops/s |          3.56 ns |          3.45 ns |    271.6x |
+| AVX2 Bitslice (12 Cores)    | 1,499,934,753 ops/s | 1,663,746,552 ops/s |          0.67 ns |          0.60 ns |  1,450.9x |
+| GPU Standard Parallel CUDA  |   260,935,314 ops/s |   198,300,838 ops/s |          3.83 ns |          5.04 ns |    252.4x |
+| GPU Bitsliced Parallel CUDA | 2,741,702,415 ops/s | 2,576,019,087 ops/s |          0.36 ns |          0.39 ns |  2,652.1x |
 
