@@ -173,21 +173,25 @@ Another inefficiency comes from tranposing the key and text at the start and end
 
 Bit Slicing and GPGPU can be combined to use the GPU's word size.
 
-These guys did it in 2012 [](https://barenghi.faculty.polimi.it/lib/exe/fetch.php?media=parma2012.pdf)
+[These guys did it in 2012](https://barenghi.faculty.polimi.it/lib/exe/fetch.php?media=parma2012.pdf)
 
-Using an i7 920 single threaded gave 0.451 M keys / second, while using a GTX 270 gives 19.6 M keys / second, a speed up of 42x. 
+Using an i7 920 single threaded gave 0.42 M keys / second, the bitsliced implementations running on the GTX260 and GTX470 GPUs achieve a ×20.5 and a ×43.5 speedup respectively.
 
-My own results using a Ryzen 5 7600 and a GTX 1060 are 
+My own results using a Ryzen 5 7600 and a GTX 1060 are as follows.
+
+Bit slicing gives a 50x improvement to the CPU (single core). GPU gives a 250x improvement and together they give a 2,652x (!) improvement.
+
+GTX 1060 goes from 38W idle to ~95W so uses ~60W, the CPU goes from 30W to 80W, it uses ~ 50 Watts.
 
 
-| Implementation / Engine     |   Decrypt (Ops/sec) |   Encrypt (Ops/sec) | Decrypt Latency | Encrypt Latency | vs C Base |
-|:----------------------------|--------------------:|--------------------:|----------------:|----------------:|----------:|
-| Standard C (1 Core)         |     1,033,794 ops/s |       871,562 ops/s |       967.31 ns |      1147.36 ns |     1.00x |
-| Standard C (12 Cores)       |     9,013,370 ops/s |     8,191,966 ops/s |       110.95 ns |        122.07 ns |      8.7x |
-| Bitslice 64 (1 Core)        |    51,606,415 ops/s |    52,531,419 ops/s |        19.38 ns |         19.04 ns |     49.9x |
-| Bitslice 64 (12 Cores)      |   310,408,192 ops/s |   336,966,332 ops/s |          3.22 ns |          2.97 ns |    300.3x |
-| AVX2 Bitslice (1 Core)      |   280,793,350 ops/s |   289,854,784 ops/s |          3.56 ns |          3.45 ns |    271.6x |
-| AVX2 Bitslice (12 Cores)    | 1,499,934,753 ops/s | 1,663,746,552 ops/s |          0.67 ns |          0.60 ns |  1,450.9x |
-| GPU Standard Parallel CUDA  |   260,935,314 ops/s |   198,300,838 ops/s |          3.83 ns |          5.04 ns |    252.4x |
-| GPU Bitsliced Parallel CUDA | 2,741,702,415 ops/s | 2,576,019,087 ops/s |          0.36 ns |          0.39 ns |  2,652.1x |
+| Implementation / Engine     |   Decrypt (/sec)    |   Encrypt (/sec)    | Decrypt Latency  | Encrypt Latency  | vs C Base |
+|:----------------------------|--------------------:|--------------------:|-----------------:|-----------------:|----------:|
+| Standard C (1 Core)         |     1,033,794 /s    |       871,562 /s    |        967.31 ns |       1147.36 ns |     1.00x |
+| Standard C (12 Cores)       |     9,013,370 /s    |     8,191,966 /s    |        110.95 ns |        122.07 ns |      8.7x |
+| Bitslice 64 (1 Core)        |    51,606,415 /s    |    52,531,419 /s    |         19.38 ns |         19.04 ns |     49.9x |
+| Bitslice 64 (12 Cores)      |   310,408,192 /s    |   336,966,332 /s    |          3.22 ns |          2.97 ns |    300.3x |
+| AVX2 Bitslice (1 Core)      |   280,793,350 /s    |   289,854,784 /s    |          3.56 ns |          3.45 ns |    271.6x |
+| AVX2 Bitslice (12 Cores)    | 1,499,934,753 /s    | 1,663,746,552 /s    |          0.67 ns |          0.60 ns |  1,450.9x |
+| GPU Standard Parallel CUDA  |   260,935,314 /s    |   198,300,838 /s    |          3.83 ns |          5.04 ns |    252.4x |
+| GPU Bitsliced Parallel CUDA | 2,741,702,415 /s    | 2,576,019,087 /s    |          0.36 ns |          0.39 ns |  2,652.1x |
 
