@@ -28,6 +28,8 @@ I already made this outside of AI using the R Shiny and flask. Used AI to make i
 
 ### Spotify playlist downloader
 
+A locally running web app that connects to my spotify subscription, let's me enter a playlist and then will download it locally.
+
 ### BoM Rain Radar
 
 [Client Side BoM Site](https://cherianb59.github.io/static/standalone-maplibre/)
