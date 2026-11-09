@@ -1,0 +1,1405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IIR Filter Laboratory: 5-Tap Poles, Zeros & Resonance</title>
+  <style>
+    :root {
+      --bg: #0d1117;
+      --card-bg: #161b22;
+      --border: #30363d;
+      --text: #e6edf3;
+      --text-muted: #8b949e;
+      --accent: #58a6ff;
+      --pole: #f85149;
+      --zero: #38bdf8;
+      --wave: #2ea043;
+      --warning: #d29922;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      padding: 24px;
+      line-height: 1.5;
+    }
+    .container { max-width: 1240px; margin: 0 auto; }
+    header { margin-bottom: 20px; }
+    h1 { font-size: 26px; color: var(--accent); margin-bottom: 6px; }
+    p.subtitle { color: var(--text-muted); font-size: 14px; }
+    
+    .equation-bar {
+      background: #1c2128;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 18px;
+      margin-bottom: 18px;
+      font-family: "Fira Code", monospace;
+      font-size: 14px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .eq-text { color: #a5d6ff; word-break: break-all; }
+    .status-badge {
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+    .status-stable { background: rgba(46, 160, 67, 0.2); color: #3fb950; border: 1px solid #2ea043; }
+    .status-unstable { background: rgba(248, 81, 73, 0.25); color: #f85149; border: 1px solid #f85149; animation: pulse 1s infinite alternate; }
+    .status-warning { background: rgba(210, 153, 34, 0.2); color: #d29922; border: 1px solid #d29922; }
+    @keyframes pulse { from { opacity: 0.7; } to { opacity: 1; } }
+
+    .presets-container {
+      background: #161b22;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px;
+      margin-bottom: 20px;
+    }
+    .preset-group {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    .preset-group:last-child { margin-bottom: 0; }
+    .presets-label { font-size: 12px; font-weight: 700; color: var(--text-muted); min-width: 130px; text-transform: uppercase; letter-spacing: 0.5px; }
+    button.btn {
+      background: #21262d;
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    button.btn:hover { background: #30363d; border-color: #8b949e; color: #fff; }
+    button.btn.special { border-color: #388bfd; color: #58a6ff; }
+    button.btn.classic { border-color: #2ea043; color: #3fb950; }
+    button.btn.small { padding: 3px 8px; font-size: 11px; }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+    @media (max-width: 950px) { .grid-2 { grid-template-columns: 1fr; } }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 18px;
+      position: relative;
+    }
+    .card-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .taps-subgrid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    @media (max-width: 600px) { .taps-subgrid { grid-template-columns: 1fr; } }
+
+    .slider-group {
+      display: grid;
+      grid-template-columns: 32px 1fr 62px;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+      font-family: monospace;
+      font-size: 12px;
+    }
+    .slider-group label { font-weight: bold; }
+    .label-x { color: var(--zero); }
+    .label-y { color: var(--pole); }
+    input[type=range] {
+      -webkit-appearance: none;
+      width: 100%;
+      background: #21262d;
+      height: 6px;
+      border-radius: 3px;
+      outline: none;
+    }
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 15px;
+      height: 15px;
+      border-radius: 50%;
+      background: var(--accent);
+      cursor: pointer;
+    }
+    input[type=number] {
+      background: #0d1117;
+      border: 1px solid var(--border);
+      color: #fff;
+      padding: 4px 5px;
+      border-radius: 4px;
+      font-family: monospace;
+      font-size: 12px;
+      text-align: right;
+      width: 100%;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      background: #0d1117;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+    }
+
+    #zplaneCanvas {
+      cursor: crosshair;
+    }
+
+    .info-strip {
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+      font-family: monospace;
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 10px;
+      padding-top: 8px;
+      border-top: 1px solid #21262d;
+    }
+    .roots-list {
+      max-height: 68px;
+      overflow-y: auto;
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 6px;
+      font-family: monospace;
+    }
+    .val-highlight { color: #fff; font-weight: bold; }
+    .val-pole { color: var(--pole); font-weight: bold; }
+    .val-zero { color: var(--zero); font-weight: bold; }
+    .val-gain { color: #3fb950; font-weight: bold; font-size: 15px; }
+
+    .test-signal-control {
+      background: #1c2128;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px 18px;
+      margin-bottom: 20px;
+    }
+    .test-signal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    .freq-readout {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--accent);
+      font-family: monospace;
+    }
+
+    .roc-warning-overlay {
+      background: rgba(248, 81, 73, 0.12);
+      border: 1px solid rgba(248, 81, 73, 0.4);
+      color: #ff7b72;
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-family: monospace;
+      margin-top: 8px;
+      line-height: 1.4;
+    }
+
+    .transient-info-box {
+      background: rgba(210, 153, 34, 0.12);
+      border: 1px solid rgba(210, 153, 34, 0.4);
+      color: #e3b341;
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-family: monospace;
+      margin-top: 8px;
+      line-height: 1.4;
+    }
+
+    .interactive-tip {
+      font-size: 11px;
+      color: #8b949e;
+      margin-top: 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>IIR Filter Laboratory: 5-Tap Poles, Zeros & Resonance</h1>
+    <p class="subtitle">5 feedforward taps (b₀ to b₄) and 5 feedback taps (a₀ to a₄) with values from −3.00 to +3.00 · Sampling rate: 48,000 Hz</p>
+  </header>
+
+  <!-- Difference Equation Display -->
+  <div class="equation-bar">
+    <div class="eq-text" id="eqDisplay">
+      y[n] = (b₀x[n] + b₁x[n-1] + b₂x[n-2] + b₃x[n-3] + b₄x[n-4] - a₁y[n-1] - a₂y[n-2] - a₃y[n-3] - a₄y[n-4]) / a₀
+    </div>
+    <div id="stabilityBadge" class="status-badge status-stable">Stable (|p| &lt; 1)</div>
+  </div>
+
+  <!-- Presets Panel -->
+  <div class="presets-container">
+    <div class="preset-group">
+      <span class="presets-label">Classical Filters:</span>
+      <button class="btn classic" onclick="applyPreset('lpf3k')">Low-Pass (3 kHz Cutoff)</button>
+      <button class="btn classic" onclick="applyPreset('hpf6k')">High-Pass (6 kHz Cutoff)</button>
+      <button class="btn classic" onclick="applyPreset('bpf6k')">Band-Pass (6 kHz Center)</button>
+      <button class="btn classic" onclick="applyPreset('bpf12k')">Band-Pass (12 kHz Center)</button>
+      <button class="btn special" onclick="applyPreset('lpf4th')">★ 4th-Order LPF (4 kHz Steep)</button>
+    </div>
+    <div class="preset-group">
+      <span class="presets-label">Resonance & Notch:</span>
+      <button class="btn" onclick="applyPreset('boost3k')">Boost 3 kHz</button>
+      <button class="btn" onclick="applyPreset('boost6k')">Boost 6 kHz</button>
+      <button class="btn" onclick="applyPreset('boost12k')">Boost 12 kHz</button>
+      <button class="btn" onclick="applyPreset('boost18k')">Boost 18 kHz</button>
+      <button class="btn special" onclick="applyPreset('dualPeak')">★ Dual Peak (6k + 12k)</button>
+      <button class="btn" onclick="applyPreset('notch12k')">Notch 12 kHz</button>
+      <button class="btn" onclick="applyPreset('flat')">Reset Flat</button>
+    </div>
+  </div>
+
+  <!-- Grid: Tap Sliders and Z-Plane -->
+  <div class="grid-2">
+    <!-- Tap Controls -->
+    <div class="card">
+      <div class="card-title">
+        <span>Filter Taps (-3.00 to +3.00)</span>
+        <span style="font-size: 11px; font-weight: normal; color: var(--text-muted)">Sampling Rate: 48,000 Hz</span>
+      </div>
+
+      <div class="taps-subgrid">
+        <!-- Feedforward Taps -->
+        <div>
+          <div style="margin-bottom: 10px; font-size: 12px; color: var(--zero); font-weight: bold;">
+            Feedforward (x taps / Zeros):
+          </div>
+          <div id="b_sliders_container"></div>
+        </div>
+
+        <!-- Feedback Taps -->
+        <div>
+          <div style="margin-bottom: 10px; font-size: 12px; color: var(--pole); font-weight: bold;">
+            Feedback (y taps / Poles):
+          </div>
+          <div id="a_sliders_container"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Z-Plane Canvas -->
+    <div class="card">
+      <div class="card-title">
+        <span>Interactive Z-Plane</span>
+        <div style="display: flex; gap: 6px;">
+          <button class="btn small" onclick="addPolePair()">+ Add Pole Pair</button>
+          <button class="btn small" onclick="addZeroPair()">+ Add Zero Pair</button>
+          <button class="btn small" onclick="resetPoles()">Clear Poles</button>
+        </div>
+      </div>
+      <canvas id="zplaneCanvas" width="550" height="300"></canvas>
+      <div class="interactive-tip">
+        <span>🖱️ <b>Drag any Pole (<span style="color:var(--pole)">✕</span>) or Zero (<span style="color:var(--zero)">○</span>):</b> Taps update live. Complex roots move symmetrically in conjugate pairs to guarantee real taps. Snaps to unit circle & real axis.</span>
+      </div>
+      <div class="info-strip">
+        <div style="flex: 1;">
+          <div style="color: var(--pole); font-weight: bold; margin-bottom: 2px;">Poles (Resonances):</div>
+          <div id="poleList" class="roots-list">--</div>
+        </div>
+        <div style="flex: 1;">
+          <div style="color: var(--zero); font-weight: bold; margin-bottom: 2px;">Zeros (Cancellations):</div>
+          <div id="zeroList" class="roots-list">--</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Test Signal Controller -->
+  <div class="test-signal-control">
+    <div class="test-signal-header">
+      <div>
+        <span style="font-weight: 700; font-size: 15px;">Input Test Frequency (f<sub>in</sub>): </span>
+        <span class="freq-readout" id="testFreqDisplay">12,000 Hz</span>
+      </div>
+      <div>
+        <span>System Gain: </span>
+        <span class="val-gain" id="gainDisplay">--</span>
+      </div>
+    </div>
+    <div class="slider-group" style="grid-template-columns: 1fr;">
+      <input type="range" id="freq_range" min="100" max="23900" step="50" value="12000" oninput="updateFreq(this.value)">
+    </div>
+    <div style="display:flex; gap:8px; margin-top: 8px; flex-wrap: wrap;">
+      <button class="btn" style="padding: 4px 8px; font-size: 11px;" onclick="setTestFreq(1000)">1 kHz</button>
+      <button class="btn" style="padding: 4px 8px; font-size: 11px;" onclick="setTestFreq(3000)">3 kHz</button>
+      <button class="btn" style="padding: 4px 8px; font-size: 11px;" onclick="setTestFreq(6000)">6 kHz</button>
+      <button class="btn" style="padding: 4px 8px; font-size: 11px;" onclick="setTestFreq(12000)">12 kHz</button>
+      <button class="btn" style="padding: 4px 8px; font-size: 11px;" onclick="setTestFreq(18000)">18 kHz</button>
+      <button class="btn" style="padding: 4px 8px; font-size: 11px;" onclick="setTestFreq(23000)">23 kHz</button>
+    </div>
+  </div>
+
+  <!-- Grid: Waveform and Frequency Response -->
+  <div class="grid-2">
+    <!-- Time-Domain Waveform -->
+    <div class="card">
+      <div class="card-title">
+        <span>Time-Domain Response (Input vs Output)</span>
+        <span style="font-size: 11px; font-family: monospace;">
+          <span style="color: #6e7681;">-- Input x[n] (Amp 1.0)</span> | 
+          <span style="color: #38bdf8;">— Output y[n]</span>
+        </span>
+      </div>
+      <canvas id="waveCanvas" width="550" height="240"></canvas>
+      <div class="info-strip">
+        <div>Simulation State: <span id="waveStatusMsg" style="font-weight: bold;">--</span></div>
+        <div>Observed Output: <span class="val-highlight" id="peakOutDisplay">--</span></div>
+      </div>
+      
+      <!-- Unstable Warning -->
+      <div id="waveWarningBox" style="display: none;" class="roc-warning-overlay">
+        ⚠️ <b>UNSTABLE DIVERGENCE:</b> Poles lie outside the unit circle (|p| &gt; 1). Each feedback cycle adds more energy than it dissipates, causing y[n] to blow up exponentially without bound.
+      </div>
+
+      <!-- Oscillator / Linear growth explanation -->
+      <div id="waveOscillatorBox" style="display: none;" class="transient-info-box">
+        ℹ️ <b>UNDAMPED RESONATOR (|p| = 1.00):</b> There is no friction/damping! Output grows <i>linearly</i> with time: y[n] &propto; n. In the first 80 samples shown here, it reaches &plusmn;7.76; if run to sample 500, it would reach &plusmn;50. It has no static steady state limit.
+      </div>
+    </div>
+
+    <!-- Frequency Response (Bode Plot) -->
+    <div class="card">
+      <div class="card-title">
+        <span>Frequency Response Curve |H(f)|</span>
+        <span style="font-size: 11px; color: var(--accent); font-family: monospace;">Cursor = Test Freq</span>
+      </div>
+      <canvas id="bodeCanvas" width="550" height="240"></canvas>
+      <div class="info-strip">
+        <div>Peak Response: <span class="val-highlight" id="peakFreqDisplay">--</span></div>
+        <div>Gain @ Cursor: <span class="val-gain" id="bodeGainDisplay">--</span></div>
+      </div>
+      
+      <div id="bodeWarningBox" style="display: none;" class="roc-warning-overlay">
+        ⚠️ <b>DISCREPANCY EXPLANATION:</b> The Fourier transform H(e<sup>jω</sup>) evaluates only on the unit circle (|z|=1). When |p| &gt; 1, the unit circle is outside the Region of Convergence (ROC). The filter diverges to &plusmn;&infin; in real time, so this curve is a mathematical abstraction without physical steady-state meaning.
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const fs = 48000;
+  let testFreq = 12000;
+
+  // 5 feedforward taps (b0..b4) and 5 feedback taps (a0..a4)
+  const taps = {
+    b: [1.0, 0.0, 0.0, 0.0, 0.0],
+    a: [1.0, 0.0, 0.85, 0.0, 0.0]
+  };
+
+  // Dragging state on Z-plane
+  let activeDragRoot = null; // { type: 'pole'|'zero', pairIdx: 0|1, rootIdx: 1|2 }
+  let hoverRoot = null;
+
+  // Stored roots as 2 pairs for poles and 2 pairs for zeros (total 4 each)
+  let currentPoles = [];
+  let currentZeros = [];
+
+  const PRESETS = {
+    lpf3k: {
+      b: [0.03, 0.06, 0.03, 0.00, 0.00],
+      a: [1.00, -1.45, 0.57, 0.00, 0.00],
+      freq: 1000
+    },
+    hpf6k: {
+      b: [0.57, -1.14, 0.57, 0.00, 0.00],
+      a: [1.00, -0.94, 0.33, 0.00, 0.00],
+      freq: 12000
+    },
+    bpf6k: {
+      b: [0.15, 0.00, -0.15, 0.00, 0.00],
+      a: [1.00, -1.20, 0.70, 0.00, 0.00],
+      freq: 6000
+    },
+    bpf12k: {
+      b: [0.20, 0.00, -0.20, 0.00, 0.00],
+      a: [1.00, 0.00, 0.60, 0.00, 0.00],
+      freq: 12000
+    },
+    lpf4th: {
+      b: [0.005, 0.020, 0.030, 0.020, 0.005],
+      a: [1.000, -2.180, 1.950, -0.830, 0.140],
+      freq: 1000
+    },
+    boost3k: {
+      b: [1.0, 0.0, 0.0, 0.0, 0.0],
+      a: [1.0, -1.70, 0.85, 0.0, 0.0],
+      freq: 3000
+    },
+    boost6k: {
+      b: [1.0, 0.0, 0.0, 0.0, 0.0],
+      a: [1.0, -1.30, 0.85, 0.0, 0.0],
+      freq: 6000
+    },
+    boost12k: {
+      b: [1.0, 0.0, 0.0, 0.0, 0.0],
+      a: [1.0, 0.00, 0.85, 0.0, 0.0],
+      freq: 12000
+    },
+    boost18k: {
+      b: [1.0, 0.0, 0.0, 0.0, 0.0],
+      a: [1.0, 1.30, 0.85, 0.0, 0.0],
+      freq: 18000
+    },
+    dualPeak: {
+      b: [1.0, 0.0, 0.0, 0.0, 0.0],
+      a: [1.0, -1.30, 1.70, -1.11, 0.72],
+      freq: 6000
+    },
+    notch12k: {
+      b: [1.0, 0.0, 1.0, 0.0, 0.0],
+      a: [1.0, 0.00, 0.00, 0.0, 0.0],
+      freq: 12000
+    },
+    flat: {
+      b: [1.0, 0.0, 0.0, 0.0, 0.0],
+      a: [1.0, 0.0, 0.0, 0.0, 0.0],
+      freq: 1000
+    }
+  };
+
+  function buildSliders() {
+    const bCont = document.getElementById('b_sliders_container');
+    const aCont = document.getElementById('a_sliders_container');
+    bCont.innerHTML = '';
+    aCont.innerHTML = '';
+
+    for (let i = 0; i < 5; i++) {
+      bCont.innerHTML += `
+        <div class="slider-group">
+          <label class="label-x">b${i}</label>
+          <input type="range" id="b${i}_range" min="-3" max="3" step="0.01" value="${taps.b[i]}" oninput="setTap('b', ${i}, this.value)">
+          <input type="number" id="b${i}_num" min="-3" max="3" step="0.01" value="${taps.b[i].toFixed(2)}" oninput="setTap('b', ${i}, this.value)">
+        </div>`;
+
+      aCont.innerHTML += `
+        <div class="slider-group">
+          <label class="label-y">a${i}</label>
+          <input type="range" id="a${i}_range" min="-3" max="3" step="0.01" value="${taps.a[i]}" oninput="setTap('a', ${i}, this.value)">
+          <input type="number" id="a${i}_num" min="-3" max="3" step="0.01" value="${taps.a[i].toFixed(2)}" oninput="setTap('a', ${i}, this.value)">
+        </div>`;
+    }
+  }
+
+  function setTap(group, idx, val) {
+    const num = parseFloat(val);
+    if (isNaN(num)) return;
+    taps[group][idx] = num;
+    document.getElementById(`${group}${idx}_range`).value = num;
+    document.getElementById(`${group}${idx}_num`).value = num.toFixed(2);
+    updateAll();
+  }
+
+  function updateFreq(val) {
+    testFreq = parseFloat(val);
+    document.getElementById('testFreqDisplay').innerText = Math.round(testFreq).toLocaleString() + ' Hz';
+    updateAll();
+  }
+
+  function setTestFreq(val) {
+    document.getElementById('freq_range').value = val;
+    updateFreq(val);
+  }
+
+  function applyPreset(name) {
+    const p = PRESETS[name];
+    if (!p) return;
+    for (let i = 0; i < 5; i++) {
+      taps.b[i] = p.b[i];
+      taps.a[i] = p.a[i];
+      document.getElementById(`b${i}_range`).value = p.b[i];
+      document.getElementById(`b${i}_num`).value = p.b[i].toFixed(2);
+      document.getElementById(`a${i}_range`).value = p.a[i];
+      document.getElementById(`a${i}_num`).value = p.a[i].toFixed(2);
+    }
+    setTestFreq(p.freq);
+  }
+
+  // Multiply (z - r1)(z - r2)... to get real polynomial coefficients
+  function rootsToCoeffs(roots) {
+    let poly = [{ re: 1, im: 0 }];
+    for (const r of roots) {
+      const next = [];
+      for (let i = 0; i <= poly.length; i++) next.push({ re: 0, im: 0 });
+      for (let i = 0; i < poly.length; i++) {
+        next[i].re += poly[i].re;
+        next[i].im += poly[i].im;
+        const mulRe = poly[i].re * (-r.re) - poly[i].im * (-r.im);
+        const mulIm = poly[i].re * (-r.im) + poly[i].im * (-r.re);
+        next[i + 1].re += mulRe;
+        next[i + 1].im += mulIm;
+      }
+      poly = next;
+    }
+    return poly.map(c => c.re);
+  }
+
+  // Root finder using Durand-Kerner Method
+  function findRootsPolynomial(rawCoeffs) {
+    let coeffs = [...rawCoeffs];
+    while (coeffs.length > 1 && Math.abs(coeffs[0]) < 1e-9) {
+      coeffs.shift();
+    }
+    const n = coeffs.length - 1;
+    if (n <= 0) return [];
+
+    const c0 = coeffs[0];
+    const p = coeffs.map(c => c / c0);
+
+    if (n === 1) {
+      return [{ re: -p[1], im: 0 }];
+    }
+
+    if (n === 2) {
+      const disc = p[1] * p[1] - 4 * p[2];
+      if (disc >= 0) {
+        const sq = Math.sqrt(disc);
+        return [
+          { re: (-p[1] + sq) / 2, im: 0 },
+          { re: (-p[1] - sq) / 2, im: 0 }
+        ];
+      } else {
+        const sq = Math.sqrt(-disc);
+        return [
+          { re: -p[1] / 2, im: sq / 2 },
+          { re: -p[1] / 2, im: -sq / 2 }
+        ];
+      }
+    }
+
+    let roots = [];
+    const baseRe = 0.4, baseIm = 0.9;
+    let curRe = 1.0, curIm = 0.0;
+    for (let k = 0; k < n; k++) {
+      roots.push({ re: curRe, im: curIm });
+      const nextRe = curRe * baseRe - curIm * baseIm;
+      const nextIm = curRe * baseIm + curIm * baseRe;
+      curRe = nextRe; curIm = nextIm;
+    }
+
+    for (let iter = 0; iter < 45; iter++) {
+      const newRoots = [];
+      for (let i = 0; i < n; i++) {
+        const z = roots[i];
+
+        let vRe = p[0], vIm = 0;
+        for (let j = 1; j <= n; j++) {
+          const nvRe = vRe * z.re - vIm * z.im + p[j];
+          const nvIm = vRe * z.im + vIm * z.re;
+          vRe = nvRe; vIm = nvIm;
+        }
+
+        let dRe = 1.0, dIm = 0.0;
+        for (let j = 0; j < n; j++) {
+          if (i !== j) {
+            const diffRe = z.re - roots[j].re;
+            const diffIm = z.im - roots[j].im;
+            const ndRe = dRe * diffRe - dIm * diffIm;
+            const ndIm = dRe * diffIm + dIm * diffRe;
+            dRe = ndRe; dIm = ndIm;
+          }
+        }
+
+        const denomMagSq = dRe * dRe + dIm * dIm;
+        if (denomMagSq < 1e-16) {
+          newRoots.push(z);
+          continue;
+        }
+
+        const qRe = (vRe * dRe + vIm * dIm) / denomMagSq;
+        const qIm = (vIm * dRe - vRe * dIm) / denomMagSq;
+
+        newRoots.push({ re: z.re - qRe, im: z.im - qIm });
+      }
+      roots = newRoots;
+    }
+
+    return roots.map(r => ({
+      re: Math.abs(r.re) < 1e-6 ? 0 : r.re,
+      im: Math.abs(r.im) < 1e-6 ? 0 : r.im
+    }));
+  }
+
+  // Pair up 4 roots into 2 conjugate/real pairs
+  function structureRootsIntoPairs(rootsList) {
+    const list = rootsList.map(r => ({ re: r.re, im: r.im }));
+    while (list.length < 4) list.push({ re: 0, im: 0 });
+
+    const used = [false, false, false, false];
+    const pairs = [];
+
+    // 1. Find complex conjugate pairs
+    for (let i = 0; i < 4; i++) {
+      if (used[i]) continue;
+      if (Math.abs(list[i].im) > 1e-4) {
+        let matchIdx = -1;
+        for (let j = i + 1; j < 4; j++) {
+          if (!used[j] && Math.abs(list[i].re - list[j].re) < 1e-3 && Math.abs(list[i].im + list[j].im) < 1e-3) {
+            matchIdx = j;
+            break;
+          }
+        }
+        if (matchIdx !== -1) {
+          pairs.push({ isConj: true, r1: list[i], r2: list[matchIdx] });
+          used[i] = true; used[matchIdx] = true;
+        } else {
+          // Force conjugate symmetry if single complex
+          pairs.push({ isConj: true, r1: list[i], r2: { re: list[i].re, im: -list[i].im } });
+          used[i] = true;
+        }
+      }
+    }
+
+    // 2. Remaining real roots
+    const reals = [];
+    for (let i = 0; i < 4; i++) {
+      if (!used[i]) reals.push(list[i]);
+    }
+    for (let i = 0; i < reals.length; i += 2) {
+      const r1 = reals[i];
+      const r2 = (i + 1 < reals.length) ? reals[i + 1] : { re: 0, im: 0 };
+      pairs.push({ isConj: false, r1, r2 });
+    }
+
+    while (pairs.length < 2) {
+      pairs.push({ isConj: false, r1: { re: 0, im: 0 }, r2: { re: 0, im: 0 } });
+    }
+
+    return pairs.slice(0, 2);
+  }
+
+  function computeH(f) {
+    const omega = 2 * Math.PI * f / fs;
+    let numRe = 0, numIm = 0;
+    let denRe = 0, denIm = 0;
+
+    for (let k = 0; k < 5; k++) {
+      const cosVal = Math.cos(k * omega);
+      const sinVal = Math.sin(k * omega);
+      numRe += taps.b[k] * cosVal;
+      numIm -= taps.b[k] * sinVal;
+      denRe += taps.a[k] * cosVal;
+      denIm -= taps.a[k] * sinVal;
+    }
+
+    const numMag = Math.sqrt(numRe * numRe + numIm * numIm);
+    const denMag = Math.sqrt(denRe * denRe + denIm * denIm);
+
+    if (denMag < 1e-12) return 1000.0;
+    return numMag / denMag;
+  }
+
+  function formatRoot(r) {
+    const mag = Math.sqrt(r.re * r.re + r.im * r.im);
+    const thetaRad = Math.atan2(Math.abs(r.im), r.re);
+    const thetaDeg = (thetaRad * 180 / Math.PI).toFixed(1);
+    const freqHz = Math.round((thetaRad / Math.PI) * (fs / 2));
+    const sign = r.im >= 0 ? '+' : '-';
+    return `(${r.re.toFixed(2)}${sign}${Math.abs(r.im).toFixed(2)}j) |r|=${mag.toFixed(2)}, θ=${thetaDeg}° (${freqHz} Hz)`;
+  }
+
+  function updateAll() {
+    if (!activeDragRoot) {
+      // If not dragging, recalculate root pairs from current taps
+      const rawZeros = findRootsPolynomial(taps.b);
+      const rawPoles = findRootsPolynomial(taps.a);
+      currentPoles = structureRootsIntoPairs(rawPoles);
+      currentZeros = structureRootsIntoPairs(rawZeros);
+    }
+
+    // Flatten roots for stability & display
+    const flatPoles = [currentPoles[0].r1, currentPoles[0].r2, currentPoles[1].r1, currentPoles[1].r2];
+    const flatZeros = [currentZeros[0].r1, currentZeros[0].r2, currentZeros[1].r1, currentZeros[1].r2];
+
+    let maxPoleMag = 0;
+    for (const p of flatPoles) {
+      const m = Math.sqrt(p.re * p.re + p.im * p.im);
+      if (m > maxPoleMag) maxPoleMag = m;
+    }
+
+    const isUnstable = maxPoleMag > 1.0001;
+    const isOscillator = !isUnstable && Math.abs(maxPoleMag - 1.0) <= 0.001;
+    const isStable = !isUnstable && !isOscillator;
+
+    const badge = document.getElementById('stabilityBadge');
+    const waveWarn = document.getElementById('waveWarningBox');
+    const waveOsc = document.getElementById('waveOscillatorBox');
+    const bodeWarn = document.getElementById('bodeWarningBox');
+
+    if (isUnstable) {
+      badge.className = 'status-badge status-unstable';
+      badge.innerText = `UNSTABLE (|p| = ${maxPoleMag.toFixed(2)} > 1)`;
+      waveWarn.style.display = 'block';
+      waveOsc.style.display = 'none';
+      bodeWarn.style.display = 'block';
+    } else if (isOscillator) {
+      badge.className = 'status-badge status-warning';
+      badge.innerText = `OSCILLATOR (|p| = 1.00)`;
+      waveWarn.style.display = 'none';
+      waveOsc.style.display = 'block';
+      bodeWarn.style.display = 'none';
+    } else {
+      badge.className = 'status-badge status-stable';
+      badge.innerText = `STABLE (|p| = ${maxPoleMag.toFixed(2)} < 1)`;
+      waveWarn.style.display = 'none';
+      waveOsc.style.display = 'none';
+      bodeWarn.style.display = 'none';
+    }
+
+    // Active non-zero roots for list
+    const visiblePoles = flatPoles.filter(p => Math.sqrt(p.re*p.re + p.im*p.im) > 1e-4);
+    const visibleZeros = flatZeros.filter(z => Math.sqrt(z.re*z.re + z.im*z.im) > 1e-4);
+
+    const poleListEl = document.getElementById('poleList');
+    if (visiblePoles.length === 0) poleListEl.innerText = "All at origin (z = 0)";
+    else poleListEl.innerHTML = visiblePoles.map(p => `<div>• ${formatRoot(p)}</div>`).join('');
+
+    const zeroListEl = document.getElementById('zeroList');
+    if (visibleZeros.length === 0) zeroListEl.innerText = "All at origin (z = 0)";
+    else zeroListEl.innerHTML = visibleZeros.map(z => `<div>• ${formatRoot(z)}</div>`).join('');
+
+    const currentGain = computeH(testFreq);
+    const gainDb = (20 * Math.log10(Math.max(currentGain, 1e-6))).toFixed(1);
+
+    if (isUnstable) {
+      document.getElementById('gainDisplay').innerHTML = `<span style="color:#f85149">Undefined (Diverges to ∞)</span> <span style="font-size:11px;color:#8b949e;">[Math curve: ${currentGain.toFixed(2)}x]</span>`;
+      document.getElementById('bodeGainDisplay').innerHTML = `<span style="color:#f85149">Undefined</span> (${currentGain.toFixed(2)}x on circle)`;
+    } else {
+      document.getElementById('gainDisplay').innerText = `${currentGain.toFixed(2)}x (${gainDb >= 0 ? '+' : ''}${gainDb} dB)`;
+      document.getElementById('bodeGainDisplay').innerText = `${currentGain.toFixed(2)}x`;
+    }
+
+    drawZPlane();
+    drawWaveform(isStable, isOscillator, isUnstable, maxPoleMag);
+    drawBode(isUnstable);
+  }
+
+  // Draw Interactive Z-Plane
+  function drawZPlane() {
+    const canvas = document.getElementById('zplaneCanvas');
+    const ctx = canvas.getContext('2d');
+    const w = canvas.width, h = canvas.height;
+    const cx = w / 2, cy = h / 2;
+    const R = Math.min(w, h) * 0.38;
+
+    ctx.clearRect(0, 0, w, h);
+
+    // Axes
+    ctx.strokeStyle = '#21262d';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(0, cy); ctx.lineTo(w, cy);
+    ctx.moveTo(cx, 0); ctx.lineTo(cx, h);
+    ctx.stroke();
+
+    // Unit circle (|z|=1)
+    ctx.strokeStyle = '#30363d';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.arc(cx, cy, R, 0, 2 * Math.PI);
+    ctx.stroke();
+
+    // Frequency markers along unit circle
+    const angles = [
+      { rad: 0, text: "0 Hz (DC)", align: "left", ox: 6, oy: 4 },
+      { rad: Math.PI / 8, text: "3k", align: "left", ox: 4, oy: -4 },
+      { rad: Math.PI / 4, text: "6k", align: "left", ox: 4, oy: -4 },
+      { rad: Math.PI / 2, text: "12k (90°)", align: "center", ox: 0, oy: -10 },
+      { rad: 3 * Math.PI / 4, text: "18k", align: "right", ox: -4, oy: -4 },
+      { rad: Math.PI, text: "24k (Nyquist)", align: "right", ox: -6, oy: 4 }
+    ];
+    ctx.fillStyle = '#6e7681';
+    ctx.font = '11px monospace';
+    for (const a of angles) {
+      const px = cx + R * Math.cos(a.rad);
+      const py = cy - R * Math.sin(a.rad);
+      ctx.textAlign = a.align;
+      ctx.fillText(a.text, px + a.ox, py + a.oy);
+    }
+
+    // Active test frequency ray
+    const testRad = (testFreq / (fs / 2)) * Math.PI;
+    const tfX = cx + R * Math.cos(testRad);
+    const tfY = cy - R * Math.sin(testRad);
+    ctx.strokeStyle = 'rgba(88, 166, 255, 0.4)';
+    ctx.setLineDash([3, 3]);
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.lineTo(tfX, tfY);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = '#58a6ff';
+    ctx.beginPath();
+    ctx.arc(tfX, tfY, 3.5, 0, 2 * Math.PI);
+    ctx.fill();
+
+    // Helper to draw connection dashed line between conjugate pairs
+    function drawConjugateLine(r1, r2, color) {
+      const p1x = cx + r1.re * R, p1y = cy - r1.im * R;
+      const p2x = cx + r2.re * R, p2y = cy - r2.im * R;
+      ctx.save();
+      ctx.strokeStyle = color;
+      ctx.setLineDash([2, 3]);
+      ctx.beginPath();
+      ctx.moveTo(p1x, p1y);
+      ctx.lineTo(p2x, p2y);
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    // 1. Draw Zeros (Circles)
+    for (let pIdx = 0; pIdx < 2; pIdx++) {
+      const pair = currentZeros[pIdx];
+      if (pair.isConj && Math.abs(pair.r1.im) > 1e-4) {
+        drawConjugateLine(pair.r1, pair.r2, 'rgba(56, 189, 248, 0.25)');
+      }
+      drawZeroMarker(ctx, cx, cy, R, pair.r1, pIdx, 1);
+      drawZeroMarker(ctx, cx, cy, R, pair.r2, pIdx, 2);
+    }
+
+    // 2. Draw Poles (Crosses)
+    for (let pIdx = 0; pIdx < 2; pIdx++) {
+      const pair = currentPoles[pIdx];
+      if (pair.isConj && Math.abs(pair.r1.im) > 1e-4) {
+        drawConjugateLine(pair.r1, pair.r2, 'rgba(248, 81, 73, 0.25)');
+      }
+      drawPoleMarker(ctx, cx, cy, R, pair.r1, pIdx, 1);
+      drawPoleMarker(ctx, cx, cy, R, pair.r2, pIdx, 2);
+    }
+
+    // Dragging tooltip overlay on canvas
+    if (activeDragRoot) {
+      const pair = activeDragRoot.type === 'pole' ? currentPoles[activeDragRoot.pairIdx] : currentZeros[activeDragRoot.pairIdx];
+      const r = activeDragRoot.rootIdx === 1 ? pair.r1 : pair.r2;
+      const px = cx + r.re * R, py = cy - r.im * R;
+      const mag = Math.sqrt(r.re * r.re + r.im * r.im);
+      const thetaDeg = (Math.atan2(Math.abs(r.im), r.re) * 180 / Math.PI).toFixed(1);
+      const freq = Math.round((Math.atan2(Math.abs(r.im), r.re) / Math.PI) * (fs / 2));
+
+      ctx.fillStyle = '#fff';
+      ctx.font = '11px monospace';
+      ctx.textAlign = px > w - 140 ? 'right' : 'left';
+      ctx.fillText(`${activeDragRoot.type.toUpperCase()}: |r|=${mag.toFixed(2)}, θ=${thetaDeg}° (${freq} Hz)`, px + (px > w - 140 ? -12 : 12), py - 8);
+    }
+  }
+
+  function drawZeroMarker(ctx, cx, cy, R, z, pairIdx, rootIdx) {
+    const px = cx + z.re * R;
+    const py = cy - z.im * R;
+    const isHovered = hoverRoot && hoverRoot.type === 'zero' && hoverRoot.pairIdx === pairIdx && hoverRoot.rootIdx === rootIdx;
+    const isDragged = activeDragRoot && activeDragRoot.type === 'zero' && activeDragRoot.pairIdx === pairIdx && activeDragRoot.rootIdx === rootIdx;
+
+    ctx.save();
+    if (isHovered || isDragged) {
+      ctx.strokeStyle = '#fff';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.arc(px, py, 11, 0, 2 * Math.PI);
+      ctx.stroke();
+    }
+
+    ctx.strokeStyle = '#38bdf8';
+    ctx.fillStyle = isDragged ? 'rgba(56, 189, 248, 0.4)' : '#0d1117';
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    ctx.arc(px, py, 6, 0, 2 * Math.PI);
+    ctx.fill();
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  function drawPoleMarker(ctx, cx, cy, R, p, pairIdx, rootIdx) {
+    const px = cx + p.re * R;
+    const py = cy - p.im * R;
+    const isHovered = hoverRoot && hoverRoot.type === 'pole' && hoverRoot.pairIdx === pairIdx && hoverRoot.rootIdx === rootIdx;
+    const isDragged = activeDragRoot && activeDragRoot.type === 'pole' && activeDragRoot.pairIdx === pairIdx && activeDragRoot.rootIdx === rootIdx;
+    const crossSize = 7;
+
+    ctx.save();
+    if (isHovered || isDragged) {
+      ctx.strokeStyle = '#fff';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.arc(px, py, 12, 0, 2 * Math.PI);
+      ctx.stroke();
+    }
+
+    ctx.strokeStyle = '#f85149';
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    ctx.moveTo(px - crossSize, py - crossSize);
+    ctx.lineTo(px + crossSize, py + crossSize);
+    ctx.moveTo(px + crossSize, py - crossSize);
+    ctx.lineTo(px - crossSize, py + crossSize);
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  // --- MOUSE INTERACTION ON Z-PLANE ---
+  const zCanvas = document.getElementById('zplaneCanvas');
+
+  function getZPlaneCoords(e) {
+    const rect = zCanvas.getBoundingClientRect();
+    const scaleX = zCanvas.width / rect.width;
+    const scaleY = zCanvas.height / rect.height;
+    const px = (e.clientX - rect.left) * scaleX;
+    const py = (e.clientY - rect.top) * scaleY;
+    const cx = zCanvas.width / 2, cy = zCanvas.height / 2;
+    const R = Math.min(zCanvas.width, zCanvas.height) * 0.38;
+    const re = (px - cx) / R;
+    const im = - (py - cy) / R;
+    return { px, py, re, im, R };
+  }
+
+  function findHitRoot(px, py) {
+    const cx = zCanvas.width / 2, cy = zCanvas.height / 2;
+    const R = Math.min(zCanvas.width, zCanvas.height) * 0.38;
+    const hitRadius = 14;
+
+    // Check poles first
+    for (let pIdx = 0; pIdx < 2; pIdx++) {
+      const pair = currentPoles[pIdx];
+      for (const rIdx of [1, 2]) {
+        const root = rIdx === 1 ? pair.r1 : pair.r2;
+        const rx = cx + root.re * R;
+        const ry = cy - root.im * R;
+        if (Math.hypot(px - rx, py - ry) < hitRadius) {
+          return { type: 'pole', pairIdx: pIdx, rootIdx: rIdx };
+        }
+      }
+    }
+
+    // Check zeros
+    for (let pIdx = 0; pIdx < 2; pIdx++) {
+      const pair = currentZeros[pIdx];
+      for (const rIdx of [1, 2]) {
+        const root = rIdx === 1 ? pair.r1 : pair.r2;
+        const rx = cx + root.re * R;
+        const ry = cy - root.im * R;
+        if (Math.hypot(px - rx, py - ry) < hitRadius) {
+          return { type: 'zero', pairIdx: pIdx, rootIdx: rIdx };
+        }
+      }
+    }
+    return null;
+  }
+
+  zCanvas.addEventListener('mousedown', (e) => {
+    const coords = getZPlaneCoords(e);
+    const hit = findHitRoot(coords.px, coords.py);
+    if (hit) {
+      activeDragRoot = hit;
+      zCanvas.style.cursor = 'grabbing';
+      drawZPlane();
+    }
+  });
+
+  window.addEventListener('mouseup', () => {
+    if (activeDragRoot) {
+      activeDragRoot = null;
+      zCanvas.style.cursor = 'crosshair';
+      updateAll();
+    }
+  });
+
+  zCanvas.addEventListener('mousemove', (e) => {
+    const coords = getZPlaneCoords(e);
+
+    if (!activeDragRoot) {
+      hoverRoot = findHitRoot(coords.px, coords.py);
+      zCanvas.style.cursor = hoverRoot ? 'grab' : 'crosshair';
+      drawZPlane();
+      return;
+    }
+
+    // Dragging is active
+    let { re, im } = coords;
+
+    // Snapping:
+    // 1. Snap to real axis if close
+    if (Math.abs(im) < 0.04) im = 0;
+
+    // 2. Snap to unit circle (|r|=1) if close
+    const curR = Math.hypot(re, im);
+    if (Math.abs(curR - 1.0) < 0.035 && curR > 1e-4) {
+      re = re / curR;
+      im = im / curR;
+    }
+
+    // Clamp coordinates to [-2.5, 2.5]
+    re = Math.max(Math.min(re, 2.5), -2.5);
+    im = Math.max(Math.min(im, 2.5), -2.5);
+
+    const isPoles = activeDragRoot.type === 'pole';
+    const pair = isPoles ? currentPoles[activeDragRoot.pairIdx] : currentZeros[activeDragRoot.pairIdx];
+
+    if (Math.abs(im) > 1e-4) {
+      // Complex conjugate motion: keep symmetry across real axis
+      pair.isConj = true;
+      if (activeDragRoot.rootIdx === 1) {
+        pair.r1.re = re; pair.r1.im = im;
+        pair.r2.re = re; pair.r2.im = -im;
+      } else {
+        pair.r2.re = re; pair.r2.im = im;
+        pair.r1.re = re; pair.r1.im = -im;
+      }
+    } else {
+      // Real root motion
+      pair.isConj = false;
+      if (activeDragRoot.rootIdx === 1) {
+        pair.r1.re = re; pair.r1.im = 0;
+      } else {
+        pair.r2.re = re; pair.r2.im = 0;
+      }
+    }
+
+    // Reconstruct real taps from roots
+    if (isPoles) {
+      const allRoots = [currentPoles[0].r1, currentPoles[0].r2, currentPoles[1].r1, currentPoles[1].r2];
+      const poly = rootsToCoeffs(allRoots);
+      // a0 remains preserved
+      const a0 = Math.abs(taps.a[0]) < 1e-6 ? 1.0 : taps.a[0];
+      for (let k = 1; k < 5; k++) {
+        const val = Math.max(Math.min(a0 * poly[k], 3.0), -3.0);
+        taps.a[k] = val;
+        document.getElementById(`a${k}_range`).value = val;
+        document.getElementById(`a${k}_num`).value = val.toFixed(2);
+      }
+    } else {
+      const allRoots = [currentZeros[0].r1, currentZeros[0].r2, currentZeros[1].r1, currentZeros[1].r2];
+      const poly = rootsToCoeffs(allRoots);
+      // b0 remains preserved or set to 1
+      const b0 = Math.abs(taps.b[0]) < 1e-6 ? 1.0 : taps.b[0];
+      for (let k = 1; k < 5; k++) {
+        const val = Math.max(Math.min(b0 * poly[k], 3.0), -3.0);
+        taps.b[k] = val;
+        document.getElementById(`b${k}_range`).value = val;
+        document.getElementById(`b${k}_num`).value = val.toFixed(2);
+      }
+    }
+
+    updateAll();
+  });
+
+  // Helper buttons to easily add or clear roots
+  function addPolePair() {
+    // Add pole pair at 12 kHz (90°) with r=0.85
+    let targetIdx = 0;
+    if (Math.hypot(currentPoles[0].r1.re, currentPoles[0].r1.im) > 1e-3) targetIdx = 1;
+    currentPoles[targetIdx] = { isConj: true, r1: { re: 0.0, im: 0.85 }, r2: { re: 0.0, im: -0.85 } };
+
+    const allRoots = [currentPoles[0].r1, currentPoles[0].r2, currentPoles[1].r1, currentPoles[1].r2];
+    const poly = rootsToCoeffs(allRoots);
+    const a0 = Math.abs(taps.a[0]) < 1e-6 ? 1.0 : taps.a[0];
+    for (let k = 1; k < 5; k++) {
+      const val = Math.max(Math.min(a0 * poly[k], 3.0), -3.0);
+      taps.a[k] = val;
+      document.getElementById(`a${k}_range`).value = val;
+      document.getElementById(`a${k}_num`).value = val.toFixed(2);
+    }
+    updateAll();
+  }
+
+  function addZeroPair() {
+    // Add zero pair at 12 kHz (90°) on unit circle
+    let targetIdx = 0;
+    if (Math.hypot(currentZeros[0].r1.re, currentZeros[0].r1.im) > 1e-3) targetIdx = 1;
+    currentZeros[targetIdx] = { isConj: true, r1: { re: 0.0, im: 1.0 }, r2: { re: 0.0, im: -1.0 } };
+
+    const allRoots = [currentZeros[0].r1, currentZeros[0].r2, currentZeros[1].r1, currentZeros[1].r2];
+    const poly = rootsToCoeffs(allRoots);
+    const b0 = Math.abs(taps.b[0]) < 1e-6 ? 1.0 : taps.b[0];
+    for (let k = 1; k < 5; k++) {
+      const val = Math.max(Math.min(b0 * poly[k], 3.0), -3.0);
+      taps.b[k] = val;
+      document.getElementById(`b${k}_range`).value = val;
+      document.getElementById(`b${k}_num`).value = val.toFixed(2);
+    }
+    updateAll();
+  }
+
+  function resetPoles() {
+    currentPoles = [
+      { isConj: false, r1: { re: 0, im: 0 }, r2: { re: 0, im: 0 } },
+      { isConj: false, r1: { re: 0, im: 0 }, r2: { re: 0, im: 0 } }
+    ];
+    for (let k = 1; k < 5; k++) {
+      taps.a[k] = 0;
+      document.getElementById(`a${k}_range`).value = 0;
+      document.getElementById(`a${k}_num`).value = (0).toFixed(2);
+    }
+    updateAll();
+  }
+
+  function drawWaveform(isStable, isOscillator, isUnstable, maxPoleMag) {
+    const canvas = document.getElementById('waveCanvas');
+    const ctx = canvas.getContext('2d');
+    const w = canvas.width, h = canvas.height;
+    const mid = h / 2;
+
+    ctx.clearRect(0, 0, w, h);
+
+    const a0 = Math.abs(taps.a[0]) < 1e-6 ? 1e-6 : taps.a[0];
+    const xHist = [0, 0, 0, 0];
+    const yHist = [0, 0, 0, 0];
+
+    const N = 80;
+    const xArr = [], yArr = [];
+
+    if (isStable) {
+      const warmupSamples = Math.min(Math.max(Math.ceil(5.0 / Math.max(1.0 - maxPoleMag, 0.001)), 200), 1200);
+
+      for (let n = 0; n < warmupSamples; n++) {
+        const x0 = Math.sin(2 * Math.PI * testFreq * n / fs);
+        let num = taps.b[0] * x0;
+        let den = 0;
+        for (let k = 1; k < 5; k++) {
+          num += taps.b[k] * xHist[k - 1];
+          den += taps.a[k] * yHist[k - 1];
+        }
+        let y0 = (num - den) / a0;
+        if (!isFinite(y0)) y0 = 0;
+        xHist.pop(); xHist.unshift(x0);
+        yHist.pop(); yHist.unshift(y0);
+      }
+
+      let maxVal = 0.0;
+      for (let n = warmupSamples; n < warmupSamples + N; n++) {
+        const x0 = Math.sin(2 * Math.PI * testFreq * n / fs);
+        let num = taps.b[0] * x0;
+        let den = 0;
+        for (let k = 1; k < 5; k++) {
+          num += taps.b[k] * xHist[k - 1];
+          den += taps.a[k] * yHist[k - 1];
+        }
+        let y0 = (num - den) / a0;
+        if (!isFinite(y0)) y0 = 0;
+        xHist.pop(); xHist.unshift(x0);
+        yHist.pop(); yHist.unshift(y0);
+
+        xArr.push(x0);
+        yArr.push(y0);
+        if (Math.abs(y0) > maxVal) maxVal = Math.abs(y0);
+      }
+
+      document.getElementById('waveStatusMsg').innerText = "Steady-State Reached";
+      document.getElementById('waveStatusMsg').style.color = "#3fb950";
+      document.getElementById('peakOutDisplay').innerText = `±${maxVal.toFixed(2)} (matches |H(f)|: ${computeH(testFreq).toFixed(2)}x)`;
+
+      renderWaveLines(ctx, w, h, mid, N, xArr, yArr, maxVal, false, false);
+
+    } else {
+      let maxVal = 1.0;
+      let blownUp = false;
+
+      for (let n = 0; n < N; n++) {
+        const x0 = Math.sin(2 * Math.PI * testFreq * n / fs);
+        let num = taps.b[0] * x0;
+        let den = 0;
+        for (let k = 1; k < 5; k++) {
+          num += taps.b[k] * xHist[k - 1];
+          den += taps.a[k] * yHist[k - 1];
+        }
+        let y0 = (num - den) / a0;
+
+        if (!isFinite(y0) || Math.abs(y0) > 1e4) {
+          blownUp = true;
+          y0 = y0 >= 0 ? 1e4 : -1e4;
+        }
+
+        xHist.pop(); xHist.unshift(x0);
+        yHist.pop(); yHist.unshift(y0);
+
+        xArr.push(x0);
+        yArr.push(y0);
+        if (!blownUp && Math.abs(y0) > maxVal) maxVal = Math.abs(y0);
+      }
+
+      if (isUnstable) {
+        document.getElementById('waveStatusMsg').innerText = "Exponential Divergence (Blowup)";
+        document.getElementById('waveStatusMsg').style.color = "#f85149";
+        document.getElementById('peakOutDisplay').innerText = `Diverges without bound (→ ∞)`;
+      } else {
+        document.getElementById('waveStatusMsg').innerText = "Pure Oscillator (No Damping)";
+        document.getElementById('waveStatusMsg').style.color = "#d29922";
+        document.getElementById('peakOutDisplay').innerText = `±${maxVal.toFixed(2)} at sample ${N} (grows linearly)`;
+      }
+
+      renderWaveLines(ctx, w, h, mid, N, xArr, yArr, maxVal, isUnstable, isOscillator);
+    }
+  }
+
+  function renderWaveLines(ctx, w, h, mid, N, xArr, yArr, maxVal, isUnstable, isOscillator) {
+    ctx.strokeStyle = '#21262d';
+    ctx.beginPath();
+    ctx.moveTo(0, mid); ctx.lineTo(w, mid);
+    ctx.stroke();
+
+    const dx = w / (N - 1);
+    const plotScale = Math.max(maxVal * 1.15, 1.5);
+
+    ctx.strokeStyle = '#6e7681';
+    ctx.setLineDash([4, 4]);
+    ctx.beginPath();
+    for (let i = 0; i < N; i++) {
+      const px = i * dx;
+      const py = mid - (xArr[i] / plotScale) * (mid - 15);
+      if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+    }
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    ctx.strokeStyle = isUnstable ? '#f85149' : (isOscillator ? '#e3b341' : '#38bdf8');
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    for (let i = 0; i < N; i++) {
+      const px = i * dx;
+      const clampedY = Math.max(Math.min(yArr[i], plotScale), -plotScale);
+      const py = mid - (clampedY / plotScale) * (mid - 15);
+      if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+    }
+    ctx.stroke();
+
+    if (isUnstable) {
+      ctx.fillStyle = 'rgba(248, 81, 73, 0.8)';
+      ctx.font = '12px monospace';
+      ctx.textAlign = 'right';
+      ctx.fillText('⚡ Amplitude escaping to ±∞', w - 15, 25);
+    } else if (isOscillator) {
+      ctx.fillStyle = '#e3b341';
+      ctx.font = '11px monospace';
+      ctx.textAlign = 'right';
+      ctx.fillText('▲ Linear growth: envelope increases every cycle', w - 15, 25);
+    }
+  }
+
+  function drawBode(isUnstable) {
+    const canvas = document.getElementById('bodeCanvas');
+    const ctx = canvas.getContext('2d');
+    const w = canvas.width, h = canvas.height;
+
+    ctx.clearRect(0, 0, w, h);
+
+    const freqs = [];
+    const gains = [];
+    let maxGain = 0.01;
+    let peakF = 0;
+
+    for (let f = 100; f <= 23900; f += 80) {
+      const g = computeH(f);
+      freqs.push(f);
+      gains.push(g);
+      if (g > maxGain) {
+        maxGain = g;
+        peakF = f;
+      }
+    }
+
+    if (isUnstable) {
+      document.getElementById('peakFreqDisplay').innerText = `${Math.round(peakF).toLocaleString()} Hz (Theoretical Math Only)`;
+    } else {
+      document.getElementById('peakFreqDisplay').innerText = `${Math.round(peakF).toLocaleString()} Hz (${maxGain.toFixed(1)}x)`;
+    }
+
+    const plotMaxGain = Math.max(maxGain * 1.15, 2.0);
+
+    ctx.strokeStyle = '#21262d';
+    ctx.beginPath();
+    for (const fGrid of [3000, 6000, 12000, 18000]) {
+      const gx = (fGrid / 24000) * w;
+      ctx.moveTo(gx, 0); ctx.lineTo(gx, h);
+    }
+    ctx.stroke();
+
+    if (isUnstable) {
+      ctx.strokeStyle = '#d29922';
+      ctx.lineWidth = 1.8;
+      ctx.setLineDash([4, 4]);
+    } else {
+      ctx.strokeStyle = '#2ea043';
+      ctx.lineWidth = 2.5;
+      ctx.setLineDash([]);
+    }
+
+    ctx.beginPath();
+    for (let i = 0; i < freqs.length; i++) {
+      const px = (freqs[i] / 24000) * w;
+      const py = h - (Math.min(gains[i], plotMaxGain) / plotMaxGain) * (h - 25) - 10;
+      if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+    }
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    const cursorX = (testFreq / 24000) * w;
+    const testGain = computeH(testFreq);
+    const cursorY = h - (Math.min(testGain, plotMaxGain) / plotMaxGain) * (h - 25) - 10;
+
+    ctx.strokeStyle = isUnstable ? '#f85149' : '#58a6ff';
+    ctx.lineWidth = 1.5;
+    ctx.setLineDash([3, 3]);
+    ctx.beginPath();
+    ctx.moveTo(cursorX, 0);
+    ctx.lineTo(cursorX, h);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    ctx.fillStyle = isUnstable ? '#f85149' : '#58a6ff';
+    ctx.beginPath();
+    ctx.arc(cursorX, cursorY, 5, 0, 2 * Math.PI);
+    ctx.fill();
+
+    ctx.fillStyle = '#6e7681';
+    ctx.font = '10px monospace';
+    ctx.textAlign = 'left';
+    ctx.fillText('0 Hz', 8, h - 8);
+    ctx.fillText('12 kHz', (12000 / 24000) * w - 18, h - 8);
+    ctx.fillText('24 kHz', w - 45, h - 8);
+  }
+
+  // Initialize
+  buildSliders();
+  applyPreset('lpf3k');
+</script>
+</body>
+</html>
